@@ -29,7 +29,6 @@ const readSMD = function (content) {
     if (items.length === 3) {
       let idx = parseInt(items[0]);
       let name = items[1].replace(/"/g, '');
-      let name = items[1].replace(/"/g, '');
       let parentIdx = parseInt(items[2]);
       if (parentIdx === -1) {
         rootIndex = idx;
