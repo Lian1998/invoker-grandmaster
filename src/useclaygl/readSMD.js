@@ -5,6 +5,22 @@ import { Quaternion, animation, Matrix4, Vector3 } from 'claygl';
  * Valve 的 smd 格式存储的是动画
  * 我需要理解之后制作成threejs的loader
  * 
+ * 文件格式:
+ * version {versionNo}
+ * nodes
+ *   {nodesNo} {boneName} {boneNo}
+ *   {nodesNo} {boneName} {boneNo}
+ *   ...
+ * end
+ * skeleton
+ * time {frameNo}
+ *   {boneNo} rx ry rz pz py px
+ *   {boneNo} rx ry rz pz py px
+ *   ...
+ * ...
+ * end
+ * 
+ * 
  * https://github.com/pissang/dota2hero/
  * 
  * @param {*} content 
@@ -14,7 +30,7 @@ const readSMD = function (content) {
     let lines = content.split('\n');
 
 
-    let joints = [];
+    let joints = []; // nodesIdx, nodesName
     let currentFrame = 0;
     let tracks = [];
 
