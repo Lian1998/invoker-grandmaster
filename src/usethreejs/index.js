@@ -36,19 +36,10 @@ controls.minDistance = 5;
 controls.maxDistance = 30;
 controls.maxPolarAngle = Math.PI / 2;
 
-// references
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-cube.name = 'Cube1.0';
-scene.add(cube);
-const axes = new THREE.AxesHelper(500);
-axes.name = 'AxesHelper';
-scene.add(axes);
-
 // animations
 let animationMixer = null;
 let model = null;
+const model_bones = [];
 
 // Loop
 const clock = new THREE.Clock();
@@ -58,15 +49,13 @@ function animate() {
     const deltaTime = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
 
-
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-    renderer.render(scene, camera);
-    controls.update();
-
     if (animationMixer) {
         animationMixer.update(deltaTime);
     }
+
+    renderer.render(scene, camera);
+    controls.update();
+
 }
 
 animate();
@@ -76,29 +65,26 @@ const dealwithModel = async () => {
 
     const texture_loader = new THREE.TextureLoader();
     const gltf_loader = new GLTFLoader();
+
     gltf_loader.load('/heroes/invoker/invoker.gltf', (gltf) => {
 
-        console.log('gltf', gltf);
+        // 处理模型
 
         model = gltf.scene;
-        model.traverse((child) => {
-            if (child.isSkinnedMesh) {
+        model.traverse(child => {
+            if (child.isBone) { model_bones.push(child); }
+            if (child.isMesh) {
                 if (!(child.material && child.material.name)) return;
 
                 const gltfMatName = child.material.name;
-
-
-                const source2HeroMaterial = new THREE.ShaderMaterial({
+                const dota2HeroMaterial = new THREE.ShaderMaterial({
                     uniforms: {
                         map: { value: null },
                         normalMap: { value: null },
                     },
-
                     vertexShader: vertexShader,
                     fragmentShader: fragmentShader
                 });
-
-                // console.log(source2HeroMaterial);
 
                 if (matJson[gltfMatName]) {
                     if (matJson[gltfMatName]['diffuseMap']) {
@@ -106,31 +92,50 @@ const dealwithModel = async () => {
                         t.flipY = false;
                         t.wrapS = THREE.RepeatWrapping;
                         t.wrapT = THREE.RepeatWrapping;
-                        source2HeroMaterial.uniforms.map.value = t;
+                        dota2HeroMaterial.uniforms.map.value = t;
                     }
                     if (matJson[gltfMatName]['normalMap']) {
                         const t = texture_loader.load(matJson[gltfMatName]['normalMap']);
                         t.flipY = false;
                         t.wrapS = THREE.RepeatWrapping;
                         t.wrapT = THREE.RepeatWrapping;
-                        source2HeroMaterial.uniforms.normalMap.value = t;
+                        dota2HeroMaterial.uniforms.normalMap.value = t;
                     }
                 }
 
-                source2HeroMaterial.needsUpdate = true;
-                child.material = source2HeroMaterial;
+                dota2HeroMaterial.needsUpdate = true;
+                child.material = dota2HeroMaterial;
+            }
+        });
+        const rootBone = model_bones[0];
+        const skeleton = new THREE.Skeleton(model_bones);
+        model.traverse(child => {
+            if (child.isSkinnedMesh) {
+                // child.visible = false;
+                // if (child.name === 'invoker_bracer_model') {
+                //     child.visible = true;
+                // }
+                console.log(child);
+                // child.bind(skeleton);
             }
         })
         model.scale.set(1 / 100.0, 1 / 100.0, 1 / 100.0);
+        scene.add(model);
+
+        // 处理动画
 
         dealwithAnimations();
 
-        scene.add(model);
+        // 添加Helpers对象
+
+        const axes = new THREE.AxesHelper(500);
+        axes.name = 'AxesHelper';
+        scene.add(axes);
 
         const skeletonHelper = new THREE.SkeletonHelper(model);
-        // skeletonHelper.visible = true;
-        console.log('skeletonHelper.bones', skeletonHelper.bones)
+        skeletonHelper.visible = true;
         scene.add(skeletonHelper);
+
     })
 }
 
@@ -141,11 +146,8 @@ const dealwithAnimations = () => {
     anim_loader.load('/heroes/invoker/smd/idle.smd', (clip) => {
         model.animations.push(clip);
 
-
         const idleAction = animationMixer.clipAction(clip, model);
-        model.needsUpdate = true;
-        idleAction.loop = THREE.LoopRepeat;
-        idleAction.weight = 1;
+        idleAction.timeScale = 30.0;
         idleAction.play();
     });
 }
