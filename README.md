@@ -43,3 +43,6 @@ blender导入V社文件的插件: http://steamreview.org/BlenderSourceTools/
 
 V社的HeroShader, 客制化模型过程 https://www.youtube.com/watch?v=RjSPY81cLmQ
 将模型/动画资源解包到Blender https://www.youtube.com/watch?v=Oyex10_9UUM
+
+
+使用VRF https://www.youtube.com/watch?v=odZz7sNbqDo
