@@ -21,11 +21,25 @@
 心神不宁。  
 可悲至极。  
 出师不利！  
-苍天愚弄我！  
+
+苍天愚弄我！苍天愚弄我！苍天愚弄我！  
+苍天愚弄我！苍天愚弄我！苍天愚弄我！  
+苍天愚弄我！苍天愚弄我！苍天愚弄我！  
 
 
-# 相关链接
-https://www.bilibili.com/video/BV1Z64y1M7wG/  
-https://github.com/pissang/dota2hero/  
-https://www.bilibili.com/read/cv15706566 http://steamreview.org/BlenderSourceTools/  
-https://www.dota2.com/workshop/requirements/invoker?l=schinese
+# 参考相关链接
+
+卡尔切球练习软件(exe) https://www.bilibili.com/video/BV1Z64y1M7wG/  
+ClayGL卡尔模型 https://github.com/pissang/dota2hero/  
+
+创意工坊资源 https://www.dota2.com/workshop/requirements/invoker?l=schinese
+
+blender导入smd文件: https://www.bilibili.com/read/cv15706566 
+blender导入V社文件的插件: http://steamreview.org/BlenderSourceTools/  
+
+卡尔的球: https://www.dota2.com/hero/invoker
+卡尔的球: https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/invoker.webm
+卡尔的球: https://www.bilibili.com/video/BV1PA4y1R7bU/
+
+V社的HeroShader, 客制化模型过程 https://www.youtube.com/watch?v=RjSPY81cLmQ
+将模型/动画资源解包到Blender https://www.youtube.com/watch?v=Oyex10_9UUM

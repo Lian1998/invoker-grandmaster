@@ -1,0 +1,16 @@
+{
+    {
+        "name": "cast_roll",
+        "path": "./animations/cast_roll"
+    },
+
+    {
+        "name": "cast",
+        "path": "./animations/cast"
+    },
+
+    {
+        "name": "idle",
+        "path": "./animations/idle"
+    }
+}
