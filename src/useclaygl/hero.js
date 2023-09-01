@@ -1,7 +1,7 @@
 import { application, plugin, Vector3, Shader, util, animation } from 'claygl';
 import readSMD from './readSMD';
 
-import heroFrag from '../shaders/hero.glsl?raw';
+import heroFrag from './shaders/hero.glsl?raw';
 Shader.import(heroFrag);
 const heroShader = new Shader(Shader.source('clay.standard.vertex'), Shader.source('hero.fragment'));
 
@@ -44,16 +44,16 @@ export const app = application.create(document.querySelector('#viewport1'), {
     },
 
     _loadRocks(app) {
-        return app.loadModel('/rock/rocks.gltf').then(result => {
+        return app.loadModel('/rock/rock.gltf').then(result => {
             let rockMaterial = app.createMaterial({
                 shader: heroShader,
-                diffuseMap: '/rock/textures/badside_rocks001.png',
-                maskMap2: '/rock/textures/badside_rocks001_spec.png',
+                diffuseMap: '/rock/badside_rocks001.png',
+                maskMap2: '/rock/badside_rocks001_spec.png',
                 textureFlipY: false
             });
             let rootNode = result.rootNode;
             rootNode.position.set(-5, 0, 0);
-            rootNode.scale.set(0.15, 0.15, 0.15);
+            rootNode.scale.set(8, 8, 8);
 
             for (let mesh of result.meshes) {
                 mesh.geometry.generateTangents();
