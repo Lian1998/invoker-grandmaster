@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { SMDLoader } from '../loaders/SMDLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 const GLOBAL = {};
@@ -80,8 +79,6 @@ const texture_loader = new THREE.TextureLoader();
 GLOBAL.texture_loader = texture_loader;
 const gltf_loader = new GLTFLoader();
 GLOBAL.gltf_loader = gltf_loader;
-const smd_loader = new SMDLoader();
-GLOBAL.smd_loader = smd_loader;
 
 const dealwithModel = async () => {
 
