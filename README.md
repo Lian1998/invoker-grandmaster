@@ -37,12 +37,13 @@ ClayGL卡尔模型 https://github.com/pissang/dota2hero/
 blender导入smd文件: https://www.bilibili.com/read/cv15706566 
 blender导入V社文件的插件: http://steamreview.org/BlenderSourceTools/  
 
-卡尔的球: https://www.dota2.com/hero/invoker
-卡尔的球: https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/invoker.webm
-卡尔的球: https://www.bilibili.com/video/BV1PA4y1R7bU/
+卡尔的球: https://www.dota2.com/hero/invoker  
+卡尔的球: https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/invoker.webm  
+卡尔的球: https://www.bilibili.com/video/BV1PA4y1R7bU/  
 
-V社的HeroShader, 客制化模型过程 https://www.youtube.com/watch?v=RjSPY81cLmQ
-将模型/动画资源解包到Blender https://www.youtube.com/watch?v=Oyex10_9UUM
+V社的HeroShader, 客制化模型过程 https://www.youtube.com/watch?v=RjSPY81cLmQ  
+将模型/动画资源解包到Blender https://www.youtube.com/watch?v=Oyex10_9UUM  
 
 
-使用VRF https://www.youtube.com/watch?v=odZz7sNbqDo
+使用VRF https://www.youtube.com/watch?v=odZz7sNbqDo  
+VRF github下载 https://valveresourceformat.github.io/  

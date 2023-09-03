@@ -51,7 +51,7 @@ class SMDLoader extends Loader {
         const scale = new Vector3(1, 1, 1);
 
         function handleJoint(line) {
-            const items = line.split(/\s+/);
+            let items = line.split(/\s+/);
             if (items.length > 3) {
                 items = [items[0], items.slice(1, items.length - 1).join(' '), items[items.length - 1]];
             }
