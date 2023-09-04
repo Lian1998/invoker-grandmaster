@@ -36,8 +36,8 @@ directional_light.shadow.camera.far = 30;
 directional_light.shadow.camera.fov = 50;
 GLOBAL.directional_light = directional_light;
 
-const spot_light = new THREE.SpotLight(0xffffff, 200, 30, Math.PI / 12);
-spot_light.position.set(0, 10, -2);
+const spot_light = new THREE.SpotLight(0xffffff, 200, 15, Math.PI / 6);
+spot_light.position.set(0, 6, -4);
 spot_light.shadow.camera.position.copy(spot_light.position);
 spot_light.castShadow = true;
 spot_light.shadow.mapSize.width = 1024;
@@ -257,6 +257,13 @@ const initHelpers = (active = true) => {
 
         directional_light_helper.visible = active;
         directional_light_helper1.visible = active;
+    }
+
+    if (GLOBAL.spot_light) {
+        const spot_light_helper = new THREE.SpotLightHelper(GLOBAL.spot_light);
+        scene.add(spot_light_helper);
+        const spot_light_helper1 = new THREE.CameraHelper(GLOBAL.directional_light.shadow.camera);
+        scene.add(spot_light_helper1);
     }
 
     if (HERO.heroModel) {
