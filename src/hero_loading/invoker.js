@@ -3,7 +3,10 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+// 指针集
 const GLOBAL = {};
+
+// 指针集
 const HERO = {};
 
 // clock
