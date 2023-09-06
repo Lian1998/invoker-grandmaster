@@ -3,11 +3,10 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// 指针集
-const GLOBAL = {};
 
-// 指针集
-const HERO = {};
+export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
+export const GLOBAL = {};
+export const HERO = {};
 
 // clock
 const clock = new THREE.Clock();
@@ -26,7 +25,7 @@ const hemisphere_light = new THREE.HemisphereLight(0xF99221, 0x79440A, 1);
 scene.add(hemisphere_light);
 GLOBAL.hemisphere_light = hemisphere_light;
 
-const directional_light = new THREE.DirectionalLight(0xFFDEDE, 10);
+const directional_light = new THREE.DirectionalLight(0xFFDEDE, 3);
 directional_light.position.set(2, 8, 8);
 directional_light.shadow.camera.position.copy(directional_light.position);
 scene.add(directional_light);
@@ -39,7 +38,7 @@ directional_light.shadow.camera.far = 30;
 directional_light.shadow.camera.fov = 50;
 GLOBAL.directional_light = directional_light;
 
-const spot_light = new THREE.SpotLight(0xffffff, 200, 15, Math.PI / 6);
+const spot_light = new THREE.SpotLight(0xffffff, 100, 15, Math.PI / 6);
 spot_light.position.set(0, 6, -4);
 spot_light.shadow.camera.position.copy(spot_light.position);
 spot_light.castShadow = true;
@@ -59,253 +58,281 @@ v.normalize().multiplyScalar(4.5);
 camera.position.copy(v);
 GLOBAL.camera = camera;
 
-// render
-const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#viewport1'), antialias: true });
-renderer.setClearColor(0x000000);
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-GLOBAL.renderer = renderer;
+export const initialize3D = (domElement) => {
 
-// controls
-const orbitcontrols = new OrbitControls(camera, renderer.domElement);
-orbitcontrols.minDistance = 3;
-orbitcontrols.maxDistance = 5;
-orbitcontrols.maxPolarAngle = Math.PI / 2;
-orbitcontrols.enableDamping = true;
-orbitcontrols.dampingFacto = 0.035;
-orbitcontrols.enablePan = false;
-GLOBAL.orbitcontrols = orbitcontrols;
+    // render
+    const renderer = new THREE.WebGLRenderer({ canvas: domElement, antialias: true });
+    renderer.setClearColor(0x000000);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    GLOBAL.renderer = renderer;
 
-// loaders
-const texture_loader = new THREE.TextureLoader();
-GLOBAL.texture_loader = texture_loader;
-const gltf_loader = new GLTFLoader();
-GLOBAL.gltf_loader = gltf_loader;
+    // controls
+    const orbitcontrols = new OrbitControls(camera, renderer.domElement);
+    orbitcontrols.minDistance = 3;
+    orbitcontrols.maxDistance = 5;
+    orbitcontrols.maxPolarAngle = Math.PI / 2;
+    orbitcontrols.enableDamping = true;
+    orbitcontrols.dampingFacto = 0.035;
+    orbitcontrols.enablePan = false;
+    GLOBAL.orbitcontrols = orbitcontrols;
 
-const dealwithModel = async () => {
+    // loaders
+    const texture_loader = new THREE.TextureLoader();
+    GLOBAL.texture_loader = texture_loader;
+    const gltf_loader = new GLTFLoader();
+    GLOBAL.gltf_loader = gltf_loader;
 
-    GLOBAL.gltf_loader.load('/rock/rock.gltf', (gltf) => {
+    const dealwithModel = async () => {
 
-        // 处理模型
-        const rockModel = gltf.scene;
-        HERO.rockModel = rockModel;
+        GLOBAL.gltf_loader.load('/rock/rock.gltf', (gltf) => {
 
-        rockModel.traverse(child => {
-            if (child.isMesh) {
-                child.receiveShadow = true;
-                if (child.material) {
-                    // 替换一下材质
-                    const oldMat = child.material;
-                    const newMat = new THREE.MeshPhysicalMaterial({
-                        map: oldMat.map,
-                        specularIntensityMap: GLOBAL.texture_loader.load('/rock/badside_rocks001_spec.png'),
-                        normalScale: oldMat.normalScale,
-                        roughness: oldMat.roughness,
-                        metalness: .6,
-                        reflectivity: .7,
-                    });
-                    newMat.generateMipmaps = true;
-                    newMat.needsUpdate = true;
-                    child.material = newMat;
+            // 处理模型
+            const rockModel = gltf.scene;
+            HERO.rockModel = rockModel;
+
+            rockModel.traverse(child => {
+                if (child.isMesh) {
+                    child.receiveShadow = true;
+                    if (child.material) {
+                        // 替换一下材质
+                        const oldMat = child.material;
+                        const newMat = new THREE.MeshPhysicalMaterial({
+                            map: oldMat.map,
+                            specularIntensityMap: GLOBAL.texture_loader.load('/rock/badside_rocks001_spec.png'),
+                            normalScale: oldMat.normalScale,
+                            roughness: oldMat.roughness,
+                            metalness: .6,
+                            reflectivity: .7,
+                        });
+                        newMat.generateMipmaps = true;
+                        newMat.needsUpdate = true;
+                        child.material = newMat;
+                    }
+                }
+            });
+
+            rockModel.scale.set(.5, .5, .5);
+            scene.add(rockModel);
+        });
+
+        GLOBAL.gltf_loader.load('/vrfcrack/invoker/invoker.gltf', (gltf) => {
+
+            // 处理模型
+            const heroModel = gltf.scene;
+            HERO.heroModel = heroModel;
+
+            // 动画资源
+            HERO.animations = gltf.animations;
+
+            heroModel.scale.set(.4, .4, .4);
+
+            heroModel.traverse(child => {
+                if (child.name === 'orb1') { HERO.attach_orb1 = child; }
+                else if (child.name === 'orb2') { HERO.attach_orb2 = child; }
+                else if (child.name === 'orb3') { HERO.attach_orb3 = child; }
+
+                if (child.isSkinnedMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true; // 高质量渲染, 超越Dota2
+                }
+            });
+
+            scene.add(heroModel);
+
+            // 处理动画
+            dealwithAnimations();
+
+            // 添加卡尔的球
+            const sphere_geometry = new THREE.SphereGeometry(.1, 20, 20);
+            const sphere_material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const orb1 = new THREE.Mesh(sphere_geometry, sphere_material);
+            const orb2 = new THREE.Mesh(sphere_geometry, sphere_material);
+            const orb3 = new THREE.Mesh(sphere_geometry, sphere_material);
+            HERO.attach_orb1.attach(orb1);
+            HERO.attach_orb2.attach(orb2);
+            HERO.attach_orb3.attach(orb3);
+
+            // 处理附加帮助图元
+            initHelpers(true);
+
+        });
+    }
+
+    const dealwithAnimations = () => {
+        const heroModel = HERO.heroModel;
+
+        const animationMixer = new THREE.AnimationMixer(heroModel);
+        HERO.animationMixer = animationMixer;
+
+        const animationMixer1 = new THREE.AnimationMixer(heroModel);
+        HERO.animationMixer1 = animationMixer1;
+
+        // 去除idle切片中的球运动
+        const idleClip = HERO.animations.find(item => item.name === 'idle');
+        const idleClip1Tracks = [];
+        idleClip.tracks.forEach(item => { if (item.name.indexOf('orb') === -1) { idleClip1Tracks.push(item); } });
+        const idleClip1 = new THREE.AnimationClip('idle', -1, idleClip1Tracks);
+        const idleAction = animationMixer.clipAction(idleClip1, heroModel);
+        idleAction.play();
+
+        // 添加球运动动画
+        const orbsClip = HERO.animations.find(item => item.name === '@orbs');
+        const orbsClip1Tracks = [];
+        orbsClip.tracks.forEach(item => { if (item.name.indexOf('orb') !== -1) { orbsClip1Tracks.push(item); } });
+        const orbsClip1 = new THREE.AnimationClip('orbs', -1, orbsClip1Tracks);
+        const orbsAction = animationMixer.clipAction(orbsClip1, heroModel);
+        orbsAction.blendMode = THREE.NormalAnimationBlendMode;
+        orbsAction.play();
+
+        // 左/右手切球动画
+        const orbsSpawnClip = HERO.animations.find(item => item.name === '@orb_spawn_rt');
+        const orbsSpawnClipL_Tracks = [];
+        const orbsSpawnClipR_Tracks = [];
+        orbsSpawnClip.tracks.forEach(item => {
+            const trackName = item.name;
+
+            if (trackName.toLowerCase().indexOf('orb') !== -1) { return; }
+
+            else if (trackName.toLowerCase().indexOf('root') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('spine') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('head') !== -1) { return; }
+
+            else if (trackName.toLowerCase().indexOf('shoulder') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('clavicle') !== -1) { return; }
+
+            else if (trackName.toLowerCase().indexOf('thigh') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('knee') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('ankle') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('toe') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('tobase') !== -1) { return; }
+
+            else if (trackName.toLowerCase().indexOf('cape') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('belt') !== -1) { return; }
+            else if (trackName.toLowerCase().indexOf('manskirt') !== -1) { return; }
+
+            else {
+                if (trackName.indexOf('_L.') !== -1) { orbsSpawnClipL_Tracks.push(item); }
+                if (trackName.indexOf('_R.') !== -1) { orbsSpawnClipR_Tracks.push(item); }
+            }
+        });
+        const orbsSpawnClipL = new THREE.AnimationClip('orbsSpawnL', -1, orbsSpawnClipL_Tracks);
+        const orbsSpawnClipR = new THREE.AnimationClip('orbsSpawnR', -1, orbsSpawnClipR_Tracks);
+        const orbsSpawnActionL = animationMixer1.clipAction(orbsSpawnClipL, heroModel);
+        const orbsSpawnActionR = animationMixer1.clipAction(orbsSpawnClipR, heroModel);
+        orbsSpawnActionL.blendMode = THREE.NormalAnimationBlendMode;
+        orbsSpawnActionL.loop = THREE.LoopOnce;
+        orbsSpawnActionR.blendMode = THREE.NormalAnimationBlendMode;
+        orbsSpawnActionR.loop = THREE.LoopOnce;
+        HERO.orbsSpawnActionL = orbsSpawnActionL;
+        HERO.orbsSpawnActionR = orbsSpawnActionR;
+
+        // 动画测试
+        let lastAction = null;
+        window.addEventListener('keydown', () => {
+
+            if (HERO.orbsSpawnActionL.time === 0) {
+                HERO.orbsSpawnActionL.reset();
+                HERO.orbsSpawnActionL.play();
+                lastAction = HERO.orbsSpawnActionL;
+                return;
+            }
+
+            else if (HERO.orbsSpawnActionR.time === 0) {
+                HERO.orbsSpawnActionR.reset();
+                HERO.orbsSpawnActionR.play();
+                lastAction = HERO.orbsSpawnActionR;
+                return;
+            }
+
+            else {
+                if (lastAction === HERO.orbsSpawnActionL) {
+                    HERO.orbsSpawnActionR.reset();
+                    HERO.orbsSpawnActionR.play();
+                    lastAction = HERO.orbsSpawnActionR;
+                    return;
+                } else {
+                    HERO.orbsSpawnActionL.reset();
+                    HERO.orbsSpawnActionL.play();
+                    lastAction = HERO.orbsSpawnActionL;
+                    return;
                 }
             }
-        });
+        })
+    }
 
-        rockModel.scale.set(.5, .5, .5);
-        scene.add(rockModel);
-    });
+    const initHelpers = (active = true) => {
 
+        // grid
+        const grid = new THREE.GridHelper(100, 100, 0xffffff, 0xffffff);
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        grid.name = 'GridHelper';
+        scene.add(grid);
+        grid.visible = active;
 
-    GLOBAL.gltf_loader.load('/vrfcrack/invoker/invoker.gltf', (gltf) => {
+        // axes
+        const axes = new THREE.AxesHelper(500);
+        axes.name = 'AxesHelper';
+        scene.add(axes);
+        axes.visible = active;
 
-        // console.log(gltf);
+        // directional
+        if (GLOBAL.directional_light) {
+            const directional_light_helper = new THREE.DirectionalLightHelper(GLOBAL.directional_light, 5);
+            scene.add(directional_light_helper);
+            const directional_light_helper1 = new THREE.CameraHelper(GLOBAL.directional_light.shadow.camera);
+            scene.add(directional_light_helper1);
 
-        // 处理模型
-        const heroModel = gltf.scene;
-        HERO.heroModel = heroModel;
-
-        // 动画资源
-        HERO.animations = gltf.animations;
-
-        heroModel.scale.set(.4, .4, .4);
-
-        heroModel.traverse(child => {
-            if (child.isBone) { console.log(child.name); }
-
-            if (child.name === 'orb1') { HERO.attach_orb1 = child; }
-            else if (child.name === 'orb2') { HERO.attach_orb2 = child; }
-            else if (child.name === 'orb3') { HERO.attach_orb3 = child; }
-
-            if (child.isSkinnedMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true; // 高质量渲染, 超越Dota2
-            }
-        });
-
-        scene.add(heroModel);
-
-        // 处理动画
-        dealwithAnimations();
-
-        // 处理附加帮助图元
-        initHelpers(true);
-
-        // 添加卡尔的球
-        const sphere_geometry = new THREE.SphereGeometry(.1, 20, 20);
-        const sphere_material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const orb1 = new THREE.Mesh(sphere_geometry, sphere_material);
-        const orb2 = new THREE.Mesh(sphere_geometry, sphere_material);
-        const orb3 = new THREE.Mesh(sphere_geometry, sphere_material);
-        HERO.attach_orb1.attach(orb1);
-        HERO.attach_orb2.attach(orb2);
-        HERO.attach_orb3.attach(orb3);
-
-    });
-}
-
-const dealwithAnimations = () => {
-    const heroModel = HERO.heroModel;
-
-    const animationMixer = new THREE.AnimationMixer(heroModel);
-    HERO.animationMixer = animationMixer;
-
-    const animationMixer1 = new THREE.AnimationMixer(heroModel);
-    HERO.animationMixer1 = animationMixer1;
-
-    // console.log(HERO.animations);
-
-    // 去除idle切片中的球运动
-    const idleClip = HERO.animations.find(item => item.name === 'idle');
-    const idleClip1Tracks = [];
-    idleClip.tracks.forEach(item => { if (item.name.indexOf('orb') === -1) { idleClip1Tracks.push(item); } });
-    const idleClip1 = new THREE.AnimationClip('idle', -1, idleClip1Tracks);
-    console.log('idleClip1', idleClip1);
-    const idleAction = animationMixer.clipAction(idleClip1, heroModel);
-    idleAction.play();
-
-    // 添加球运动动画
-    const orbsClip = HERO.animations.find(item => item.name === '@orbs');
-    const orbsClip1Tracks = [];
-    orbsClip.tracks.forEach(item => { if (item.name.indexOf('orb') !== -1) { orbsClip1Tracks.push(item); } });
-    const orbsClip1 = new THREE.AnimationClip('orbs', -1, orbsClip1Tracks);
-    console.log('orbsClip1', orbsClip1);
-    const orbsAction = animationMixer.clipAction(orbsClip1, heroModel);
-    orbsAction.blendMode = THREE.NormalAnimationBlendMode;
-    orbsAction.play();
-
-    // 左手切球动画
-    const orbsSpawnClip = HERO.animations.find(item => item.name === '@orb_spawn_rt');
-    const orbsSpawnClip1Tracks = [];
-    orbsSpawnClip.tracks.forEach(item => {
-        const trackName = item.name;
-
-        if (trackName.toLowerCase().indexOf('orb') !== -1) { return; }
-
-        else if (trackName.toLowerCase().indexOf('root') !== -1) { return; }
-        else if (trackName.toLowerCase().indexOf('spine') !== -1) { return; }
-        else if (trackName.toLowerCase().indexOf('head') !== -1) { return; }
-
-        else if (trackName.toLowerCase().indexOf('shoulder') !== -1) { return; }
-        else if (trackName.toLowerCase().indexOf('clavicle') !== -1) { return; }
-
-        else if (trackName.toLowerCase().indexOf('thigh') !== -1) { return; }
-        else if (trackName.toLowerCase().indexOf('knee') !== -1) { return; }
-        else if (trackName.toLowerCase().indexOf('ankle') !== -1) { return; }
-        else if (trackName.toLowerCase().indexOf('toe') !== -1) { return; }
-        else if (trackName.toLowerCase().indexOf('tobase') !== -1) { return; }
-
-        else if (trackName.toLowerCase().indexOf('cape') !== -1) { return; }
-        else if (trackName.toLowerCase().indexOf('manskirt') !== -1) { return; }
-
-        else {
-            orbsSpawnClip1Tracks.push(item);
+            directional_light_helper.visible = active;
+            directional_light_helper1.visible = active;
         }
-    });
-    const orbsSpawnClip1 = new THREE.AnimationClip('orbsSpawn', -1, orbsSpawnClip1Tracks);
-    const orbsSpawnAction = animationMixer1.clipAction(orbsSpawnClip1, heroModel);
-    orbsSpawnAction.blendMode = THREE.NormalAnimationBlendMode;
-    orbsSpawnAction.loop = THREE.LoopOnce;
-    HERO.orbsSpawnAction = orbsSpawnAction;
 
-    window.addEventListener('keydown', () => {
-        HERO.orbsSpawnAction.reset();
-        HERO.orbsSpawnAction.play();
-    })
+        if (GLOBAL.spot_light) {
+            const spot_light_helper = new THREE.SpotLightHelper(GLOBAL.spot_light);
+            scene.add(spot_light_helper);
+            const spot_light_helper1 = new THREE.CameraHelper(GLOBAL.directional_light.shadow.camera);
+            scene.add(spot_light_helper1);
+        }
 
-}
+        if (HERO.heroModel) {
+            const skeletonHelper = new THREE.SkeletonHelper(HERO.heroModel);
+            scene.add(skeletonHelper);
 
-const initHelpers = (active = true) => {
-
-    // grid
-    const grid = new THREE.GridHelper(100, 100, 0xffffff, 0xffffff);
-    grid.material.opacity = 0.2;
-    grid.material.transparent = true;
-    grid.name = 'GridHelper';
-    scene.add(grid);
-    grid.visible = active;
-
-    // axes
-    const axes = new THREE.AxesHelper(500);
-    axes.name = 'AxesHelper';
-    scene.add(axes);
-    axes.visible = active;
-
-    // directional
-    if (GLOBAL.directional_light) {
-        const directional_light_helper = new THREE.DirectionalLightHelper(GLOBAL.directional_light, 5);
-        scene.add(directional_light_helper);
-        const directional_light_helper1 = new THREE.CameraHelper(GLOBAL.directional_light.shadow.camera);
-        scene.add(directional_light_helper1);
-
-        directional_light_helper.visible = active;
-        directional_light_helper1.visible = active;
+            skeletonHelper.visible = active;
+        }
     }
 
-    if (GLOBAL.spot_light) {
-        const spot_light_helper = new THREE.SpotLightHelper(GLOBAL.spot_light);
-        scene.add(spot_light_helper);
-        const spot_light_helper1 = new THREE.CameraHelper(GLOBAL.directional_light.shadow.camera);
-        scene.add(spot_light_helper1);
+    // Loop
+    function animate() {
+
+        requestAnimationFrame(animate);
+
+        const deltaTime = clock.getDelta();
+        const elapsedTime = clock.getElapsedTime();
+
+        if (HERO.animationMixer) {
+            HERO.animationMixer.update(deltaTime);
+        }
+
+        // 手部动画复写
+        if (HERO.animationMixer1) {
+            HERO.animationMixer1.update(deltaTime);
+        }
+
+        renderer.render(scene, camera);
+
+        if (GLOBAL.orbitcontrols) { orbitcontrols.update(); }
+
     }
-
-    if (HERO.heroModel) {
-        const skeletonHelper = new THREE.SkeletonHelper(HERO.heroModel);
-        scene.add(skeletonHelper);
-
-        skeletonHelper.visible = active;
-    }
-}
-
-
-// Loop
-function animate() {
-
-    requestAnimationFrame(animate);
-
-    const deltaTime = clock.getDelta();
-    const elapsedTime = clock.getElapsedTime();
-
-    if (HERO.animationMixer) {
-        HERO.animationMixer.update(deltaTime);
-    }
-
-    // 手部动画复写
-    if (HERO.animationMixer1) {
-        HERO.animationMixer1.update(deltaTime);
-    }
-
-    renderer.render(scene, camera);
-
-    if (GLOBAL.orbitcontrols) { orbitcontrols.update(); }
-
-}
-
-window.addEventListener('load', () => {
 
     animate();
-
     dealwithModel();
-})
+}
 
-export const app = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
+
+
+
+
+

@@ -1,5 +1,11 @@
 import 'normalize.css'
+import { initialize3D, INFO } from './hero_loading/invoker';
 
-import { app } from './hero_loading/invoker';
+console.log(INFO);
 
-console.log(app);
+window.addEventListener('load', () => {
+
+    initialize3D(document.querySelector('#viewport1'));
+
+})
+
