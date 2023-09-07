@@ -1,15 +1,13 @@
-bool isPerspectiveMatrix(mat4 m) {
-    return m[2][3] == -1.0;
-}
 
-float rotation = 0.;
-vec2 center = vec2(.5);
+// float rotation = 0.;
 
 varying vec2 vUv;
 
 void main() {
 
     vUv = uv;
+    
+    vec2 center = vec2(.5);
 
     // object位置vec4, 齐次坐标(homogeneous coordinates)
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); 
