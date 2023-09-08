@@ -136,6 +136,11 @@ export const initialize3D = (domElement) => {
                 if (child.isSkinnedMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true; // 高质量渲染, 超越Dota2
+
+                    console.log(child.material);
+
+                    // child.material.transparent = true;
+                    // child.material.opacity = .5;
                 }
             });
 

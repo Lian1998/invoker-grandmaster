@@ -1,4 +1,4 @@
-uniform sampler2D uMap; // 渲染采样
+uniform sampler2D uMap;
 uniform sampler2D uMask;
 uniform vec2 uResolution;
 
