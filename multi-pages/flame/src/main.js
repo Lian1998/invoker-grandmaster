@@ -1,454 +1,505 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
-const containerDiv = document.querySelector('#viewport-cotnainer');
-containerDiv.style.width = '100%';
-containerDiv.style.height = '100vh';
-
-const clientQualityMap = {};
-const getClientQuality = (queryString = '#viewport') => {
-    let el = null;
-    if (clientQualityMap[queryString]) { el = clientQualityMap[queryString]; }
-    else { el = document.querySelector(queryString); }
-    if (!el) { throw new Error(`getClientQuality(queryString): could not find '${queryString}'`); }
-    const parentNode = el.parentNode;
-    const { width, height } = parentNode.getBoundingClientRect();
-    const pixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
-    const width_pixcel_num = width * pixelRatio;
-    const height_pixcel_num = height * pixelRatio;
-    return { el, width, height, pixelRatio, width_pixcel_num, height_pixcel_num };
-}
-
-const { el, width, height, pixelRatio, width_pixcel_num, height_pixcel_num } = getClientQuality();
-
-const scene = new THREE.Scene();
-const clock = new THREE.Clock();
-const camera = new THREE.PerspectiveCamera(75, width_pixcel_num / height_pixcel_num, 0.1, 1000);
-camera.position.set(0, 0, 5);
-
-const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true, stencil: false });
-renderer.setSize(width_pixcel_num, height_pixcel_num);
-renderer.setPixelRatio(pixelRatio);
-renderer.setClearColor(0x000000);
-
-const rtt = new THREE.WebGLRenderTarget(width_pixcel_num, height_pixcel_num);
-rtt.texture.colorSpace = THREE.SRGBColorSpace;
-
-const orbitcontrols = new OrbitControls(camera, renderer.domElement);
-orbitcontrols.maxPolarAngle = Math.PI / 2;
-
-const textureLoader = new THREE.TextureLoader();
+import fireVertexShader from './fireVert.glsl?raw'
+import fireFragmentShader from './fireFrag.glsl?raw'
+import embersVertexShader from './emberVert.glsl?raw'
+import embersFragmentShader from './emberFrag.glsl?raw'
+import hazeVertexShader from './hazeVert.glsl?raw'
+import hazeFragmentShader from './hazeFrag.glsl?raw'
 
 
-// 工具函数
+(function () {
+    var _renderer, _scene, _camera, _controls, _rtt, _fire;
+    var _width, _height;
 
-/**
- * 取随机数
- * @param {*} min 范围最小值
- * @param {*} max 范围最大值
- * @param {*} precision 精度
- * @returns 
- */
-const random = (min, max, precision) => {
-    var p = Math.pow(10, precision);
-    return Math.round((min + Math.random() * (max - min)) * p) / p;
-}
+    window.onload = init;
 
-
-// 变量
-const _axisx = new THREE.Vector3(1, 0, 0);
-const _axisy = new THREE.Vector3(0, 1, 0);
-const _axisz = new THREE.Vector3(0, 0, 1);
-const _quat = new THREE.Quaternion();
-const _quat_1 = new THREE.Quaternion();
-
-// 背景
-const t_rock = textureLoader.load('/flame/rock.jpg');
-t_rock.colorSpace = THREE.SRGBColorSpace;
-const bgMesh = new THREE.Mesh(
-    new THREE.BoxGeometry(4, 4, 4),
-    new THREE.MeshBasicMaterial({ side: THREE.BackSide, map: t_rock })
-);
-scene.add(bgMesh);
-
-// 倒影平面
-const invert_group = new THREE.Group();
-const invert_plane_geom = new THREE.PlaneGeometry(5., 5.);
-const invert_plane = new THREE.Mesh(invert_plane_geom, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-invert_group.add(invert_plane);
-
-const invert_frame_geom = new THREE.BufferGeometry();
-const planeAttributes = invert_plane_geom.attributes.position;
-invert_frame_geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(4 * 3), 3));
-const indexes = [0, 1, 3, 2];
-for (let i = 0; i < indexes.length; i++) {
-    invert_frame_geom.attributes.position.setXYZ(
-        i,
-        planeAttributes.getX(indexes[i]),
-        planeAttributes.getY(indexes[i]),
-        planeAttributes.getZ(indexes[i])
-    );
-}
-invert_frame_geom.attributes.position.needsUpdate = true;
-const invert_frame = new THREE.LineLoop(invert_frame_geom, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 1 }));
-invert_group.add(invert_frame);
-
-scene.add(invert_group);
-invert_group.rotateX(-Math.PI / 2);
-invert_group.position.set(0, -5, 0);
-
-// // 精灵
-// const sprite = new THREE.Sprite(
-//     new THREE.SpriteMaterial({ map: textureLoader.load('/flame/sprite.jpg') })
-// );
-// sprite.position.set(0, 5, 0);
-// scene.add(sprite);
-
-// // 精灵1(shaderMaterial)
-// import mySpriteVert from './mySpriteVert.glsl?raw';
-// import mySpriteFrag from './mySpriteFrag.glsl?raw';
-// const planeGeom = new THREE.PlaneGeometry(1., 1.);
-// const mySpriteMaterial = new THREE.ShaderMaterial({
-//     uniforms: {
-//         map: { value: textureLoader.load('/flame/sprite.jpg') },
-//         scale: { value: new THREE.Vector2(1, 1) },
-//     },
-//     vertexShader: mySpriteVert,
-//     fragmentShader: mySpriteFrag,
-//     side: THREE.DoubleSide
-// });
-// const sprite1 = new THREE.Mesh(planeGeom, mySpriteMaterial);
-// // const sprite1 = new THREE.Mesh(planeGeom, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-// sprite1.position.set(0, 10, 0);
-// scene.add(sprite1);
-
-// 火焰
-import flameVert from './flameVert.glsl?raw'
-import flameFrag from './flameFrag.glsl?raw'
-const t_flame = textureLoader.load('/flame/flame.png');
-t_flame.colorSpace = THREE.SRGBColorSpace;
-let flame = {};
-{
-    const vertex_num = 12;
-    flame.vertex_num = vertex_num;
-
-    const _geometry = new THREE.InstancedBufferGeometry();
-    _geometry.instanceCount = vertex_num;
-
-    const planeGeom = new THREE.PlaneGeometry(1, 1);
-    planeGeom.translate(0, .4, 0); // 平移顶点在buffer中的位置, 这个数值涉及到帧图片每帧的重心
-
-    // attributes
-    _geometry.setAttribute(
-        'position',
-        new THREE.BufferAttribute(new Float32Array(planeGeom.attributes.position.array), 3)
-    );
-    _geometry.setAttribute(
-        'uv',
-        new THREE.BufferAttribute(new Float32Array(planeGeom.attributes.uv.array), 2)
-    );
-    _geometry.setAttribute(
-        'normal',
-        new THREE.BufferAttribute(new Float32Array(planeGeom.attributes.normal.array), 3)
-    );
-    _geometry.setIndex(
-        new THREE.BufferAttribute(new Uint16Array(planeGeom.index.array), 1)
-    );
-    planeGeom.dispose();
-
-    // attributes1
-    const lifeArr = [];
-    const orientationArr = [];
-    for (let i = 0; i < vertex_num; i++) {
-        lifeArr[i] = i / vertex_num + 1;
-        orientationArr[4 * i] = 0;
-        orientationArr[4 * i + 1] = 0;
-        orientationArr[4 * i + 2] = 0;
-        orientationArr[4 * i + 3] = 1;
-    }
-    _geometry.setAttribute(
-        'orientation',
-        new THREE.InstancedBufferAttribute(new Float32Array(orientationArr), 4)
-    );
-    _geometry.setAttribute(
-        'life',
-        new THREE.InstancedBufferAttribute(new Float32Array(lifeArr), 1)
-    );
-    flame.geometry = _geometry;
-
-    const _material = new THREE.ShaderMaterial({
-        uniforms: {
-            uMap: { value: t_flame },
-            uColor1: { value: new THREE.Color(0x961800) }, // red
-            uColor2: { value: new THREE.Color(0x4b5828) }, // yellow
-            uTime: { value: 0 },
-        },
-        vertexShader: flameVert,
-        fragmentShader: flameFrag,
-        blending: THREE.AdditiveBlending,
-        transparent: true,
-        depthWrite: false,
-        side: THREE.DoubleSide,
-    });
-    flame.material = _material;
-
-    const _mesh = new THREE.Mesh(_geometry, _material);
-    _mesh.frustumCulled = false;
-    flame.mesh = _mesh;
-
-    scene.add(_mesh);
-}
-
-// 灰烬点
-import emberVert from './emberVert.glsl?raw'
-import emberFrag from './emberFrag.glsl?raw'
-const t_ember = textureLoader.load('/flame/ember.png');
-t_ember.colorSpace = THREE.SRGBColorSpace;
-let ember = {}
-{
-    const vertex_num = 4;
-    ember.vertex_num = vertex_num;
-
-    const _geometry = new THREE.BufferGeometry();
-    _geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertex_num * 3), 3));
-    _geometry.setAttribute('life', new THREE.BufferAttribute(new Float32Array(vertex_num), 1));
-    _geometry.setAttribute('random', new THREE.BufferAttribute(new Float32Array(vertex_num), 1));
-    _geometry.setAttribute('offset', new THREE.BufferAttribute(new Float32Array(vertex_num * 3), 3));
-    ember.geometry = _geometry;
-
-    for (let i = 0; i < vertex_num; i++) {
-        _geometry.attributes.life.array[i] += i / vertex_num;
+    function init() {
+        initWorld();
+        initScene();
     }
 
-    const _material = new THREE.ShaderMaterial({
-        uniforms: {
-            uMap: { value: t_ember },
-            uColor: { value: new THREE.Color(0xffe61e) },
-        },
-        vertexShader: emberVert,
-        fragmentShader: emberFrag,
-        blending: THREE.AdditiveBlending,
-        transparent: true,
-        depthTest: false,
-    });
-    ember.material = _material;
+    //=====// Utils //========================================//     
 
-    const _mesh = new THREE.Points(_geometry, _material);
-    _mesh.frustumCulled = false;
-    ember.mesh = _mesh;
-
-    scene.add(_mesh);
-}
-
-// 热效应
-import hazeVert from './hazeVert.glsl?raw'
-import hazeFrag from './hazeFrag.glsl?raw'
-const t_haze = textureLoader.load('/flame/haze.png');
-t_haze.colorSpace = THREE.SRGBColorSpace;
-let haze = {};
-{
-    const vertex_num = 12;
-    haze.vertex_num = vertex_num;
-
-    const _geometry = new THREE.InstancedBufferGeometry();
-    _geometry.instanceCount = vertex_num;
-    haze.geometry = _geometry;
-
-    const planeGeom = new THREE.PlaneGeometry(2, 2);
-    _geometry.setAttribute(
-        'position',
-        new THREE.BufferAttribute(new Float32Array(planeGeom.attributes.position.array), 3)
-    );
-    _geometry.setAttribute(
-        'uv',
-        new THREE.BufferAttribute(new Float32Array(planeGeom.attributes.uv.array), 2)
-    );
-    _geometry.setAttribute(
-        'normal',
-        new THREE.BufferAttribute(new Float32Array(planeGeom.attributes.normal.array), 3)
-    );
-    _geometry.setIndex(
-        new THREE.BufferAttribute(new Uint16Array(planeGeom.index.array), 1)
-    );
-    planeGeom.dispose();
-
-
-    const base = new THREE.InstancedBufferAttribute(new Float32Array(vertex_num * 3), 3);
-    const offset = new THREE.InstancedBufferAttribute(new Float32Array(vertex_num * 3), 3);
-    const orientation = new THREE.InstancedBufferAttribute(new Float32Array(vertex_num * 4), 4);
-    const scale = new THREE.InstancedBufferAttribute(new Float32Array(vertex_num * 2), 2);
-    const rotation = new THREE.InstancedBufferAttribute(new Float32Array(vertex_num), 1);
-    const life = new THREE.InstancedBufferAttribute(new Float32Array(vertex_num), 1);
-
-    for (let i = 0; i < vertex_num; i++) {
-        orientation.setXYZW(i, 0, 0, 0, 1);
-        life.setX(i, i / vertex_num + 1);
+    function random(min, max, precision) {
+        var p = Math.pow(10, precision);
+        return Math.round((min + Math.random() * (max - min)) * p) / p;
     }
 
-    _geometry.setAttribute('base', base);
-    _geometry.setAttribute('offset', offset);
-    _geometry.setAttribute('orientation', orientation);
-    _geometry.setAttribute('scale', scale);
-    _geometry.setAttribute('rotation', rotation);
-    _geometry.setAttribute('life', life);
+    //=====// World //========================================//     
 
-    const _material = new THREE.ShaderMaterial({
-        uniforms: {
-            uMap: { value: rtt.texture },
-            uMask: { value: t_haze },
-            uResolution: { value: new THREE.Vector2(width_pixcel_num, height_pixcel_num) },
-        },
-        vertexShader: hazeVert,
-        fragmentShader: hazeFrag,
-        transparent: true,
-        depthTest: false,
-    });
-    haze.material = _material;
+    function initWorld() {
+        _renderer = new THREE.WebGLRenderer();
+        _renderer.setPixelRatio(2);
+        _renderer.setSize(window.innerWidth, window.innerHeight);
+        _renderer.setClearColor(0x000000);
+        document.body.appendChild(_renderer.domElement);
 
-    const _mesh = new THREE.Mesh(_geometry, _material);
-    _mesh.frustumCulled = false;
-    scene.add(_mesh);
-    haze.mesh = _mesh;
+        _scene = new THREE.Scene();
 
+        _camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        _camera.position.set(0, 0, 4);
+        _camera.target = new THREE.Vector3();
+        _camera.lookAt(_camera.target);
 
-}
+        _controls = new OrbitControls(_camera, _renderer.domElement);
+        _controls.enableDamping = true;
+        // _controls.dampingFactor = 0.1;
+        // _controls.rotateSpeed = 0.1;
 
-
-const animate = () => {
-
-    requestAnimationFrame(animate);
-
-    const deltaTime = clock.getDelta();
-    const elapsedTime = clock.getElapsedTime();
-
-    // 进行一次离屏渲染
-    flame.mesh.visible = false;
-    ember.mesh.visible = false;
-    invert_group.visible = false;
-    haze.mesh.visible = false;
-    renderer.setRenderTarget(rtt);
-    renderer.render(scene, camera);
-
-    // flame
-    flame.mesh.visible = true;
-    if (flame.geometry && flame.material) {
-        const a_life = flame.geometry.attributes.life;
-        const a_orientation = flame.geometry.attributes.orientation;
-        for (let i = 0; i < flame.vertex_num; i++) {
-            let life_val = a_life.array[i];
-            life_val += 0.08;
-            if (life_val > 1) {
-                life_val -= 1;
-                _quat.setFromAxisAngle(_axisy, random(0, 3.14, 3)); // y轴变化
-                _quat_1.setFromAxisAngle(_axisx, random(-1, 1, 2) * 0.1); // x轴变化
-                _quat.multiply(_quat_1);
-                _quat_1.setFromAxisAngle(_axisz, random(-1, 1, 2) * 0.3); // z轴变化
-                _quat.multiply(_quat_1);
-                a_orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
-            }
-            a_life.setX(i, life_val);
-        }
-        a_life.needsUpdate = true;
-        a_orientation.needsUpdate = true;
-
-        const u_time = flame.material.uniforms.uTime;
-        u_time.value = elapsedTime;
+        window.addEventListener('resize', resize, false);
+        resize();
+        requestAnimationFrame(render);
     }
 
-    // ember
-    ember.mesh.visible = true;
-    if (ember.geometry && ember.material) {
-        const a_life = ember.geometry.attributes.life;
-        const a_position = ember.geometry.attributes.position;
-        const a_offset = ember.geometry.attributes.offset;
-        const a_random = ember.geometry.attributes.random;
-        for (let i = 0; i < ember.vertex_num; i++) {
-            let life_val = a_life.array[i];
-            life_val += 0.015 + 0.005 * random(0., 1., 3);
-            if (life_val > 1) {
-                life_val -= 1;
-                if (!flame.mesh) continue;
-                a_position.setXYZ(i, flame.mesh.position.x, flame.mesh.position.y + 0.1, flame.mesh.position.z);
-                a_offset.setXYZ(i, random(-0.3, 0.3, 3), random(0.6, 1.4, 3), random(-0.3, 0.3, 3));
-            }
-            a_life.setX(i, life_val);
-            a_random.setX(i, random(0., 1., 3));
-        }
-        a_life.needsUpdate = true;
-        a_position.needsUpdate = true;
-        a_offset.needsUpdate = true;
-        a_random.needsUpdate = true;
+    function resize() {
+        _width = window.innerWidth;
+        _height = window.innerHeight;
+        _renderer.setSize(_width, _height);
+        _camera.aspect = _width / _height;
+        _camera.updateProjectionMatrix();
+        resetRT();
     }
 
+    function resetRT() {
+        var _parameters = {
+            minFilter: THREE.LinearFilter,
+            magFilter: THREE.LinearFilter,
+            format: THREE.RGBAFormat,
+            stencilBuffer: false
+        };
+        if (_rtt) _rtt.dispose();
+        _rtt = new THREE.WebGLRenderTarget(_width * 0.5, _height * 0.5, _parameters);
+        _rtt.texture.colorSpace = THREE.SRGBColorSpace;
+    }
 
-    // invert
-    invert_group.visible = true;
-    invert_plane.material.map = rtt.texture;
+    function render() {
+        requestAnimationFrame(render);
+        if (_controls) _controls.update();
+        _renderer.setRenderTarget(null)
+        _renderer.render(_scene, _camera);
+    }
 
-    // haze
-    haze.mesh.visible = true;
-    if (haze.geometry && haze.material) {
-        const a_life = haze.geometry.attributes.life;
-        const a_base = haze.geometry.attributes.base;
-        const a_offset = haze.geometry.attributes.offset;
-        const a_scale = haze.geometry.attributes.scale;
-        const a_orientation = haze.geometry.attributes.orientation;
-        const a_rotation = haze.geometry.attributes.rotation;
+    //=====// Scene //========================================//     
 
-        for (let i = 0; i < haze.vertex_num; i++) {
-            let value = a_life.array[i];
-            value += 0.008;
+    function initScene() {
+        initBackground();
+        initFire();
+        initEmbers();
+        initHaze();
+    }
 
-            if (value > 1) {
-                value -= 1;
-                a_rotation.setX(i, random(0, 3.14, 3));
-                a_base.setXYZ(i, flame.mesh.position.x, flame.mesh.position.y + 0.1, flame.mesh.position.z);
-                a_offset.setXYZ(i, random(-0.2, 0.2, 3), random(2.5, 3.0, 3), 0);
-                a_scale.setXY(i, random(0.6, 1.2, 3), random(0.6, 1.2, 3));
-            }
+    function initBackground() {
+        var background = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 4, 4),
+            new THREE.MeshBasicMaterial({
+                side: THREE.BackSide
+            })
+        );
+        _scene.add(background);
 
-            _quat.copy(camera.quaternion);
-            _quat_1.setFromAxisAngle(_axisz, a_rotation.array[i]);
-            _quat.multiply(_quat_1);
-            a_orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
+        var textureLoader = new THREE.TextureLoader();
+        textureLoader.load('./resources/rock.jpg', t => {
+            t.colorSpace = THREE.SRGBColorSpace;
+            background.material.map = t;
+            background.material.needsUpdate = true;
+        });
+    }
 
-            a_life.setX(i, value);
+    //=====// Fire //========================================//     
+
+    function initFire() {
+        var _geometry, _shader, _mesh, _group;
+        var _num = 12;
+
+        var _x = new THREE.Vector3(1, 0, 0);
+        var _y = new THREE.Vector3(0, 1, 0);
+        var _z = new THREE.Vector3(0, 0, 1);
+
+        var _tipTarget = new THREE.Vector3();
+        var _tip = new THREE.Vector3();
+        var _diff = new THREE.Vector3();
+
+        var _quat = new THREE.Quaternion();
+        var _quat2 = new THREE.Quaternion();
+
+        (function () {
+            initGeometry();
+            initInstances();
+            initShader();
+            initMesh();
+            requestAnimationFrame(loop);
+        })();
+
+        function initGeometry() {
+            _geometry = new THREE.InstancedBufferGeometry();
+            _geometry.maxInstancedCount = _num;
+
+            var shape = new THREE.PlaneGeometry(1, 1);
+
+            shape.translate(0, 0.4, 0); // 平移
+            var data = shape.attributes;
+
+            _geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(data.position.array), 3));
+            _geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(data.uv.array), 2));
+            _geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(data.normal.array), 3));
+            _geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(shape.index.array), 1));
+            shape.dispose();
         }
 
-        a_life.needsUpdate = true;
-        a_base.needsUpdate = true;
-        a_offset.needsUpdate = true;
-        a_scale.needsUpdate = true;
-        a_orientation.needsUpdate = true;
-        a_rotation.needsUpdate = true;
+        function initInstances() {
+            var orientation = new THREE.InstancedBufferAttribute(new Float32Array(_num * 4), 4);
+            var randoms = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
+            var scale = new THREE.InstancedBufferAttribute(new Float32Array(_num * 2), 2);
+            var life = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
 
-        const u_map = haze.material.uniforms.uMap;
-        u_map.value = rtt.texture;
+            for (let i = 0; i < _num; i++) {
+                orientation.setXYZW(i, 0, 0, 0, 1);
+                life.setX(i, i / _num + 1);
+            }
+
+            _geometry.setAttribute('orientation', orientation);
+            _geometry.setAttribute('scale', scale);
+            _geometry.setAttribute('life', life);
+            _geometry.setAttribute('random', randoms);
+        }
+
+        function initShader() {
+            var uniforms = {
+                uMap: {
+                    type: 't',
+                    value: null
+                },
+                uColor1: {
+                    type: 'c',
+                    value: new THREE.Color(0x961800)
+                }, // red
+                uColor2: {
+                    type: 'c',
+                    value: new THREE.Color(0x4b5828)
+                }, // yellow
+                uTime: {
+                    type: 'f',
+                    value: 0
+                },
+            };
+
+            _shader = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: fireVertexShader,
+                fragmentShader: fireFragmentShader,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                depthWrite: false,
+                side: THREE.DoubleSide,
+            });
+
+            var textureLoader = new THREE.TextureLoader();
+            textureLoader.load('./resources/flame.png', t => {
+                t.colorSpace = THREE.SRGBColorSpace;
+                _shader.uniforms.uMap.value = t;
+            });
+        }
+
+        function initMesh() {
+            _group = new THREE.Group();
+            _mesh = new THREE.Mesh(_geometry, _shader);
+            _mesh.frustumCulled = false;
+            _group.add(_mesh);
+            _scene.add(_group);
+            _fire = _group;
+        }
+
+        function loop(e) {
+            requestAnimationFrame(loop);
+            _shader.uniforms.uTime.value = e * 0.001;
+
+            var life = _geometry.attributes.life;
+            var orientation = _geometry.attributes.orientation;
+            var scale = _geometry.attributes.scale;
+            var randoms = _geometry.attributes.random;
+
+            for (let i = 0; i < _num; i++) {
+                var value = life.array[i];
+                value += 0.04;
+
+                if (value > 1) {
+                    value -= 1;
+
+                    _quat.setFromAxisAngle(_y, random(0, 3.14, 3));
+                    _quat2.setFromAxisAngle(_x, random(-1, 1, 2) * 0.1);
+                    _quat.multiply(_quat2);
+                    _quat2.setFromAxisAngle(_z, random(-1, 1, 2) * 0.3);
+                    _quat.multiply(_quat2);
+                    orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
+
+                    scale.setXY(i, random(0.8, 1.2, 3), random(0.8, 1.2, 3));
+                    randoms.setX(i, random(0, 1, 3));
+                }
+
+                life.setX(i, value);
+            }
+            life.needsUpdate = true;
+            orientation.needsUpdate = true;
+            scale.needsUpdate = true;
+            randoms.needsUpdate = true;
+
+            _group.position.x = Math.sin(e * 0.002) * 1.4;
+            _group.position.y = Math.cos(e * 0.0014) * 0.2;
+            _group.position.z = Math.cos(e * 0.0014) * 0.5;
+
+            let tipOffset = 0.4;
+            _tipTarget.copy(_group.position);
+            _tipTarget.y += tipOffset;
+            _tip.lerp(_tipTarget, 0.1);
+
+            _diff.copy(_tip);
+            _diff.sub(_group.position);
+            let length = _diff.length();
+            _group.scale.y = (length / tipOffset - 1) * 0.4 + 1;
+
+            _group.quaternion.setFromUnitVectors(_y, _diff.normalize());
+        }
     }
 
-    // 最终渲染到canvas#viewport
-    renderer.setRenderTarget(null);
-    renderer.render(scene, camera);
+    //=====// Embers //========================================//     
 
-    orbitcontrols.update();
-}
+    function initEmbers() {
+        var _geometry, _shader, _points;
+        var _num = 8;
 
+        (function () {
+            initGeometry();
+            initShader();
+            initMesh();
+            requestAnimationFrame(loop);
+        })();
 
+        function initGeometry() {
+            _geometry = new THREE.BufferGeometry();
+            _geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(_num * 3), 3));
+            _geometry.setAttribute('offset', new THREE.BufferAttribute(new Float32Array(_num * 3), 3));
+            _geometry.setAttribute('size', new THREE.BufferAttribute(new Float32Array(_num), 1));
+            _geometry.setAttribute('life', new THREE.BufferAttribute(new Float32Array(_num), 1));
 
-const onResize = () => {
-    const { el, width, height, pixelRatio, width_pixcel_num, height_pixcel_num } = getClientQuality();
+            for (var i = 0; i < _num; i++) {
+                _geometry.attributes.life.setX(i, random(0, 1, 3) + 1);
+            }
+        }
 
-    // pixel ratio
-    renderer.setSize(width_pixcel_num, height_pixcel_num);
-    renderer.setPixelRatio(pixelRatio);
+        function initShader() {
+            var uniforms = {
+                uMap: {
+                    type: 't',
+                    value: null
+                },
+                uColor: {
+                    type: 'c',
+                    value: new THREE.Color(0xffe61e)
+                },
+            };
 
-    // camera
-    camera.aspect = width_pixcel_num / height_pixcel_num;
-    camera.updateProjectionMatrix();
+            _shader = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: embersVertexShader,
+                fragmentShader: embersFragmentShader,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                depthTest: false,
+            });
 
-    // rtt
-    haze.material.uniforms.uResolution.value.set(width_pixcel_num, height_pixcel_num);
-}
-window.addEventListener('resize', onResize);
+            var textureLoader = new THREE.TextureLoader();
+            textureLoader.load('./resources/ember.png', t => {
+                t.colorSpace = THREE.SRGBColorSpace;
+                _shader.uniforms.uMap.value = t;
+            });
+        }
 
-animate();
+        function initMesh() {
+            _points = new THREE.Points(_geometry, _shader);
+            _points.frustumCulled = false;
+            _scene.add(_points);
+        }
+
+        function loop() {
+            requestAnimationFrame(loop);
+            var life = _geometry.attributes.life;
+            var position = _geometry.attributes.position;
+            var size = _geometry.attributes.size;
+            var offset = _geometry.attributes.offset;
+            for (let i = 0; i < _num; i++) {
+                var value = life.array[i];
+                value += 0.02;
+
+                if (value > 1) {
+                    value -= 1;
+
+                    position.setXYZ(i, _fire.position.x, _fire.position.y + 0.1, _fire.position.z);
+                    offset.setXYZ(i,
+                        random(-0.2, 0.2, 3),
+                        random(0.7, 1.2, 3),
+                        random(-0.2, 0.2, 3)
+                    );
+                    size.setX(i, random(0.2, 0.5, 3));
+                }
+
+                life.setX(i, value);
+            }
+
+            life.needsUpdate = true;
+            position.needsUpdate = true;
+            size.needsUpdate = true;
+            offset.needsUpdate = true;
+        }
+    }
+
+    //=====// Haze //========================================//     
+
+    function initHaze() {
+        var _geometry, _shader, _mesh;
+
+        var _num = 4;
+
+        var _z = new THREE.Vector3(0, 0, 1);
+        var _quat = new THREE.Quaternion();
+        var _quat2 = new THREE.Quaternion();
+
+        (function () {
+            initGeometry();
+            initInstances();
+            initShader();
+            initMesh();
+            window.addEventListener('resize', resizeHaze, false);
+            resizeHaze();
+            requestAnimationFrame(loop);
+        })();
+
+        function initGeometry() {
+            _geometry = new THREE.InstancedBufferGeometry();
+            _geometry.maxInstancedCount = _num;
+
+            var shape = new THREE.PlaneGeometry(2, 2);
+            var data = shape.attributes;
+
+            _geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(data.position.array), 3));
+            _geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(data.uv.array), 2));
+            _geometry.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(data.normal.array), 3));
+            _geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(shape.index.array), 1));
+            shape.dispose();
+        }
+
+        function initInstances() {
+            var base = new THREE.InstancedBufferAttribute(new Float32Array(_num * 3), 3);
+            var offset = new THREE.InstancedBufferAttribute(new Float32Array(_num * 3), 3);
+            var orientation = new THREE.InstancedBufferAttribute(new Float32Array(_num * 4), 4);
+            var scale = new THREE.InstancedBufferAttribute(new Float32Array(_num * 2), 2);
+            var rotation = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
+            var life = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
+
+            for (let i = 0; i < _num; i++) {
+                orientation.setXYZW(i, 0, 0, 0, 1);
+                life.setX(i, i / _num + 1);
+            }
+
+            _geometry.setAttribute('base', base);
+            _geometry.setAttribute('offset', offset);
+            _geometry.setAttribute('orientation', orientation);
+            _geometry.setAttribute('scale', scale);
+            _geometry.setAttribute('rotation', rotation);
+            _geometry.setAttribute('life', life);
+        }
+
+        function initShader() {
+            let dpr = _renderer.getPixelRatio();
+            var uniforms = {
+                uMap: {
+                    type: 't',
+                    value: null
+                },
+                uMask: {
+                    type: 't',
+                    value: null
+                },
+                uResolution: {
+                    type: 'v2',
+                    value: new THREE.Vector2(_width * dpr, _height * dpr)
+                },
+            };
+
+            _shader = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: hazeVertexShader,
+                fragmentShader: hazeFragmentShader,
+                transparent: true,
+                depthTest: false,
+            });
+
+            var textureLoader = new THREE.TextureLoader();
+            textureLoader.load('./resources/haze.png', t => {
+                t.colorSpace = THREE.SRGBColorSpace;
+                _shader.uniforms.uMask.value = t;
+            });
+        }
+
+        function initMesh() {
+            _mesh = new THREE.Mesh(_geometry, _shader);
+            _mesh.frustumCulled = false;
+            _scene.add(_mesh);
+        }
+
+        function resizeHaze() {
+            let dpr = _renderer.getPixelRatio();
+            _shader.uniforms.uMap.value = _rtt.texture;
+            _shader.uniforms.uResolution.value.set(_width * dpr, _height * dpr);
+        }
+
+        function loop(e) {
+            requestAnimationFrame(loop);
+
+            _mesh.visible = false;
+            _renderer.setRenderTarget(_rtt);
+            _renderer.render(_scene, _camera);
+            _mesh.visible = true;
+
+            var life = _geometry.attributes.life;
+            var base = _geometry.attributes.base;
+            var offset = _geometry.attributes.offset;
+            var scale = _geometry.attributes.scale;
+            var orientation = _geometry.attributes.orientation;
+            var rotation = _geometry.attributes.rotation;
+            for (let i = 0; i < _num; i++) {
+                var value = life.array[i];
+                value += 0.008;
+
+                if (value > 1) {
+                    value -= 1;
+
+                    rotation.setX(i, random(0, 3.14, 3));
+
+                    base.setXYZ(i, _fire.position.x, _fire.position.y + 0.1, _fire.position.z);
+                    offset.setXYZ(i,
+                        random(-0.2, 0.2, 3),
+                        random(2.5, 3.0, 3),
+                        0
+                    );
+                    scale.setXY(i, random(0.6, 1.2, 3), random(0.6, 1.2, 3));
+                }
+
+                _quat.copy(_camera.quaternion);
+                _quat2.setFromAxisAngle(_z, rotation.array[i]);
+                _quat.multiply(_quat2);
+                orientation.setXYZW(i, _quat.x, _quat.y, _quat.z, _quat.w);
+
+                life.setX(i, value);
+            }
+
+            life.needsUpdate = true;
+            base.needsUpdate = true;
+            scale.needsUpdate = true;
+            offset.needsUpdate = true;
+            orientation.needsUpdate = true;
+        }
+    }
+
+})();

@@ -11,7 +11,9 @@ export default defineConfig({
     assetsInclude: ['*.vert', '*.frag', '*.glsl'],
     resolve: {
         alias: {
-            '@src': path.resolve(__dirname, './src')
+            '@src': path.resolve(__dirname, './src'),
+            'three': path.resolve(__dirname, './lib/three.js-r156/src/Three.js'),
+            'three_addons': path.resolve(__dirname, './lib/three.js-r156/examples/jsm')
         },
     },
     build: {

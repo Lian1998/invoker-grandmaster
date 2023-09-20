@@ -24,7 +24,9 @@
         "allowJs": true,
 
         "paths": {
-            "@src/*": [ "./src/*" ]
+            "@src/*": [ "./src/*" ],
+            "three": [ "./lib/three.js-r156/src/Three.js" ],
+            "three_addons/*": [ "./lib/three.js-r156/examples/jsm/*" ]
         }
     }
 }

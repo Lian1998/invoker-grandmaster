@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
+import { invokerOrbShaderMaterial } from './shaders/InvokerOrbShaderMaterial.js'
 
 
 export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
@@ -70,12 +71,12 @@ export const initialize3D = (domElement) => {
 
     // controls
     const orbitcontrols = new OrbitControls(camera, renderer.domElement);
-    orbitcontrols.minDistance = 3;
-    orbitcontrols.maxDistance = 5;
-    orbitcontrols.maxPolarAngle = Math.PI / 2;
-    orbitcontrols.enableDamping = true;
-    orbitcontrols.dampingFacto = 0.035;
-    orbitcontrols.enablePan = false;
+    // orbitcontrols.minDistance = 3;
+    // orbitcontrols.maxDistance = 5;
+    // orbitcontrols.maxPolarAngle = Math.PI / 2;
+    // orbitcontrols.enableDamping = true;
+    // orbitcontrols.dampingFacto = 0.035;
+    // orbitcontrols.enablePan = false;
     GLOBAL.orbitcontrols = orbitcontrols;
 
     // loaders
@@ -137,7 +138,7 @@ export const initialize3D = (domElement) => {
                     child.castShadow = true;
                     child.receiveShadow = true; // 高质量渲染, 超越Dota2
 
-                    console.log(child.material);
+                    // console.log(child.material);
 
                     // child.material.transparent = true;
                     // child.material.opacity = .5;
@@ -150,14 +151,26 @@ export const initialize3D = (domElement) => {
             dealwithAnimations();
 
             // 添加卡尔的球
-            const sphere_geometry = new THREE.SphereGeometry(.1, 20, 20);
-            const sphere_material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const orb1 = new THREE.Mesh(sphere_geometry, sphere_material);
-            const orb2 = new THREE.Mesh(sphere_geometry, sphere_material);
-            const orb3 = new THREE.Mesh(sphere_geometry, sphere_material);
+
+            // const sphere_geometry = new THREE.SphereGeometry(.1, 20, 20);
+            // const sphere_material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            // const orb1 = new THREE.Mesh(sphere_geometry, sphere_material);
+            // const orb2 = new THREE.Mesh(sphere_geometry, sphere_material);
+            // const orb3 = new THREE.Mesh(sphere_geometry, sphere_material);
+
+            const planeGeom = new THREE.PlaneGeometry(1., 1.);
+            console.log(planeGeom);
+            const orb1 = new THREE.Mesh(planeGeom, invokerOrbShaderMaterial());
+            const orb2 = new THREE.Mesh(planeGeom, invokerOrbShaderMaterial());
+            const orb3 = new THREE.Mesh(planeGeom, invokerOrbShaderMaterial());
+
             HERO.attach_orb1.attach(orb1);
             HERO.attach_orb2.attach(orb2);
             HERO.attach_orb3.attach(orb3);
+
+            HERO.orb1 = orb1;
+            HERO.orb2 = orb2;
+            HERO.orb3 = orb3;
 
             // 处理附加帮助图元
             initHelpers(true);
@@ -329,6 +342,16 @@ export const initialize3D = (domElement) => {
         renderer.render(scene, camera);
 
         if (GLOBAL.orbitcontrols) { orbitcontrols.update(); }
+
+
+        if (HERO.orb1 && HERO.orb2 && HERO.orb3) {
+            const orb1 = HERO.orb1;
+            const orb2 = HERO.orb2;
+            const orb3 = HERO.orb3;
+            orb1.material.uniforms.uTime.value = elapsedTime;
+            orb2.material.uniforms.uTime.value = elapsedTime;
+            orb3.material.uniforms.uTime.value = elapsedTime;
+        }
 
     }
 
