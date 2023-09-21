@@ -16,7 +16,7 @@ const invokerOrbShaderMaterial = () => new THREE.ShaderMaterial({
 
         // 冰球过度色
         uColor1: { value: new THREE.Color(0x83D5FE) },
-        uColor2: { value: new THREE.Color(0x5B8EF9) },
+        uColor2: { value: new THREE.Color(0x4B7EFC) },
 
         // 电球着色图
         uMap2: { value: orbEnergyTintable },
