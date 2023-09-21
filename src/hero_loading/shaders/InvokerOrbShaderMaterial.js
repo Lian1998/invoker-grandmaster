@@ -10,10 +10,25 @@ const orbEnergyTintable = textureLoader.load('/vrfcrack/particle/orb_energy_tint
 const invokerOrbShaderMaterial = () => new THREE.ShaderMaterial({
 
     uniforms: {
+
+        // 球状着色图
         uMap1: { value: orbTintable },
+
+        // 冰球过度色
+        uColor1: { value: new THREE.Color(0x83D5FE) },
+        uColor2: { value: new THREE.Color(0x5B8EF9) },
+
+        // 电球着色图
         uMap2: { value: orbEnergyTintable },
-        uColor1: { value: new THREE.Color(0xA3FFFE) },
-        uColor2: { value: new THREE.Color(0x578DFA) },
+
+        // 电球色
+
+        // 火球色
+
+        // 切球时间
+        uLifeTime: { value: 0.0 },
+
+        // 渲染时间
         uTime: { value: 0.0 },
     },
 

@@ -7,5 +7,5 @@ window.addEventListener('load', () => {
 
     initialize3D(document.querySelector('#viewport1'));
 
-})
+});
 

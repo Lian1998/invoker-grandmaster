@@ -9,6 +9,8 @@ export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org
 export const GLOBAL = {};
 export const HERO = {};
 
+let animationLongID = undefined;
+
 // clock
 const clock = new THREE.Clock();
 GLOBAL.clock = clock;
@@ -130,18 +132,14 @@ export const initialize3D = (domElement) => {
             heroModel.scale.set(.4, .4, .4);
 
             heroModel.traverse(child => {
+                // 绑定orbAttacher指针
                 if (child.name === 'orb1') { HERO.attach_orb1 = child; }
                 else if (child.name === 'orb2') { HERO.attach_orb2 = child; }
                 else if (child.name === 'orb3') { HERO.attach_orb3 = child; }
 
                 if (child.isSkinnedMesh) {
                     child.castShadow = true;
-                    child.receiveShadow = true; // 高质量渲染, 超越Dota2
-
-                    // console.log(child.material);
-
-                    // child.material.transparent = true;
-                    // child.material.opacity = .5;
+                    child.receiveShadow = true;
                 }
             });
 
@@ -152,22 +150,23 @@ export const initialize3D = (domElement) => {
 
             // 添加卡尔的球
 
+            // 白模
             // const sphere_geometry = new THREE.SphereGeometry(.1, 20, 20);
             // const sphere_material = new THREE.MeshBasicMaterial({ color: 0xffffff });
             // const orb1 = new THREE.Mesh(sphere_geometry, sphere_material);
             // const orb2 = new THREE.Mesh(sphere_geometry, sphere_material);
             // const orb3 = new THREE.Mesh(sphere_geometry, sphere_material);
 
+            // 使用自制的ShaderMaterial
             const planeGeom = new THREE.PlaneGeometry(1., 1.);
-            console.log(planeGeom);
             const orb1 = new THREE.Mesh(planeGeom, invokerOrbShaderMaterial());
             const orb2 = new THREE.Mesh(planeGeom, invokerOrbShaderMaterial());
             const orb3 = new THREE.Mesh(planeGeom, invokerOrbShaderMaterial());
 
+            // attach模型
             HERO.attach_orb1.attach(orb1);
             HERO.attach_orb2.attach(orb2);
             HERO.attach_orb3.attach(orb3);
-
             HERO.orb1 = orb1;
             HERO.orb2 = orb2;
             HERO.orb3 = orb3;
@@ -241,14 +240,17 @@ export const initialize3D = (domElement) => {
         const orbsSpawnActionR = animationMixer1.clipAction(orbsSpawnClipR, heroModel);
         orbsSpawnActionL.blendMode = THREE.NormalAnimationBlendMode;
         orbsSpawnActionL.loop = THREE.LoopOnce;
+        orbsSpawnActionL.timeScale = 1.5;
         orbsSpawnActionR.blendMode = THREE.NormalAnimationBlendMode;
         orbsSpawnActionR.loop = THREE.LoopOnce;
+        orbsSpawnActionR.timeScale = 1.5;
         HERO.orbsSpawnActionL = orbsSpawnActionL;
         HERO.orbsSpawnActionR = orbsSpawnActionR;
 
         // 动画测试
         let lastAction = null;
-        window.addEventListener('keydown', () => {
+        window.addEventListener('keydown', (e) => {
+            if (e.code !== 'KeyQ' && e.code !== 'KeyW' && e.code !== 'KeyE') { return; }
 
             if (HERO.orbsSpawnActionL.time === 0) {
                 HERO.orbsSpawnActionL.reset();
@@ -277,6 +279,7 @@ export const initialize3D = (domElement) => {
                     return;
                 }
             }
+
         })
     }
 
@@ -325,25 +328,25 @@ export const initialize3D = (domElement) => {
     // Loop
     function animate() {
 
-        requestAnimationFrame(animate);
+        animationLongID = requestAnimationFrame(animate);
 
         const deltaTime = clock.getDelta();
         const elapsedTime = clock.getElapsedTime();
 
+        // 更新场景
+        renderer.render(scene, camera);
+
+        // 动画Layer1
         if (HERO.animationMixer) {
             HERO.animationMixer.update(deltaTime);
         }
 
-        // 手部动画复写
+        // 动画Layer2 手部动画复写
         if (HERO.animationMixer1) {
             HERO.animationMixer1.update(deltaTime);
         }
 
-        renderer.render(scene, camera);
-
-        if (GLOBAL.orbitcontrols) { orbitcontrols.update(); }
-
-
+        // 判断是否生成卡尔的球
         if (HERO.orb1 && HERO.orb2 && HERO.orb3) {
             const orb1 = HERO.orb1;
             const orb2 = HERO.orb2;
@@ -357,6 +360,24 @@ export const initialize3D = (domElement) => {
 
     animate();
     dealwithModel();
+
+    // 暂停/启动
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'F9') {
+            if (animationLongID) {
+                window.cancelAnimationFrame(animationLongID);
+                animationLongID = undefined;
+                if (GLOBAL.orbitcontrols) {
+                    GLOBAL.orbitcontrols.enabled = false;
+                }
+            } else {
+                animate();
+                if (GLOBAL.orbitcontrols) {
+                    GLOBAL.orbitcontrols.enabled = true;
+                }
+            }
+        }
+    });
 }
 
 
