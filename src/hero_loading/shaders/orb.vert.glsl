@@ -13,6 +13,8 @@
 // gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); // MVP
 // gl_Position = projectionMatrix * (viewMatrix * modelMatrix) * vec4( position, 1.0 );
 
+// ps: threejs 生成的planeGeometry的uvCoord是左上角为vec2(0., 0.), 右下角为vec2(1., 1.)
+
 varying vec2 vUv;
 
 vec2 center = vec2(.5); // 传入的几何体是一块(1, 1)对准z轴的平面, 中心点是vec2(.5, .5)

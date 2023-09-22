@@ -172,7 +172,7 @@ export const initialize3D = (domElement) => {
             HERO.orb3 = orb3;
 
             // 处理附加帮助图元
-            initHelpers(true);
+            initHelpers(false);
 
         });
     }
@@ -240,10 +240,8 @@ export const initialize3D = (domElement) => {
         const orbsSpawnActionR = animationMixer1.clipAction(orbsSpawnClipR, heroModel);
         orbsSpawnActionL.blendMode = THREE.NormalAnimationBlendMode;
         orbsSpawnActionL.loop = THREE.LoopOnce;
-        orbsSpawnActionL.timeScale = 1.5;
         orbsSpawnActionR.blendMode = THREE.NormalAnimationBlendMode;
         orbsSpawnActionR.loop = THREE.LoopOnce;
-        orbsSpawnActionR.timeScale = 1.5;
         HERO.orbsSpawnActionL = orbsSpawnActionL;
         HERO.orbsSpawnActionR = orbsSpawnActionR;
 
@@ -291,12 +289,14 @@ export const initialize3D = (domElement) => {
         grid.material.transparent = true;
         grid.name = 'GridHelper';
         scene.add(grid);
+
         grid.visible = active;
 
         // axes
         const axes = new THREE.AxesHelper(500);
         axes.name = 'AxesHelper';
         scene.add(axes);
+
         axes.visible = active;
 
         // directional
@@ -315,6 +315,9 @@ export const initialize3D = (domElement) => {
             scene.add(spot_light_helper);
             const spot_light_helper1 = new THREE.CameraHelper(GLOBAL.directional_light.shadow.camera);
             scene.add(spot_light_helper1);
+
+            spot_light_helper.visible = active;
+            spot_light_helper1.visible = active;
         }
 
         if (HERO.heroModel) {
@@ -346,14 +349,24 @@ export const initialize3D = (domElement) => {
             HERO.animationMixer1.update(deltaTime);
         }
 
-        // 判断是否生成卡尔的球
+        // 卡尔的球
         if (HERO.orb1 && HERO.orb2 && HERO.orb3) {
+
             const orb1 = HERO.orb1;
             const orb2 = HERO.orb2;
             const orb3 = HERO.orb3;
+
             orb1.material.uniforms.uTime.value = elapsedTime;
             orb2.material.uniforms.uTime.value = elapsedTime;
             orb3.material.uniforms.uTime.value = elapsedTime;
+
+            orb1.material.uniforms.uRandDinamic.value = Math.random();
+            orb2.material.uniforms.uRandDinamic.value = Math.random();
+            orb3.material.uniforms.uRandDinamic.value = Math.random();
+
+            orb1.material.uniforms.uLifeTime.value += deltaTime;
+            orb2.material.uniforms.uLifeTime.value += deltaTime;
+            orb3.material.uniforms.uLifeTime.value += deltaTime;
         }
 
     }

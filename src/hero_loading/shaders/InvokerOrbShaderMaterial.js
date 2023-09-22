@@ -11,25 +11,33 @@ const invokerOrbShaderMaterial = () => new THREE.ShaderMaterial({
 
     uniforms: {
 
+        uRand: { value: Math.random() }, // 静态随机值
+        uRandDinamic: { value: Math.random() }, // 动态随机值
+        uTime: { value: 0.0 }, // 渲染时间
+        uLifeTime: { value: 0.0 }, // 切球时间
+
         // 球状着色图
         uMap1: { value: orbTintable },
 
-        // 冰球过度色
-        uColor1: { value: new THREE.Color(0x83D5FE) },
-        uColor2: { value: new THREE.Color(0x4B7EFC) },
-
-        // 电球着色图
+        // 能量球着色图
         uMap2: { value: orbEnergyTintable },
 
-        // 电球色
+        // 冰球
+        uColor1: { value: new THREE.Color(0x83D5FE) },
+        uColor2: { value: new THREE.Color(0x64AEFF) },
+        uColor3: { value: new THREE.Color(0x4A76D3) },
 
-        // 火球色
+        // 电球
+        uColor4: { value: new THREE.Color(0xFDF5FB) },
+        uColor5: { value: new THREE.Color(0x916594) },
 
-        // 切球时间
-        uLifeTime: { value: 0.0 },
+        // 火球
+        uColor6: { value: new THREE.Color(0xFFFFFF) },
+        uColor7: { value: new THREE.Color(0xFFF665) },
+        uColor8: { value: new THREE.Color(0xEC9F48) },
 
-        // 渲染时间
-        uTime: { value: 0.0 },
+
+        
     },
 
     vertexShader: orbVert,
