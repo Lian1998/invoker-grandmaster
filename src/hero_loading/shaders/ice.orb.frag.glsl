@@ -26,8 +26,8 @@ varying vec2 vUv;
 
 
 vec2 center = vec2(.5);
-vec2 iceOrbHighlight1Pos = vec2(.23, .55);
-vec2 iceOrbHighlight2Pos = vec2(.77, .55);
+vec2 iceOrbHighlight1Pos = vec2(.2, .55);
+vec2 iceOrbHighlight2Pos = vec2(.8, .55);
 vec3 iceOrbHighlightCyan = vec3(164. / 255., 245. / 255., 1.);
 
 float rand1D(float x) {
@@ -69,7 +69,7 @@ void main() {
     // 普通球体
     vec4 mapColor1 = texture2D(uMap1, uv); 
     float mapColor1AlphaStrength = mapColor1.r; // 普通球体贴图的通道值
-    if (mapColor1AlphaStrength != 0.) { mapColor1AlphaStrength += 0.3; } // 通道值加强
+    if (mapColor1AlphaStrength != 0.) { mapColor1AlphaStrength += 0.4; } // 通道值加强
 
     // 能量球体
     vec4 mapColor2 = texture2D(uMap2, uv); 
@@ -79,12 +79,12 @@ void main() {
     // 判断当前渲染的球
 
     // 冰球
-    float iceOrbHightlight1Size = .17 + .07 * rand1D(uRandDinamic);
-    float iceOrbHightlight2Size = .17 + .07 * rand1D(uRandDinamic);
-    iceOrbHighlight1Pos.x += (rand1DSmooth(uTime) - .5) * 0.1;
-    iceOrbHighlight1Pos.y += (rand1DSmooth(uTime) - .5) * 0.1;
-    iceOrbHighlight2Pos.x += (rand1DSmooth(uTime) - .5) * 0.1;
-    iceOrbHighlight2Pos.y += (rand1DSmooth(uTime) - .5) * 0.1;
+    float iceOrbHightlight1Size = .15 + .07 * rand1D(uRandDinamic);
+    float iceOrbHightlight2Size = .15 + .07 * rand1D(uRandDinamic);
+    iceOrbHighlight1Pos.x += (rand1DSmooth(uTime) - .5) * 0.05;
+    iceOrbHighlight1Pos.y += (rand1DSmooth(uTime) - .5) * 0.05;
+    iceOrbHighlight2Pos.x += (rand1DSmooth(uTime) - .5) * 0.05;
+    iceOrbHighlight2Pos.y += (rand1DSmooth(uTime) - .5) * 0.05;
     float iceOrbHighlight1 = smoothstep(iceOrbHightlight1Size, 0., length(vUv - iceOrbHighlight1Pos));
     float iceOrbHighlight2 = smoothstep(iceOrbHightlight2Size, 0., length(vUv - iceOrbHighlight2Pos));
     
@@ -93,34 +93,35 @@ void main() {
     vec4 iceOrbHightLightColor = vec4(
         (iceOrbHighlightCyan * iceOrbHighlight1 + iceOrbHighlightCyan * iceOrbHighlight2) * 
         clamp(rand1D(vUv.x * vUv.y * uTime), .45, .55),
-        iceOrbHighlight1 + iceOrbHighlight2
+        (iceOrbHighlight1 + iceOrbHighlight2) * .8
     );
 
     // gl_FragColor = iceOrbHightLightColor; // 冰球高光
-    // gl_FragColor = vec4(iceOrbMapMixedColor.rgb, mapColor1AlphaStrength); // 冰球MapMixedColor
-    // gl_FragColor = iceorbShapeColor;  // 球状描边
-    gl_FragColor = vec4(
-        iceOrbMapMixedColor.rgb + (iceorbShapeColor.rgb * .6) + iceOrbHightLightColor.rgb, 
-        (iceorbShapeColor.r + iceorbShapeColor.g + iceorbShapeColor.b) / 3. + 
-        mapColor1AlphaStrength + iceOrbHightLightColor.a
-    );
+    gl_FragColor = vec4(iceOrbMapMixedColor.rgb, mapColor1AlphaStrength); // 冰球MapMixedColor
+    gl_FragColor = iceorbShapeColor;  // 球状描边
+    gl_FragColor = vec4(iceOrbMapMixedColor.rgb - iceorbShapeColor.rgb + iceOrbHightLightColor.rgb, mapColor1AlphaStrength + iceOrbHightLightColor.a);
+    // gl_FragColor = vec4(
+    //     iceOrbMapMixedColor.rgb + (iceorbShapeColor.rgb * .6) + iceOrbHightLightColor.rgb, 
+    //     (iceorbShapeColor.r + iceorbShapeColor.g + iceorbShapeColor.b) / 3. + 
+    //     mapColor1AlphaStrength + iceOrbHightLightColor.a
+    // );
 
     // 电球
     
-    vec3 eleOrbMapMixedColor = mix(uColor5, uColor4, mapColor2AlphaStrength); // 电球MapMixedColor
-    vec4 eleorbShapeColor = vec4(mix(vec3(0.), uColor4, add1FinalFactor), 1.); // 球状描边
+    // vec3 eleOrbMapMixedColor = mix(uColor5, uColor4, mapColor2AlphaStrength); // 电球MapMixedColor
+    // vec4 eleorbShapeColor = vec4(mix(vec3(0.), uColor4, add1FinalFactor), 1.); // 球状描边
 
     // gl_FragColor = vec4(eleOrbMapMixedColor, mapColor2AlphaStrength); // 电球MapMixedColor
     // gl_FragColor = eleorbShapeColor;  // 球状描边
-    gl_FragColor = vec4(
-        eleOrbMapMixedColor.rgb + (eleorbShapeColor.rgb * .6), 
-        (eleorbShapeColor.r + eleorbShapeColor.g + eleorbShapeColor.b) / 3. + 
-        mapColor2AlphaStrength
-    );
+    // gl_FragColor = vec4(
+    //     eleOrbMapMixedColor.rgb + (eleorbShapeColor.rgb * .6), 
+    //     (eleorbShapeColor.r + eleorbShapeColor.g + eleorbShapeColor.b) / 3. + 
+    //     mapColor2AlphaStrength
+    // );
 
 
     // 火球
-    vec4 flameorbShapeColor = vec4(mix(vec3(0.), uColor8, add1FinalFactor), 1.); // 球状描边
-    gl_FragColor = flameorbShapeColor;  // 球状描边
+    // vec4 fireorbShapeColor = vec4(mix(vec3(0.), uColor8, add1FinalFactor), 1.); // 球状描边
+    // gl_FragColor = fireorbShapeColor;  // 球状描边
 
 }
