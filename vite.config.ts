@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import VitePluginMontageGLSL from './vite-plugins/vite-plugin-montageglsl.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,5 +26,7 @@ export default defineConfig({
             }
         }
     },
-    plugins: [],
+    plugins: [
+        VitePluginMontageGLSL(),
+    ],
 })

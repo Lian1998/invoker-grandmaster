@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
-import { energyOrbShaderMaterial, fireOrbShaderMaterial, iceOrbShaderMaterial } from './shaders/InvokerOrbShaderMaterial.js'
+import { iceOrbShaderMaterial } from './shaders/InvokerOrbShaderMaterial.js'
 
 
 export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
