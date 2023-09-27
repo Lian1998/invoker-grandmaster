@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import iceorb_vert from './ice.orb.vert.glsl';
-import iceorb_frag from './ice.orb.frag.glsl';
+import iceorb_vert from './ice.orb.vert.glsl?raw';
+import iceorb_frag from './ice.orb.frag.glsl?raw';
 
 const textureLoader = new THREE.TextureLoader();
 

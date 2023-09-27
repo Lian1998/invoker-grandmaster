@@ -10,7 +10,8 @@
         "@types/three": "^0.155.1",
         "@types/node": "^18.11.9",
         "typescript": "^5.0.2",
-        "vite": "^4.4.5"
+        "vite": "^4.4.5",
+        "kolorist": "^1.7.0"
     },
     "dependencies": {
         "normalize.css": "^8.0.1"

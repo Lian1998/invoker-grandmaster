@@ -48,7 +48,7 @@ scene.add(bgMesh);
 
 // 精灵
 const sprite = new THREE.Sprite(
-    new THREE.SpriteMaterial({ map: textureLoader.load('/sprite.jpg') })
+    new THREE.SpriteMaterial({ map: textureLoader.load('/fortest/sprite.jpg') })
 );
 sprite.position.set(0, 0, 0);
 scene.add(sprite);
@@ -59,7 +59,7 @@ import mySpriteFrag from './mySpriteFrag.glsl?raw';
 const planeGeom = new THREE.PlaneGeometry(1., 1.);
 const mySpriteMaterial = new THREE.ShaderMaterial({
     uniforms: {
-        map: { value: textureLoader.load('/sprite.jpg') },
+        map: { value: textureLoader.load('/fortest/sprite.jpg') },
         scale: { value: new THREE.Vector2(1, 1) },
     },
     vertexShader: mySpriteVert,

@@ -1,3 +1,4 @@
+import { green, cyan, bold } from 'kolorist';
 import { normalizePath } from 'vite';
 import { readFileSync } from 'fs';
 import * as path from 'path';
@@ -176,6 +177,7 @@ export default function VitePluginMontageGLSL(options) {
                 if (currentCommand === 'build') {
                     glslraw = compressShader(glslraw);
                 }
+                console.info(`  ${green('➜')}  ${cyan(pluginName)}: Watching GLSL ModuleNode ${bold(glslmodulePath)}`);
                 return {
                     code: `export default ${JSON.stringify(glslraw)}`,
                     map: { mappings: '' }, // 如果可行将提供 source map
