@@ -12,28 +12,28 @@
 // https://github.com/ashima/webgl-noise
 //
 
-vec4 mod289(vec4 x) {
+vec4 glslnoise_periodic4d_mod289v4(vec4 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
-vec4 permute(vec4 x) {
-    return mod289(((x * 34.0) + 1.0) * x);
+vec4 glslnoise_periodic4d_permutev4(vec4 x) {
+    return glslnoise_periodic4d_mod289v4(((x * 34.0) + 1.0) * x);
 }
 
-vec4 taylorInvSqrt(vec4 r) {
+vec4 glslnoise_periodic4d_taylorInvSqrtv4(vec4 r) {
     return 1.79284291400159 - 0.85373472095314 * r;
 }
 
-vec4 fade(vec4 t) {
+vec4 glslnoise_periodic4d_fadev4(vec4 t) {
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
 // Classic Perlin noise, periodic version
-float pnoise(vec4 P, vec4 rep) {
+float glslnoise_periodic4d(vec4 P, vec4 rep) {
     vec4 Pi0 = mod(floor(P), rep); // Integer part modulo rep
     vec4 Pi1 = mod(Pi0 + 1.0, rep); // Integer part + 1 mod rep
-    Pi0 = mod289(Pi0);
-    Pi1 = mod289(Pi1);
+    Pi0 = glslnoise_periodic4d_mod289v4(Pi0);
+    Pi1 = glslnoise_periodic4d_mod289v4(Pi1);
     vec4 Pf0 = fract(P); // Fractional part for interpolation
     vec4 Pf1 = Pf0 - 1.0; // Fractional part - 1.0
     vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
@@ -43,13 +43,13 @@ float pnoise(vec4 P, vec4 rep) {
     vec4 iw0 = vec4(Pi0.wwww);
     vec4 iw1 = vec4(Pi1.wwww);
 
-    vec4 ixy = permute(permute(ix) + iy);
-    vec4 ixy0 = permute(ixy + iz0);
-    vec4 ixy1 = permute(ixy + iz1);
-    vec4 ixy00 = permute(ixy0 + iw0);
-    vec4 ixy01 = permute(ixy0 + iw1);
-    vec4 ixy10 = permute(ixy1 + iw0);
-    vec4 ixy11 = permute(ixy1 + iw1);
+    vec4 ixy = glslnoise_periodic4d_permutev4(glslnoise_periodic4d_permutev4(ix) + iy);
+    vec4 ixy0 = glslnoise_periodic4d_permutev4(ixy + iz0);
+    vec4 ixy1 = glslnoise_periodic4d_permutev4(ixy + iz1);
+    vec4 ixy00 = glslnoise_periodic4d_permutev4(ixy0 + iw0);
+    vec4 ixy01 = glslnoise_periodic4d_permutev4(ixy0 + iw1);
+    vec4 ixy10 = glslnoise_periodic4d_permutev4(ixy1 + iw0);
+    vec4 ixy11 = glslnoise_periodic4d_permutev4(ixy1 + iw1);
 
     vec4 gx00 = ixy00 * (1.0 / 7.0);
     vec4 gy00 = floor(gx00) * (1.0 / 7.0);
@@ -112,25 +112,25 @@ float pnoise(vec4 P, vec4 rep) {
     vec4 g0111 = vec4(gx11.z, gy11.z, gz11.z, gw11.z);
     vec4 g1111 = vec4(gx11.w, gy11.w, gz11.w, gw11.w);
 
-    vec4 norm00 = taylorInvSqrt(vec4(dot(g0000, g0000), dot(g0100, g0100), dot(g1000, g1000), dot(g1100, g1100)));
+    vec4 norm00 = glslnoise_periodic4d_taylorInvSqrtv4(vec4(dot(g0000, g0000), dot(g0100, g0100), dot(g1000, g1000), dot(g1100, g1100)));
     g0000 *= norm00.x;
     g0100 *= norm00.y;
     g1000 *= norm00.z;
     g1100 *= norm00.w;
 
-    vec4 norm01 = taylorInvSqrt(vec4(dot(g0001, g0001), dot(g0101, g0101), dot(g1001, g1001), dot(g1101, g1101)));
+    vec4 norm01 = glslnoise_periodic4d_taylorInvSqrtv4(vec4(dot(g0001, g0001), dot(g0101, g0101), dot(g1001, g1001), dot(g1101, g1101)));
     g0001 *= norm01.x;
     g0101 *= norm01.y;
     g1001 *= norm01.z;
     g1101 *= norm01.w;
 
-    vec4 norm10 = taylorInvSqrt(vec4(dot(g0010, g0010), dot(g0110, g0110), dot(g1010, g1010), dot(g1110, g1110)));
+    vec4 norm10 = glslnoise_periodic4d_taylorInvSqrtv4(vec4(dot(g0010, g0010), dot(g0110, g0110), dot(g1010, g1010), dot(g1110, g1110)));
     g0010 *= norm10.x;
     g0110 *= norm10.y;
     g1010 *= norm10.z;
     g1110 *= norm10.w;
 
-    vec4 norm11 = taylorInvSqrt(vec4(dot(g0011, g0011), dot(g0111, g0111), dot(g1011, g1011), dot(g1111, g1111)));
+    vec4 norm11 = glslnoise_periodic4d_taylorInvSqrtv4(vec4(dot(g0011, g0011), dot(g0111, g0111), dot(g1011, g1011), dot(g1111, g1111)));
     g0011 *= norm11.x;
     g0111 *= norm11.y;
     g1011 *= norm11.z;
@@ -153,7 +153,7 @@ float pnoise(vec4 P, vec4 rep) {
     float n0111 = dot(g0111, vec4(Pf0.x, Pf1.yzw));
     float n1111 = dot(g1111, Pf1);
 
-    vec4 fade_xyzw = fade(Pf0);
+    vec4 fade_xyzw = glslnoise_periodic4d_fadev4(Pf0);
     vec4 n_0w = mix(vec4(n0000, n1000, n0100, n1100), vec4(n0001, n1001, n0101, n1101), fade_xyzw.w);
     vec4 n_1w = mix(vec4(n0010, n1010, n0110, n1110), vec4(n0011, n1011, n0111, n1111), fade_xyzw.w);
     vec4 n_zw = mix(n_0w, n_1w, fade_xyzw.z);

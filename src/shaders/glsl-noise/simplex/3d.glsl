@@ -9,26 +9,26 @@
 //               https://github.com/ashima/webgl-noise
 //
 
-vec3 mod289(vec3 x) {
+vec3 glslnoise_simplex3d_mod289v3(vec3 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
-vec4 mod289(vec4 x) {
+vec4 glslnoise_simplex3d_mod289v4(vec4 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
-vec4 permute(vec4 x) {
-    return mod289(((x * 34.0) + 1.0) * x);
+vec4 glslnoise_simplex3d_permutev4(vec4 x) {
+    return glslnoise_simplex3d_mod289v4(((x * 34.0) + 1.0) * x);
 }
 
-vec4 taylorInvSqrt(vec4 r) {
+vec4 glslnoise_simplex3d_taylorInvSqrtv4(vec4 r) {
     return 1.79284291400159 - 0.85373472095314 * r;
 }
 
-float snoise(vec3 v) {
+float glslnoise_simplex3d(vec3 v) {
     const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
     const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
-    
+
     // First corner
     vec3 i = floor(v + dot(v, C.yyy));
     vec3 x0 = v - i + dot(i, C.xxx);
@@ -48,8 +48,8 @@ float snoise(vec3 v) {
     vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y
 
     // Permutations
-    i = mod289(i);
-    vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+    i = glslnoise_simplex3d_mod289v3(i);
+    vec4 p = glslnoise_simplex3d_permutev4(glslnoise_simplex3d_permutev4(glslnoise_simplex3d_permutev4(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
 
     // Gradients: 7x7 points over a square, mapped onto an octahedron.
     // The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
@@ -83,7 +83,7 @@ float snoise(vec3 v) {
     vec3 p3 = vec3(a1.zw, h.w);
 
     // Normalise gradients
-    vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+    vec4 norm = glslnoise_simplex3d_taylorInvSqrtv4(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
     p0 *= norm.x;
     p1 *= norm.y;
     p2 *= norm.z;

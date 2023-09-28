@@ -1,11 +1,18 @@
-float valuenoise_rand(float x) {
+// https://thebookofshaders.com/
+
+// 使用正弦波计算的噪声
+float rand(float x) {
     return fract(sin(x) * 100000.0);
 }
 
-float valuenoise_rand_curved(float x) {
+// 使用正弦波计算的噪声, 但是通过整数小数进行插值叠加平滑处理
+float smoothed_rand(float x) {
     float i = floor(x);  // 整数（i 代表 integer）
     float f = fract(x);  // 小数（f 代表 fraction）
-    // return  mix(rand1D(i), rand1D(i + 1.0), smoothstep(0., 1., f));
+
+    // 这里可以使用自己的三次曲线 cubic curve
     float u = f * f * (3.0 - 2.0 * f); // custom cubic curve
-    return mix(valuenoise_rand(i), valuenoise_rand(i + 1.0), u); // using it in the interpolation
+    // float u = smoothstep(0., 1., f);
+
+    return mix(rand(i), rand(i + 1.0), u); // using it in the interpolation
 }

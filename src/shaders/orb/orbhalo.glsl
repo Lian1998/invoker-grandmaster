@@ -5,11 +5,6 @@ float orbhalo_range(float oldValue, float oldMin, float oldMax, float newMin, fl
     return calRange;
 }
 
-// https://iquilezles.org/articles/functions/
-float orbhalo_expStep(float x, float k, float n) {
-    return exp(-k * pow(x, n));
-}
-
 // 球状描边贴图, 方形的uv中, 左上角为(-.5*√2, .5*√2), 上方为(.5, .5), 右上角为(.5*√2, .5*√2)
 float orbhalo(vec2 uv, vec2 center, float outerFactor, float innerFactor, float strengthFactor) {
     float _distance = length(uv - center);
@@ -18,9 +13,7 @@ float orbhalo(vec2 uv, vec2 center, float outerFactor, float innerFactor, float 
     float innerBoundary = step(_distance, innerFactor); // 0 ~ innerLineLength为1
     float isPixcel = outerBoundary - innerBoundary; // 1. 或者 0.
 
-    // float gradianted = smoothstep(innerFactor, outerFactor, _distance); // smoothstep太平滑了, 需要一个急速下坠的1D曲线
-    float ranged = orbhalo_range(_distance, innerFactor, outerFactor, 1., 0.);
-    float gradianted = orbhalo_expStep(clamp(ranged, 0., 1.), 1., 2.);
+    float gradianted = smoothstep(innerFactor, outerFactor, _distance); // smoothstep太平滑了, 需要一个急速下坠的1D曲线
     float factor = isPixcel * gradianted * strengthFactor; // 最终球状描边(逐片元值)
 
     return factor;

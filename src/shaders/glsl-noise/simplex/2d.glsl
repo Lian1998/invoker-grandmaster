@@ -8,19 +8,19 @@
 //               https://github.com/ashima/webgl-noise
 //
 
-vec3 mod289(vec3 x) {
+vec3 glslnoise_simplex2d_mod289v3(vec3 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
-vec2 mod289(vec2 x) {
+vec2 glslnoise_simplex2d_mod289v2(vec2 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
-vec3 permute(vec3 x) {
-    return mod289(((x * 34.0) + 1.0) * x);
+vec3 glslnoise_simplex2d_permutev3(vec3 x) {
+    return glslnoise_simplex2d_mod289v3(((x * 34.0) + 1.0) * x);
 }
 
-float snoise(vec2 v) {
+float glslnoise_simplex2d(vec2 v) {
     const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
     0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
     -0.577350269189626,  // -1.0 + 2.0 * C.x
@@ -42,8 +42,8 @@ float snoise(vec2 v) {
     x12.xy -= i1;
 
     // Permutations
-    i = mod289(i); // Avoid truncation effects in permutation
-    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+    i = glslnoise_simplex2d_mod289v2(i); // Avoid truncation effects in permutation
+    vec3 p = glslnoise_simplex2d_permutev3(glslnoise_simplex2d_permutev3(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
 
     vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
     m = m * m;
