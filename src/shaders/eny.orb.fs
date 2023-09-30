@@ -1,127 +1,69 @@
-uniform float uRand;
-uniform float uRandDinamic;
-
-// 球状着色图
-uniform sampler2D uMap1;
-
+uniform float uRand; // 静态随机数
+uniform float uRandDinamic; // 动态随机数
+uniform sampler2D uMap1; // 球状着色图
+uniform sampler2D uMap2; // 能量球状着色图
 uniform vec3 uColor1;
 uniform vec3 uColor2;
-uniform vec3 uColor3;
-uniform vec3 uColor4;
-uniform vec3 uColor5;
-uniform vec3 uColor6;
-uniform vec3 uColor7;
-uniform vec3 uColor8;
+uniform float uTime; // 时间
+uniform float uLifeTime; // 存在时间
 
-// 能量球状着色图
-uniform sampler2D uMap2;
-
-// 火球
-
-// 时间
-uniform float uTime;
-uniform float uLifeTime;
-
-varying vec2 vUv;
-
+varying vec2 vUv; // uv
 
 vec2 center = vec2(.5);
-vec2 iceOrbHighlight1Pos = vec2(.2, .55);
-vec2 iceOrbHighlight2Pos = vec2(.8, .55);
-vec3 iceOrbHighlightCyan = vec3(164. / 255., 245. / 255., 1.);
+vec2 highlight1Pos = vec2(.2, .55);
+vec2 highlight2Pos = vec2(.8, .55);
+vec3 highlightCyan = vec3(160. / 255., 245. / 255., 1.);
 
-float rand1D(float x) {
-    return fract(sin(x) * 100000.0);
-}
-
-float rand1DSmooth(float x) {
-    float i = floor(x);  // 整数（i 代表 integer）
-    float f = fract(x);  // 小数（f 代表 fraction）
-    return  mix(rand1D(i), rand1D(i + 1.0), smoothstep(0., 1., f));
-    // float u = f * f * (3.0 - 2.0 * f ); // custom cubic curve
-    // return = mix(rand(i), rand(i + 1.0), u); // using it in the interpolation
-}
+#montage import('./glsl-noise/simplex/2d.glsl');
+#montage import('./value-noise/1d.glsl');
+#montage import('./orb/orbhalo.glsl');
 
 void main() {
 
+    // 球状描边色
+    float outerFactor = .48; // 要比贴图稍微大一点, 这样会在外圈生成一层颜色稍淡的黑边, 有点立体效果
+    float innerFactor = .2 + smoothed_rand(uRandDinamic) * .1;
+    float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .9);
+    float orbhaloStrength = 2.;
+    vec3 orbHaloColor = mix(vec3(0.), uColor2, orbhaloFactor) * orbhaloStrength; // 描边
 
-    // add1 球状描边贴图, 方形的uv中, 左上角为(-.5*√2, .5*√2), 上方为(.5, .5), 右上角为(.5*√2, .5*√2)
-    float add1OutlineLength = .5;
-    float add1InnerlineLength = .25;
-    float boundary = step(length(vUv - center), add1OutlineLength); // 0 ~ outLineLength为1
-    float boundary1 = step(length(vUv - center), add1InnerlineLength); // 0 ~ innerLineLength为1
-    float add1Factor = boundary - boundary1; // 1. 或者 0.
-    float add1Strength = smoothstep(add1InnerlineLength, add1OutlineLength, length(vUv - center));
-    float add1StrengthFactor = .8;
-    float add1FinalFactor = add1Factor * add1Strength * add1StrengthFactor; // 最终球状描边(逐片元值)
+    // 贴图色
+    vec2 mapUv = vUv; // 传递uv
+    float spriteNum = 29.; // 雪碧图的长度(帧)
+    float spriteUnitUVLength = 1. / spriteNum;
+    float spriteIndex = floor(mod(uLifeTime + spriteNum * uRand, 1.) * spriteNum);
+    mapUv.x /= spriteNum;
+    mapUv.x += spriteIndex * spriteUnitUVLength; // 根据index进行uv偏移
+    vec4 uMap1Color = texture2D(uMap2, mapUv);
+    float uMap1ColorStrength = (uMap1Color.r + uMap1Color.g + uMap1Color.b) / 3. * 1.2; // 普通球体贴图的通道值
+    float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 5. + uTime * 2.)); // 中心点向内推波
+    if (uMap1ColorStrength > 0.) { // 通道值加强
+        uMap1ColorStrength += .08;
+        uMap1ColorStrength += wave * .12;
+    }
+    vec3 uMap1ColorMixed = mix(uColor2, uColor1, uMap1ColorStrength); // 贴图
 
-    // 计算片源对应的UV值
-    vec2 uv = vUv;
+    // 高光点颜色
+    float highlight1Size = .2 + .05 * smoothed_rand(uRandDinamic); // 大小随机
+    float highlight2Size = .2 + .05 * smoothed_rand(uRandDinamic);
+    highlight1Pos.x += (smoothed_rand(uTime) - .5) * 0.05; // 轻微移动
+    highlight1Pos.y += (smoothed_rand(uTime) - .5) * 0.05;
+    highlight2Pos.x += (smoothed_rand(uTime) - .5) * 0.05;
+    highlight2Pos.y += (smoothed_rand(uTime) - .5) * 0.05;
+    float orbHighlight1Factor = smoothstep(highlight1Size, 0., length(vUv - highlight1Pos));
+    float orbHighlight2Factor = smoothstep(highlight2Size, 0., length(vUv - highlight2Pos));
+    float orbHighlightFactor = orbHighlight1Factor + orbHighlight2Factor;
+    vec3 orbHighlightColor = orbHighlightFactor * highlightCyan * clamp(rand(vUv.x * vUv.y * uTime), .45, .55);
 
-    float spriteNum = 29.0; // 雪碧图的长度(帧)
-    float spriteUnitUVLength = 1.0 / spriteNum;
-    float spriteIndex = floor(mod(uLifeTime + spriteNum * uRand, 1.0) * spriteNum);
-    uv.x /= spriteNum;
-    uv.x += spriteIndex * spriteUnitUVLength; // 根据是第几(spriteIndex)张图进行uv偏移, floor(返回小于等于x的最大整数值)
+    // gl_FragColor = vec4(vec3(wave), 1.); // wave Factor
+    // gl_FragColor = vec4(vec3(orbhaloFactor), 1.);  // halo Factor
+    // gl_FragColor = vec4(orbHaloColor, 1.);  // halo Colored
+    // gl_FragColor = vec4(vec3(orbHighlightFactor), 1.); // highlight Factor
+    // gl_FragColor = vec4(orbHighlightColor, 1.); // highlight Colored
+    // gl_FragColor = uMap1Color; // uMap1Color
+    // gl_FragColor = vec4(uMap1ColorStrength); // uMap1Color Strength
+    // gl_FragColor = vec4(uMap1ColorMixed, uMap1ColorStrength); // uMap1ColorMixed
 
-    // 贴图
-
-    // 普通球体
-    vec4 mapColor1 = texture2D(uMap1, uv); 
-    float mapColor1AlphaStrength = mapColor1.r; // 普通球体贴图的通道值
-    if (mapColor1AlphaStrength != 0.) { mapColor1AlphaStrength += 0.4; } // 通道值加强
-
-    // 能量球体
-    vec4 mapColor2 = texture2D(uMap2, uv); 
-    float mapColor2AlphaStrength = mapColor2.r; // 普通球体贴图的通道值
-    if (mapColor2AlphaStrength != 0.) { mapColor2AlphaStrength += 0.05; } // 通道值加强
-
-    // 判断当前渲染的球
-
-    // 冰球
-    float iceOrbHightlight1Size = .15 + .07 * rand1D(uRandDinamic);
-    float iceOrbHightlight2Size = .15 + .07 * rand1D(uRandDinamic);
-    iceOrbHighlight1Pos.x += (rand1DSmooth(uTime) - .5) * 0.05;
-    iceOrbHighlight1Pos.y += (rand1DSmooth(uTime) - .5) * 0.05;
-    iceOrbHighlight2Pos.x += (rand1DSmooth(uTime) - .5) * 0.05;
-    iceOrbHighlight2Pos.y += (rand1DSmooth(uTime) - .5) * 0.05;
-    float iceOrbHighlight1 = smoothstep(iceOrbHightlight1Size, 0., length(vUv - iceOrbHighlight1Pos));
-    float iceOrbHighlight2 = smoothstep(iceOrbHightlight2Size, 0., length(vUv - iceOrbHighlight2Pos));
-    
-    vec4 iceorbShapeColor = vec4(mix(vec3(0.), uColor3, add1FinalFactor), 1.); // 球状描边
-    vec3 iceOrbMapMixedColor = mix(uColor2, uColor1, mapColor1AlphaStrength); // 冰球MapMixedColor
-    vec4 iceOrbHightLightColor = vec4(
-        (iceOrbHighlightCyan * iceOrbHighlight1 + iceOrbHighlightCyan * iceOrbHighlight2) * 
-        clamp(rand1D(vUv.x * vUv.y * uTime), .45, .55),
-        (iceOrbHighlight1 + iceOrbHighlight2) * .8
-    );
-
-    // gl_FragColor = iceOrbHightLightColor; // 冰球高光
-    gl_FragColor = vec4(iceOrbMapMixedColor.rgb, mapColor1AlphaStrength); // 冰球MapMixedColor
-    gl_FragColor = iceorbShapeColor;  // 球状描边
-    gl_FragColor = vec4(iceOrbMapMixedColor.rgb - iceorbShapeColor.rgb + iceOrbHightLightColor.rgb, mapColor1AlphaStrength + iceOrbHightLightColor.a);
-    // gl_FragColor = vec4(
-    //     iceOrbMapMixedColor.rgb + (iceorbShapeColor.rgb * .6) + iceOrbHightLightColor.rgb, 
-    //     (iceorbShapeColor.r + iceorbShapeColor.g + iceorbShapeColor.b) / 3. + 
-    //     mapColor1AlphaStrength + iceOrbHightLightColor.a
-    // );
-
-    // 电球
-    
-    // vec3 eleOrbMapMixedColor = mix(uColor5, uColor4, mapColor2AlphaStrength); // 电球MapMixedColor
-    // vec4 eleorbShapeColor = vec4(mix(vec3(0.), uColor4, add1FinalFactor), 1.); // 球状描边
-
-    // gl_FragColor = vec4(eleOrbMapMixedColor, mapColor2AlphaStrength); // 电球MapMixedColor
-    // gl_FragColor = eleorbShapeColor;  // 球状描边
-    // gl_FragColor = vec4(
-    //     eleOrbMapMixedColor.rgb + (eleorbShapeColor.rgb * .6), 
-    //     (eleorbShapeColor.r + eleorbShapeColor.g + eleorbShapeColor.b) / 3. + 
-    //     mapColor2AlphaStrength
-    // );
-
-
-    // 火球
-    // vec4 fireorbShapeColor = vec4(mix(vec3(0.), uColor8, add1FinalFactor), 1.); // 球状描边
-    // gl_FragColor = fireorbShapeColor;  // 球状描边
+    gl_FragColor = vec4(orbHaloColor.rgb + uMap1ColorMixed.rgb + orbHighlightColor.rgb, uMap1ColorStrength + orbHighlightFactor + orbhaloFactor * .2);
 
 }

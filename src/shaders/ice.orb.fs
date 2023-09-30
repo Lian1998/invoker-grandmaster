@@ -30,14 +30,14 @@ void main() {
 
     // 贴图色
     vec2 mapUv = vUv; // 传递uv
-    float spriteNum = 29.0; // 雪碧图的长度(帧)
-    float spriteUnitUVLength = 1.0 / spriteNum;
-    float spriteIndex = floor(mod(uLifeTime + spriteNum * uRand, 1.0) * spriteNum);
+    float spriteNum = 29.; // 雪碧图的长度(帧)
+    float spriteUnitUVLength = 1. / spriteNum;
+    float spriteIndex = floor(mod(uLifeTime + spriteNum * uRand, 1.) * spriteNum);
     mapUv.x /= spriteNum;
     mapUv.x += spriteIndex * spriteUnitUVLength; // 根据index进行uv偏移
     vec4 uMap1Color = texture2D(uMap1, mapUv);
     float uMap1ColorStrength = (uMap1Color.r + uMap1Color.g + uMap1Color.b) / 3. * 1.2; // 普通球体贴图的通道值
-    float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 5. + uTime * 2.)); // 中心点向外推波
+    float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 5. + uTime * 2.)); // 中心点向内推波
     if (uMap1ColorStrength > 0.) { // 通道值加强
         uMap1ColorStrength += .08;
         uMap1ColorStrength += wave * .12;

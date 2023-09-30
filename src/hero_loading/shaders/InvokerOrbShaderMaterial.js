@@ -4,8 +4,8 @@ import iceorb_frag from './ice.orb.frag.glsl?raw';
 
 const textureLoader = new THREE.TextureLoader();
 
-const orbTintable = textureLoader.load('/vrfcrack/particle/orb_tintable.png');
-const orbEnergyTintable = textureLoader.load('/vrfcrack/particle/orb_energy_tintable.png');
+const orbTintable = textureLoader.load('/invoker-orbs/circular_tintable_frame.png');
+const orbEnergyTintable = textureLoader.load('/invoker-orbs/energy_tintable_frame.png');
 
 const iceOrbShaderMaterial = () => new THREE.ShaderMaterial({
 

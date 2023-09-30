@@ -38,7 +38,7 @@ const textureLoader = new THREE.TextureLoader();
 
 
 // 背景
-const t_rock = textureLoader.load('/flame/resources/rock.jpg');
+const t_rock = textureLoader.load('/fortest/flame/resources/rock.jpg');
 t_rock.colorSpace = THREE.SRGBColorSpace;
 const bgMesh = new THREE.Mesh(
     new THREE.BoxGeometry(4, 4, 4),

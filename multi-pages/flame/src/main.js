@@ -10,7 +10,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
 
 (function () {
-    var _renderer, _scene, _camera, _controls, _rtt, _fire;
+    var _renderer, _scene, _camera, _controls, _rtt, _rtt1, _fire;
     var _width, _height;
 
     window.onload = init;
@@ -70,8 +70,12 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             stencilBuffer: false
         };
         if (_rtt) _rtt.dispose();
+        if (_rtt1) _rtt1.dispose();
         _rtt = new THREE.WebGLRenderTarget(_width * 0.5, _height * 0.5, _parameters);
+        _rtt.texture.name = 'EffectComposer.rt1';
         _rtt.texture.colorSpace = THREE.SRGBColorSpace;
+        _rtt1 = _rtt.clone();
+        _rtt1.texture.name = 'EffectComposer.rt2';
     }
 
     function render() {
@@ -100,7 +104,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         _scene.add(background);
 
         var textureLoader = new THREE.TextureLoader();
-        textureLoader.load('./resources/rock.jpg', t => {
+        textureLoader.load('/fortest/flame/resources/rock.jpg', t => {
             t.colorSpace = THREE.SRGBColorSpace;
             background.material.map = t;
             background.material.needsUpdate = true;
@@ -196,7 +200,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             });
 
             var textureLoader = new THREE.TextureLoader();
-            textureLoader.load('./resources/flame.png', t => {
+            textureLoader.load('/fortest/flame/resources/flame.png', t => {
                 t.colorSpace = THREE.SRGBColorSpace;
                 _shader.uniforms.uMap.value = t;
             });
@@ -310,7 +314,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             });
 
             var textureLoader = new THREE.TextureLoader();
-            textureLoader.load('./resources/ember.png', t => {
+            textureLoader.load('/fortest/flame/resources/ember.png', t => {
                 t.colorSpace = THREE.SRGBColorSpace;
                 _shader.uniforms.uMap.value = t;
             });
@@ -364,6 +368,12 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         var _z = new THREE.Vector3(0, 0, 1);
         var _quat = new THREE.Quaternion();
         var _quat2 = new THREE.Quaternion();
+
+        var temp = _rtt;
+        var texture_visiable = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: temp.texture }));
+        texture_visiable.scale.multiplyScalar(5.);
+        texture_visiable.position.set(0, -5, 0);
+        texture_visiable.rotateX(-Math.PI / 2);
 
         (function () {
             initGeometry();
@@ -433,10 +443,11 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
                 fragmentShader: hazeFragmentShader,
                 transparent: true,
                 depthTest: false,
+                blending: THREE.NormalBlending
             });
 
             var textureLoader = new THREE.TextureLoader();
-            textureLoader.load('./resources/haze.png', t => {
+            textureLoader.load('/fortest/flame/resources/haze.png', t => {
                 t.colorSpace = THREE.SRGBColorSpace;
                 _shader.uniforms.uMask.value = t;
             });
@@ -446,6 +457,10 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _mesh = new THREE.Mesh(_geometry, _shader);
             _mesh.frustumCulled = false;
             _scene.add(_mesh);
+
+            // console.log(_shader.uniforms.uMap.value)
+            _scene.add(texture_visiable);
+
         }
 
         function resizeHaze() {
@@ -458,10 +473,15 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             requestAnimationFrame(loop);
 
             _mesh.visible = false;
-            _renderer.setRenderTarget(_rtt);
+            _renderer.setRenderTarget(temp);
             _renderer.render(_scene, _camera);
-            _mesh.visible = true;
+            if (temp === _rtt) { temp = _rtt1; }
+            else { temp = _rtt; }
+            temp.texture.needsUpdate = true;
+            _shader.uniforms.uMap.value = temp.texture;
+            texture_visiable.material.map = temp.texture;
 
+            _mesh.visible = true;
             var life = _geometry.attributes.life;
             var base = _geometry.attributes.base;
             var offset = _geometry.attributes.offset;

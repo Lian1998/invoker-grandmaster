@@ -9,8 +9,8 @@ const el2 = document.getElementById('viewport2');
 
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
-const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-camera.position.set(0, 0, 1);
+const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000.);
+camera.position.set(0., 0., 1.);
 
 const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true, stencil: false });
 const renderer1 = new THREE.WebGLRenderer({ canvas: el1, antialias: true, stencil: false });
@@ -34,15 +34,20 @@ import eny_fs from '@shaders/eny.orb.fs';
 import fre_fs from '@shaders/fre.orb.fs';
 
 // console.log(ice_fs);
-console.log(fre_fs);
+// console.log(eny_fs);
+// console.log(fre_fs);
 
 const textureLoader = new THREE.TextureLoader();
-const orbTintable = textureLoader.load('/vrfcrack/particle/orb_tintable.png');
-const orbEnergyTintable = textureLoader.load('/vrfcrack/particle/orb_energy_tintable.png');
+const orbTintable = textureLoader.load('/invoker-orbs/circular_tintable_frame.png');
+const orbEnergyTintable = textureLoader.load('/invoker-orbs/energy_tintable_frame.png');
+const graynoise = textureLoader.load('/invoker-orbs/gray_noise_small_by_shadertoy.png');
+graynoise.wrapS = THREE.RepeatWrapping;
+graynoise.wrapT = THREE.RepeatWrapping;
 
 const planeGeom = new THREE.PlaneGeometry(1., 1.);
 const ice_sm = new THREE.ShaderMaterial({
     uniforms: {
+        uType: { value: .1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
@@ -66,22 +71,19 @@ scene.add(sprite);
 
 const eny_sm = new THREE.ShaderMaterial({
     uniforms: {
+        uType: { value: 1.1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
         uLifeTime: { value: 0.0 }, // 切球时间
-        // 球状着色图
-        uMap1: { value: orbTintable },
-        // 能量球着色图
-        uMap2: { value: orbEnergyTintable },
-
-        // 电球
-        uColor4: { value: new THREE.Color(0xFDF5FB) },
-        uColor5: { value: new THREE.Color(0x916594) },
-
+        uMap1: { value: orbTintable }, // 球状着色图
+        uMap2: { value: orbEnergyTintable }, // 电球着色图
+        // 电球色
+        uColor1: { value: new THREE.Color(0xFDF5FB) },
+        uColor2: { value: new THREE.Color(0x916594) },
     },
     vertexShader: orb_vs,
-    fragmentShader: ice_fs,
+    fragmentShader: eny_fs,
     transparent: true,
     blending: THREE.NormalBlending,
     opacity: 1.,
@@ -92,12 +94,14 @@ scene.add(sprite1);
 
 const fre_sm = new THREE.ShaderMaterial({
     uniforms: {
+        uType: { value: 2.1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
         uLifeTime: { value: 0.0 }, // 切球时间
         uMap1: { value: orbTintable }, // 球状着色图
         uMap2: { value: orbEnergyTintable }, // 能量球着色图
+        uMap3: { value: graynoise }, // 能量球着色图
         // 火球色
         uColor1: { value: new THREE.Color(0xFFFFFF) },
         uColor2: { value: new THREE.Color(0xFFF665) },
