@@ -38,9 +38,9 @@ import fre_fs from '@shaders/fre.orb.fs';
 // console.log(fre_fs);
 
 const textureLoader = new THREE.TextureLoader();
-const orbTintable = textureLoader.load('/invoker-orbs/circular_tintable_frame.png');
-const orbEnergyTintable = textureLoader.load('/invoker-orbs/energy_tintable_frame.png');
-const graynoise = textureLoader.load('/invoker-orbs/gray_noise_small_by_shadertoy.png');
+const orbTintable = textureLoader.load('/invoker-orbs/orb_framemap_scale2.png');
+const orbEnergyTintable = textureLoader.load('/invoker-orbs/energyorb_framemap_scale2.png');
+const graynoise = textureLoader.load('/invoker-orbs/graynoise_by_shadertoy.png');
 graynoise.wrapS = THREE.RepeatWrapping;
 graynoise.wrapT = THREE.RepeatWrapping;
 
@@ -103,9 +103,12 @@ const fre_sm = new THREE.ShaderMaterial({
         uMap2: { value: orbEnergyTintable }, // 能量球着色图
         uMap3: { value: graynoise }, // 能量球着色图
         // 火球色
-        uColor1: { value: new THREE.Color(0xFFFFFF) },
-        uColor2: { value: new THREE.Color(0xFFF665) },
-        uColor3: { value: new THREE.Color(0xEC9F48) },
+        uColor1: { value: new THREE.Color(0xFBD4A0) }, 
+        uColor2: { value: new THREE.Color(0xEA8B44) },
+        // 火圈色
+        uColor3: { value: new THREE.Color(0xFFFFFF) },
+        uColor4: { value: new THREE.Color(0xFFFF89) },
+        uColor5: { value: new THREE.Color(0x7B431B) },
     },
     vertexShader: orb_vs,
     fragmentShader: fre_fs,

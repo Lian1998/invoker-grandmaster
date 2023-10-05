@@ -17,11 +17,7 @@
 
 varying vec2 vUv;
 
-uniform float uType;
-
 vec2 center = vec2(.5); // 传入的几何体是一块(1, 1)对准z轴的平面, 中心点是vec2(.5, .5)
-vec2 scale = vec2(1., 1.); // 设置顶点的scale, 默认长宽都为1.0
-float scleFactor = 1.; // scale计算因数
 
 void main() {
 
@@ -32,18 +28,12 @@ void main() {
     // mvPosition = [ vec4(modelViewMatrix[0][3], modelViewMatrix[1][3], modelViewMatrix[2][3], modelViewMatrix[3][3]) ];
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
 
-    if (uType > 2.) {
-        scleFactor = 1.2;
-    } else if (uType > 1.) {
-        scleFactor = 1.5;
-    } else if (uType > 0.) {
-        scleFactor = 1.;
-    }
-
-    scale.x = length(vec3(modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z));
-    scale.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
-    scale *= -1. / length(mvPosition);
-    vec2 alignedPosition = (position.xy - (center - vec2(0.5))) * scale * scleFactor;
+    vec2 scaleVertex = vec2(1., 1.); // 顶点位置
+    float scaleStrength = 2.; // scale强度
+    scaleVertex.x = length(vec3(modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z));
+    scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
+    scaleVertex *= -1. / length(mvPosition);
+    vec2 alignedPosition = (position.xy - (center - vec2(0.5))) * scaleVertex * scaleStrength;
 
     mvPosition.xy += alignedPosition.xy;
 

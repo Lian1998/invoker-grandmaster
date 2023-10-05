@@ -10,9 +10,6 @@ uniform float uLifeTime; // 存在时间
 varying vec2 vUv; // uv
 
 vec2 center = vec2(.5);
-vec2 highlight1Pos = vec2(.2, .55);
-vec2 highlight2Pos = vec2(.8, .55);
-vec3 highlightCyan = vec3(160. / 255., 245. / 255., 1.);
 
 #montage import('./glsl-noise/simplex/2d.glsl');
 #montage import('./value-noise/1d.glsl');
@@ -21,38 +18,38 @@ vec3 highlightCyan = vec3(160. / 255., 245. / 255., 1.);
 void main() {
 
     // 球状描边色
-    float outerFactor = .48; // 要比贴图稍微大一点, 这样会在外圈生成一层颜色稍淡的黑边, 有点立体效果
+    float outerFactor = .34; // 要比贴图稍微大一点, 这样会在外圈生成一层颜色稍淡的黑边, 有点立体效果
     float innerFactor = .2 + smoothed_rand(uRandDinamic) * .1;
     float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .9);
-    float orbhaloStrength = 2.;
+    float orbhaloStrength = 1.2;
     vec3 orbHaloColor = mix(vec3(0.), uColor2, orbhaloFactor) * orbhaloStrength; // 描边
 
-    // 贴图色
-    vec2 mapUv = vUv; // 传递uv
-    float spriteNum = 29.; // 雪碧图的长度(帧)
-    float spriteUnitUVLength = 1. / spriteNum;
-    float spriteIndex = floor(mod(uLifeTime + spriteNum * uRand, 1.) * spriteNum);
-    mapUv.x /= spriteNum;
-    mapUv.x += spriteIndex * spriteUnitUVLength; // 根据index进行uv偏移
-    vec4 uMap1Color = texture2D(uMap2, mapUv);
-    float uMap1ColorStrength = (uMap1Color.r + uMap1Color.g + uMap1Color.b) / 3. * 1.2; // 普通球体贴图的通道值
+    // 帧贴图色
+    vec2 frameTexUv = vUv;
+    vec2 frameScale = vec2(1.5, 1.5); // 每帧雪碧图的缩放
+    float frameNum = 29.; // 雪碧图包含了多少帧
+    float frameSpeedScale = 1.5; // 收到时间影响的因数
+    float frameIndex = floor(mod((frameNum * uRand + uLifeTime * frameSpeedScale), 1.) * frameNum); // 计算当前显示的雪碧图帧数 int[0 ~ 28]
+    float frameFloating = frameIndex * (1. / frameNum); // 雪碧图当前帧漂移的距离
+    frameTexUv.x = ((frameTexUv.x / frameScale.x) + (frameScale.x - 1.) / (2. * frameScale.x)) / frameNum + frameFloating;
+    frameTexUv.y = (frameTexUv.y / frameScale.y) + (frameScale.y - 1.) / (2. * frameScale.y);
+    vec4 uMap2Color = texture2D(uMap2, frameTexUv);
+    float uMap2ColorStrength = (uMap2Color.r + uMap2Color.g + uMap2Color.b) / 3. * 1.2; // 普通球体贴图的通道值
     float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 5. + uTime * 2.)); // 中心点向内推波
-    if (uMap1ColorStrength > 0.) { // 通道值加强
-        uMap1ColorStrength += .08;
-        uMap1ColorStrength += wave * .12;
+    if (uMap2ColorStrength > 0.) { // 通道值加强
+        uMap2ColorStrength += .08;
+        uMap2ColorStrength += wave * .12;
     }
-    vec3 uMap1ColorMixed = mix(uColor2, uColor1, uMap1ColorStrength); // 贴图
+    vec3 uMap2ColorMixed = mix(uColor2, uColor1, uMap2ColorStrength); // 贴图
 
-    // 高光点颜色
-    float highlight1Size = .2 + .05 * smoothed_rand(uRandDinamic); // 大小随机
-    float highlight2Size = .2 + .05 * smoothed_rand(uRandDinamic);
-    highlight1Pos.x += (smoothed_rand(uTime) - .5) * 0.05; // 轻微移动
-    highlight1Pos.y += (smoothed_rand(uTime) - .5) * 0.05;
-    highlight2Pos.x += (smoothed_rand(uTime) - .5) * 0.05;
-    highlight2Pos.y += (smoothed_rand(uTime) - .5) * 0.05;
-    float orbHighlight1Factor = smoothstep(highlight1Size, 0., length(vUv - highlight1Pos));
-    float orbHighlight2Factor = smoothstep(highlight2Size, 0., length(vUv - highlight2Pos));
-    float orbHighlightFactor = orbHighlight1Factor + orbHighlight2Factor;
+    // 高光点, 一个比较大的高光点, 左下到右上sin函数运动
+    vec2 highlight1Pos = vec2(.5, .5);
+    vec3 highlightCyan = vec3(160. / 255., 245. / 255., 1.);
+    float highlightSize = .2;
+    float highlight1Size = highlightSize + .05 * smoothed_rand(uRandDinamic); // 大小随机
+    highlight1Pos.x += (smoothed_rand(sin(uTime)) - .5) * .3; // 移动
+    highlight1Pos.y += (smoothed_rand(sin(uTime)) - .5) * .3;
+    float orbHighlightFactor = smoothstep(highlight1Size, 0., length(vUv - highlight1Pos));
     vec3 orbHighlightColor = orbHighlightFactor * highlightCyan * clamp(rand(vUv.x * vUv.y * uTime), .45, .55);
 
     // gl_FragColor = vec4(vec3(wave), 1.); // wave Factor
@@ -60,10 +57,11 @@ void main() {
     // gl_FragColor = vec4(orbHaloColor, 1.);  // halo Colored
     // gl_FragColor = vec4(vec3(orbHighlightFactor), 1.); // highlight Factor
     // gl_FragColor = vec4(orbHighlightColor, 1.); // highlight Colored
-    // gl_FragColor = uMap1Color; // uMap1Color
-    // gl_FragColor = vec4(uMap1ColorStrength); // uMap1Color Strength
-    // gl_FragColor = vec4(uMap1ColorMixed, uMap1ColorStrength); // uMap1ColorMixed
+    // gl_FragColor = uMap2Color; // uMap2Color
+    // gl_FragColor = vec4(uMap2ColorStrength); // uMap2Color Strength
+    // gl_FragColor = vec4(uMap2ColorMixed, uMap2ColorStrength); // uMap2ColorMixed
 
-    gl_FragColor = vec4(orbHaloColor.rgb + uMap1ColorMixed.rgb + orbHighlightColor.rgb, uMap1ColorStrength + orbHighlightFactor + orbhaloFactor * .2);
+    gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb + orbHighlightColor.rgb, uMap2ColorStrength + orbHighlightFactor * uMap2ColorStrength * .2 + orbhaloFactor * .2);
+    // gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb, uMap2ColorStrength + orbhaloFactor * .2);
 
 }
