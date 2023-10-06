@@ -8,10 +8,12 @@ import embersFragmentShader from './emberFrag.glsl?raw'
 import hazeVertexShader from './hazeVert.glsl?raw'
 import hazeFragmentShader from './hazeFrag.glsl?raw'
 
+let textureLoader = new THREE.TextureLoader();
 
 (function () {
-    var _renderer, _scene, _camera, _controls, _rtt, _rtt1, _fire;
-    var _width, _height;
+    let _renderer, _scene, _camera, _controls, _rtt, _fire;
+    let _width, _height;
+    let fireLoop, emberLoop, hazeLoop;
 
     window.onload = init;
 
@@ -20,14 +22,14 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         initScene();
     }
 
-    //=====// Utils //========================================//     
+    // Utils
 
     function random(min, max, precision) {
-        var p = Math.pow(10, precision);
+        let p = Math.pow(10, precision);
         return Math.round((min + Math.random() * (max - min)) * p) / p;
     }
 
-    //=====// World //========================================//     
+    // World
 
     function initWorld() {
         _renderer = new THREE.WebGLRenderer();
@@ -63,39 +65,42 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
     }
 
     function resetRT() {
-        var _parameters = {
+        let dpr = _renderer.getPixelRatio();
+        let _parameters = {
             minFilter: THREE.LinearFilter,
             magFilter: THREE.LinearFilter,
             format: THREE.RGBAFormat,
             stencilBuffer: false
         };
-        if (_rtt) _rtt.dispose();
-        if (_rtt1) _rtt1.dispose();
-        _rtt = new THREE.WebGLRenderTarget(_width * 0.5, _height * 0.5, _parameters);
-        _rtt.texture.name = 'EffectComposer.rt1';
+        if (_rtt) { _rtt.dispose(); }
+        _rtt = new THREE.WebGLRenderTarget(_width / dpr, _height / dpr, _parameters);
         _rtt.texture.colorSpace = THREE.SRGBColorSpace;
-        _rtt1 = _rtt.clone();
-        _rtt1.texture.name = 'EffectComposer.rt2';
     }
 
-    function render() {
+    function render(e) {
         requestAnimationFrame(render);
         if (_controls) _controls.update();
+
+
+        if (fireLoop) { fireLoop(e); }
+        if (emberLoop) { emberLoop(e); }
+        if (hazeLoop) { hazeLoop(e); }
+
         _renderer.setRenderTarget(null)
         _renderer.render(_scene, _camera);
     }
 
-    //=====// Scene //========================================//     
+    // Scene
 
     function initScene() {
         initBackground();
-        initFire();
-        initEmbers();
-        initHaze();
+        fireLoop = initFire();
+        emberLoop = initEmbers();
+        hazeLoop = initHaze();
     }
 
     function initBackground() {
-        var background = new THREE.Mesh(
+        let background = new THREE.Mesh(
             new THREE.BoxGeometry(4, 4, 4),
             new THREE.MeshBasicMaterial({
                 side: THREE.BackSide
@@ -103,7 +108,6 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         );
         _scene.add(background);
 
-        var textureLoader = new THREE.TextureLoader();
         textureLoader.load('/fortest/flame/resources/rock.jpg', t => {
             t.colorSpace = THREE.SRGBColorSpace;
             background.material.map = t;
@@ -111,39 +115,38 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         });
     }
 
-    //=====// Fire //========================================//     
+    // Fire    
 
     function initFire() {
-        var _geometry, _shader, _mesh, _group;
-        var _num = 12;
+        let _geometry, _shader, _mesh, _group;
+        let _num = 12;
 
-        var _x = new THREE.Vector3(1, 0, 0);
-        var _y = new THREE.Vector3(0, 1, 0);
-        var _z = new THREE.Vector3(0, 0, 1);
+        let _x = new THREE.Vector3(1, 0, 0);
+        let _y = new THREE.Vector3(0, 1, 0);
+        let _z = new THREE.Vector3(0, 0, 1);
 
-        var _tipTarget = new THREE.Vector3();
-        var _tip = new THREE.Vector3();
-        var _diff = new THREE.Vector3();
+        let _tipTarget = new THREE.Vector3();
+        let _tip = new THREE.Vector3();
+        let _diff = new THREE.Vector3();
 
-        var _quat = new THREE.Quaternion();
-        var _quat2 = new THREE.Quaternion();
+        let _quat = new THREE.Quaternion();
+        let _quat2 = new THREE.Quaternion();
 
         (function () {
             initGeometry();
             initInstances();
             initShader();
             initMesh();
-            requestAnimationFrame(loop);
         })();
 
         function initGeometry() {
             _geometry = new THREE.InstancedBufferGeometry();
             _geometry.maxInstancedCount = _num;
 
-            var shape = new THREE.PlaneGeometry(1, 1);
+            let shape = new THREE.PlaneGeometry(1, 1);
 
             shape.translate(0, 0.4, 0); // 平移
-            var data = shape.attributes;
+            let data = shape.attributes;
 
             _geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(data.position.array), 3));
             _geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(data.uv.array), 2));
@@ -153,10 +156,10 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         }
 
         function initInstances() {
-            var orientation = new THREE.InstancedBufferAttribute(new Float32Array(_num * 4), 4);
-            var randoms = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
-            var scale = new THREE.InstancedBufferAttribute(new Float32Array(_num * 2), 2);
-            var life = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
+            let orientation = new THREE.InstancedBufferAttribute(new Float32Array(_num * 4), 4);
+            let randoms = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
+            let scale = new THREE.InstancedBufferAttribute(new Float32Array(_num * 2), 2);
+            let life = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
 
             for (let i = 0; i < _num; i++) {
                 orientation.setXYZW(i, 0, 0, 0, 1);
@@ -170,7 +173,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         }
 
         function initShader() {
-            var uniforms = {
+            let uniforms = {
                 uMap: {
                     type: 't',
                     value: null
@@ -199,7 +202,6 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
                 side: THREE.DoubleSide,
             });
 
-            var textureLoader = new THREE.TextureLoader();
             textureLoader.load('/fortest/flame/resources/flame.png', t => {
                 t.colorSpace = THREE.SRGBColorSpace;
                 _shader.uniforms.uMap.value = t;
@@ -216,16 +218,15 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         }
 
         function loop(e) {
-            requestAnimationFrame(loop);
             _shader.uniforms.uTime.value = e * 0.001;
 
-            var life = _geometry.attributes.life;
-            var orientation = _geometry.attributes.orientation;
-            var scale = _geometry.attributes.scale;
-            var randoms = _geometry.attributes.random;
+            let life = _geometry.attributes.life;
+            let orientation = _geometry.attributes.orientation;
+            let scale = _geometry.attributes.scale;
+            let randoms = _geometry.attributes.random;
 
             for (let i = 0; i < _num; i++) {
-                var value = life.array[i];
+                let value = life.array[i];
                 value += 0.04;
 
                 if (value > 1) {
@@ -265,19 +266,20 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
             _group.quaternion.setFromUnitVectors(_y, _diff.normalize());
         }
+
+        return loop;
     }
 
-    //=====// Embers //========================================//     
+    // Embers
 
     function initEmbers() {
-        var _geometry, _shader, _points;
-        var _num = 8;
+        let _geometry, _shader, _points;
+        let _num = 8;
 
         (function () {
             initGeometry();
             initShader();
             initMesh();
-            requestAnimationFrame(loop);
         })();
 
         function initGeometry() {
@@ -287,13 +289,13 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _geometry.setAttribute('size', new THREE.BufferAttribute(new Float32Array(_num), 1));
             _geometry.setAttribute('life', new THREE.BufferAttribute(new Float32Array(_num), 1));
 
-            for (var i = 0; i < _num; i++) {
+            for (let i = 0; i < _num; i++) {
                 _geometry.attributes.life.setX(i, random(0, 1, 3) + 1);
             }
         }
 
         function initShader() {
-            var uniforms = {
+            let uniforms = {
                 uMap: {
                     type: 't',
                     value: null
@@ -313,7 +315,6 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
                 depthTest: false,
             });
 
-            var textureLoader = new THREE.TextureLoader();
             textureLoader.load('/fortest/flame/resources/ember.png', t => {
                 t.colorSpace = THREE.SRGBColorSpace;
                 _shader.uniforms.uMap.value = t;
@@ -327,13 +328,12 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         }
 
         function loop() {
-            requestAnimationFrame(loop);
-            var life = _geometry.attributes.life;
-            var position = _geometry.attributes.position;
-            var size = _geometry.attributes.size;
-            var offset = _geometry.attributes.offset;
+            let life = _geometry.attributes.life;
+            let position = _geometry.attributes.position;
+            let size = _geometry.attributes.size;
+            let offset = _geometry.attributes.offset;
             for (let i = 0; i < _num; i++) {
-                var value = life.array[i];
+                let value = life.array[i];
                 value += 0.02;
 
                 if (value > 1) {
@@ -356,24 +356,20 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             size.needsUpdate = true;
             offset.needsUpdate = true;
         }
+
+        return loop;
     }
 
-    //=====// Haze //========================================//     
+    // Haze
 
     function initHaze() {
-        var _geometry, _shader, _mesh;
+        let _geometry, _shader, _mesh;
 
-        var _num = 4;
+        let _num = 4;
 
-        var _z = new THREE.Vector3(0, 0, 1);
-        var _quat = new THREE.Quaternion();
-        var _quat2 = new THREE.Quaternion();
-
-        var temp = _rtt;
-        var texture_visiable = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: temp.texture }));
-        texture_visiable.scale.multiplyScalar(5.);
-        texture_visiable.position.set(0, -5, 0);
-        texture_visiable.rotateX(-Math.PI / 2);
+        let _z = new THREE.Vector3(0, 0, 1);
+        let _quat = new THREE.Quaternion();
+        let _quat2 = new THREE.Quaternion();
 
         (function () {
             initGeometry();
@@ -382,15 +378,14 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             initMesh();
             window.addEventListener('resize', resizeHaze, false);
             resizeHaze();
-            requestAnimationFrame(loop);
         })();
 
         function initGeometry() {
             _geometry = new THREE.InstancedBufferGeometry();
             _geometry.maxInstancedCount = _num;
 
-            var shape = new THREE.PlaneGeometry(2, 2);
-            var data = shape.attributes;
+            let shape = new THREE.PlaneGeometry(2, 2);
+            let data = shape.attributes;
 
             _geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(data.position.array), 3));
             _geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(data.uv.array), 2));
@@ -400,12 +395,12 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         }
 
         function initInstances() {
-            var base = new THREE.InstancedBufferAttribute(new Float32Array(_num * 3), 3);
-            var offset = new THREE.InstancedBufferAttribute(new Float32Array(_num * 3), 3);
-            var orientation = new THREE.InstancedBufferAttribute(new Float32Array(_num * 4), 4);
-            var scale = new THREE.InstancedBufferAttribute(new Float32Array(_num * 2), 2);
-            var rotation = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
-            var life = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
+            let base = new THREE.InstancedBufferAttribute(new Float32Array(_num * 3), 3);
+            let offset = new THREE.InstancedBufferAttribute(new Float32Array(_num * 3), 3);
+            let orientation = new THREE.InstancedBufferAttribute(new Float32Array(_num * 4), 4);
+            let scale = new THREE.InstancedBufferAttribute(new Float32Array(_num * 2), 2);
+            let rotation = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
+            let life = new THREE.InstancedBufferAttribute(new Float32Array(_num), 1);
 
             for (let i = 0; i < _num; i++) {
                 orientation.setXYZW(i, 0, 0, 0, 1);
@@ -422,7 +417,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
         function initShader() {
             let dpr = _renderer.getPixelRatio();
-            var uniforms = {
+            let uniforms = {
                 uMap: {
                     type: 't',
                     value: null
@@ -446,7 +441,6 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
                 blending: THREE.NormalBlending
             });
 
-            var textureLoader = new THREE.TextureLoader();
             textureLoader.load('/fortest/flame/resources/haze.png', t => {
                 t.colorSpace = THREE.SRGBColorSpace;
                 _shader.uniforms.uMask.value = t;
@@ -458,38 +452,30 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _mesh.frustumCulled = false;
             _scene.add(_mesh);
 
-            // console.log(_shader.uniforms.uMap.value)
-            _scene.add(texture_visiable);
+            // _scene.add(texture_visiable_plane);
 
         }
 
         function resizeHaze() {
             let dpr = _renderer.getPixelRatio();
-            _shader.uniforms.uMap.value = _rtt.texture;
             _shader.uniforms.uResolution.value.set(_width * dpr, _height * dpr);
         }
 
         function loop(e) {
-            requestAnimationFrame(loop);
-
             _mesh.visible = false;
-            _renderer.setRenderTarget(temp);
+            _renderer.setRenderTarget(_rtt);
             _renderer.render(_scene, _camera);
-            if (temp === _rtt) { temp = _rtt1; }
-            else { temp = _rtt; }
-            temp.texture.needsUpdate = true;
-            _shader.uniforms.uMap.value = temp.texture;
-            texture_visiable.material.map = temp.texture;
+            _shader.uniforms.uMap.value = _rtt.texture;
 
             _mesh.visible = true;
-            var life = _geometry.attributes.life;
-            var base = _geometry.attributes.base;
-            var offset = _geometry.attributes.offset;
-            var scale = _geometry.attributes.scale;
-            var orientation = _geometry.attributes.orientation;
-            var rotation = _geometry.attributes.rotation;
+            let life = _geometry.attributes.life;
+            let base = _geometry.attributes.base;
+            let offset = _geometry.attributes.offset;
+            let scale = _geometry.attributes.scale;
+            let orientation = _geometry.attributes.orientation;
+            let rotation = _geometry.attributes.rotation;
             for (let i = 0; i < _num; i++) {
-                var value = life.array[i];
+                let value = life.array[i];
                 value += 0.008;
 
                 if (value > 1) {
@@ -520,6 +506,8 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             offset.needsUpdate = true;
             orientation.needsUpdate = true;
         }
+
+        return loop;
     }
 
 })();

@@ -28,11 +28,11 @@ void main() {
     // mvPosition = [ vec4(modelViewMatrix[0][3], modelViewMatrix[1][3], modelViewMatrix[2][3], modelViewMatrix[3][3]) ];
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
 
-    vec2 scaleVertex = vec2(1., 1.); // 顶点位置
-    float scaleStrength = 2.; // scale强度
+    vec2 scaleVertex = vec2(1., 1.); // 当前顶点在平面的位置
+    float scaleStrength = 1.; // 顶点位置到精灵位置这个距离的强度
     scaleVertex.x = length(vec3(modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z));
     scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
-    scaleVertex *= -1. / length(mvPosition);
+    scaleVertex *= -1. / sqrt(length(mvPosition)); // 距离公式 -1. / length(mvPosition)
     vec2 alignedPosition = (position.xy - (center - vec2(0.5))) * scaleVertex * scaleStrength;
 
     mvPosition.xy += alignedPosition.xy;

@@ -42,10 +42,10 @@ void main() {
     // 进行通道平均值的加强
     float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 5. + uTime * frameSpeedScale)); // 计算波形(收缩)因数, uTime为负的话是扩张
     if (uMap1ColorStrength > 0.) { // 贴图上的通道强度进行加强
-        uMap1ColorStrength += .25;
-        uMap1ColorStrength += wave * .18; // 产生碎片波
+        uMap1ColorStrength += .2;
+        uMap1ColorStrength += wave * .2; // 产生碎片波
     }
-    uMap1ColorStrength += step(distance(center, vUv), .35) * .4; // 冰球像素内添加一个基础强度
+    uMap1ColorStrength += step(distance(center, vUv), .35) * .3; // 冰球像素内添加一个基础强度
     vec3 uMap1ColorMixed = mix(uColor2, uColor1, uMap1ColorStrength); // 混合出贴图色
 
     // 两个高光点的颜色
