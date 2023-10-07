@@ -1,5 +1,5 @@
 import 'normalize.css'
-import { initialize3D, INFO } from './hero_loading/invoker';
+import { initialize3D, INFO } from './invoker-loading/invoker';
 
 console.log(INFO);
 

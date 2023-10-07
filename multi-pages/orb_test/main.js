@@ -10,7 +10,7 @@ const el2 = document.getElementById('viewport2');
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
 const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000.);
-camera.position.set(0., 0., 1.);
+camera.position.set(0., 0., .5);
 
 const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true, stencil: false });
 const renderer1 = new THREE.WebGLRenderer({ canvas: el1, antialias: true, stencil: false });
@@ -55,8 +55,8 @@ const ice_sm = new THREE.ShaderMaterial({
         uMap1: { value: orbTintable }, // 球状着色图
         uMap2: { value: orbEnergyTintable }, // 能量球着色图
         // 冰球色
-        uColor1: { value: new THREE.Color(0x83D5FE) },
-        uColor2: { value: new THREE.Color(0x64AEFF) },
+        uColor1: { value: new THREE.Color(0x9ADDFF) },
+        uColor2: { value: new THREE.Color(0x3688E3) },
         uColor3: { value: new THREE.Color(0x4A76D3) },
     },
     vertexShader: orb_vs,
@@ -103,7 +103,7 @@ const fre_sm = new THREE.ShaderMaterial({
         uMap2: { value: orbEnergyTintable }, // 能量球着色图
         uMap3: { value: graynoise }, // 能量球着色图
         // 火球色
-        uColor1: { value: new THREE.Color(0xFBD4A0) }, 
+        uColor1: { value: new THREE.Color(0xFBD4A0) },
         uColor2: { value: new THREE.Color(0xEA8B44) },
         // 火圈色
         uColor3: { value: new THREE.Color(0xFFFFFF) },

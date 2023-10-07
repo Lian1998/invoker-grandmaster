@@ -6,12 +6,12 @@ varying vec2 vUv;
 void main() {
 
     vUv = uv;
-    
+
     vec2 center = vec2(.5);
 
-    // object位置vec4, 齐次坐标(homogeneous coordinates)
+    // modelViewMatrix: object位置vec4, 齐次坐标(homogeneous coordinates)
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); 
-    // 只取modelViewMatrix的w列 (平移)
+    // 只取modelViewMatrix的w列 (平移信息)
     // vec4(modelViewMatrix[0][3], modelViewMatrix[1][3], modelViewMatrix[2][3], modelViewMatrix[3][3]);
 
     // vec2 scale;

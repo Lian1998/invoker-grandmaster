@@ -5,9 +5,6 @@ uniform sampler2D uMap2; // 能量球状着色图
 uniform sampler2D uMap3; // garynoise from shadertoy
 uniform vec3 uColor1;
 uniform vec3 uColor2;
-uniform vec3 uColor3;
-uniform vec3 uColor4;
-uniform vec3 uColor5;
 uniform float uTime; // 时间
 uniform float uLifeTime; // 存在时间
 

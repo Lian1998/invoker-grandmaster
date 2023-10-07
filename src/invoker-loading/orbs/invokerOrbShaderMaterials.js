@@ -21,8 +21,8 @@ const iceOrbShaderMaterial = () => new THREE.ShaderMaterial({
         uMap1: { value: orbTintable }, // 球状着色图
         uMap2: { value: orbEnergyTintable }, // 能量球着色图
         // 冰球色
-        uColor1: { value: new THREE.Color(0x83D5FE) },
-        uColor2: { value: new THREE.Color(0x64AEFF) },
+        uColor1: { value: new THREE.Color(0x9ADDFF) },
+        uColor2: { value: new THREE.Color(0x3688E3) },
         uColor3: { value: new THREE.Color(0x4A76D3) },
     },
     vertexShader: orb_vert,

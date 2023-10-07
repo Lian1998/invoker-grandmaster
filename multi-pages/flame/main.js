@@ -11,7 +11,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 let textureLoader = new THREE.TextureLoader();
 
 (function () {
-    let _renderer, _scene, _camera, _controls, _rtt, _fire;
+    let _renderer, _scene, _scene1, _camera, _controls, _rtt, _fire;
     let _width, _height;
     let fireLoop, emberLoop, hazeLoop;
 
@@ -33,12 +33,15 @@ let textureLoader = new THREE.TextureLoader();
 
     function initWorld() {
         _renderer = new THREE.WebGLRenderer();
-        _renderer.setPixelRatio(2);
+        _renderer.outputColorSpace = THREE.SRGBColorSpace;
+        _renderer.autoClear = false;
+        _renderer.setPixelRatio(1);
         _renderer.setSize(window.innerWidth, window.innerHeight);
         _renderer.setClearColor(0x000000);
         document.body.appendChild(_renderer.domElement);
 
         _scene = new THREE.Scene();
+        _scene1 = new THREE.Scene();
 
         _camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         _camera.position.set(0, 0, 4);
@@ -46,13 +49,13 @@ let textureLoader = new THREE.TextureLoader();
         _camera.lookAt(_camera.target);
 
         _controls = new OrbitControls(_camera, _renderer.domElement);
-        _controls.enableDamping = true;
+        // _controls.enableDamping = true;
         // _controls.dampingFactor = 0.1;
         // _controls.rotateSpeed = 0.1;
 
         window.addEventListener('resize', resize, false);
         resize();
-        requestAnimationFrame(render);
+        render();
     }
 
     function resize() {
@@ -70,23 +73,22 @@ let textureLoader = new THREE.TextureLoader();
             minFilter: THREE.LinearFilter,
             magFilter: THREE.LinearFilter,
             format: THREE.RGBAFormat,
+            colorSpace: THREE.SRGBColorSpace, // _rtt.texture.colorSpace = THREE.SRGBColorSpace;
             stencilBuffer: false
         };
         if (_rtt) { _rtt.dispose(); }
         _rtt = new THREE.WebGLRenderTarget(_width / dpr, _height / dpr, _parameters);
-        _rtt.texture.colorSpace = THREE.SRGBColorSpace;
     }
 
     function render(e) {
         requestAnimationFrame(render);
-        if (_controls) _controls.update();
-
 
         if (fireLoop) { fireLoop(e); }
         if (emberLoop) { emberLoop(e); }
         if (hazeLoop) { hazeLoop(e); }
 
-        _renderer.setRenderTarget(null)
+        _renderer.setRenderTarget(null);
+        _renderer.clear();
         _renderer.render(_scene, _camera);
     }
 
@@ -100,19 +102,35 @@ let textureLoader = new THREE.TextureLoader();
     }
 
     function initBackground() {
+
+        // 不知道是什么bug
+        // 如果我手动作指定renderTarget进行render输出动作时, 传入的背景纹理不能是SRGB编码的, 如果是SRGB编码的, 那么会全黑
+
         let background = new THREE.Mesh(
             new THREE.BoxGeometry(4, 4, 4),
             new THREE.MeshBasicMaterial({
-                side: THREE.BackSide
+                side: THREE.BackSide,
             })
         );
         _scene.add(background);
 
-        textureLoader.load('/fortest/flame/resources/rock.jpg', t => {
-            t.colorSpace = THREE.SRGBColorSpace;
-            background.material.map = t;
-            background.material.needsUpdate = true;
-        });
+        let background1 = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 4, 4),
+            new THREE.MeshBasicMaterial({
+                side: THREE.BackSide,
+            })
+        );
+        _scene1.add(background1);
+
+
+        const texture = textureLoader.load('/fortest/flame/resources/rock.jpg');
+        texture.colorSpace = THREE.SRGBColorSpace;
+        background.material.map = texture;
+        // console.log(texture.colorSpace); // 'srgb'
+
+        const texture1 = textureLoader.load('/fortest/flame/resources/rock.jpg');
+        background1.material.map = texture1;
+        // console.log(texture1.colorSpace); // ''
     }
 
     // Fire    
@@ -174,22 +192,10 @@ let textureLoader = new THREE.TextureLoader();
 
         function initShader() {
             let uniforms = {
-                uMap: {
-                    type: 't',
-                    value: null
-                },
-                uColor1: {
-                    type: 'c',
-                    value: new THREE.Color(0x961800)
-                }, // red
-                uColor2: {
-                    type: 'c',
-                    value: new THREE.Color(0x4b5828)
-                }, // yellow
-                uTime: {
-                    type: 'f',
-                    value: 0
-                },
+                uMap: { value: textureLoader.load('/fortest/flame/resources/flame.png'), },
+                uColor1: { value: new THREE.Color(0x961800), }, // red
+                uColor2: { value: new THREE.Color(0x4b5828), }, // yellow
+                uTime: { value: 0, },
             };
 
             _shader = new THREE.ShaderMaterial({
@@ -200,11 +206,6 @@ let textureLoader = new THREE.TextureLoader();
                 transparent: true,
                 depthWrite: false,
                 side: THREE.DoubleSide,
-            });
-
-            textureLoader.load('/fortest/flame/resources/flame.png', t => {
-                t.colorSpace = THREE.SRGBColorSpace;
-                _shader.uniforms.uMap.value = t;
             });
         }
 
@@ -296,14 +297,8 @@ let textureLoader = new THREE.TextureLoader();
 
         function initShader() {
             let uniforms = {
-                uMap: {
-                    type: 't',
-                    value: null
-                },
-                uColor: {
-                    type: 'c',
-                    value: new THREE.Color(0xffe61e)
-                },
+                uMap: { value: textureLoader.load('/fortest/flame/resources/ember.png'), },
+                uColor: { value: new THREE.Color(0xffe61e), },
             };
 
             _shader = new THREE.ShaderMaterial({
@@ -313,11 +308,6 @@ let textureLoader = new THREE.TextureLoader();
                 blending: THREE.AdditiveBlending,
                 transparent: true,
                 depthTest: false,
-            });
-
-            textureLoader.load('/fortest/flame/resources/ember.png', t => {
-                t.colorSpace = THREE.SRGBColorSpace;
-                _shader.uniforms.uMap.value = t;
             });
         }
 
@@ -418,18 +408,9 @@ let textureLoader = new THREE.TextureLoader();
         function initShader() {
             let dpr = _renderer.getPixelRatio();
             let uniforms = {
-                uMap: {
-                    type: 't',
-                    value: null
-                },
-                uMask: {
-                    type: 't',
-                    value: null
-                },
-                uResolution: {
-                    type: 'v2',
-                    value: new THREE.Vector2(_width * dpr, _height * dpr)
-                },
+                uMap: { value: _rtt.texture, },
+                uMask: { value: textureLoader.load('/fortest/flame/resources/haze.png'), },
+                uResolution: { value: new THREE.Vector2(_width * dpr, _height * dpr), },
             };
 
             _shader = new THREE.ShaderMaterial({
@@ -437,13 +418,7 @@ let textureLoader = new THREE.TextureLoader();
                 vertexShader: hazeVertexShader,
                 fragmentShader: hazeFragmentShader,
                 transparent: true,
-                depthTest: false,
-                blending: THREE.NormalBlending
-            });
-
-            textureLoader.load('/fortest/flame/resources/haze.png', t => {
-                t.colorSpace = THREE.SRGBColorSpace;
-                _shader.uniforms.uMask.value = t;
+                depthTest: false
             });
         }
 
@@ -451,23 +426,25 @@ let textureLoader = new THREE.TextureLoader();
             _mesh = new THREE.Mesh(_geometry, _shader);
             _mesh.frustumCulled = false;
             _scene.add(_mesh);
-
-            // _scene.add(texture_visiable_plane);
-
         }
 
         function resizeHaze() {
             let dpr = _renderer.getPixelRatio();
+            _shader.uniforms.uMap.value = _rtt.texture;
             _shader.uniforms.uResolution.value.set(_width * dpr, _height * dpr);
         }
 
         function loop(e) {
             _mesh.visible = false;
             _renderer.setRenderTarget(_rtt);
-            _renderer.render(_scene, _camera);
-            _shader.uniforms.uMap.value = _rtt.texture;
+            _renderer.clear();
+            _renderer.render(_scene1, _camera);
 
             _mesh.visible = true;
+            _rtt.texture.needsUpdate = true;
+            _shader.uniforms.uMap.value = _rtt.texture;
+            _shader.uniformsNeedUpdate = true;
+
             let life = _geometry.attributes.life;
             let base = _geometry.attributes.base;
             let offset = _geometry.attributes.offset;
@@ -502,9 +479,10 @@ let textureLoader = new THREE.TextureLoader();
 
             life.needsUpdate = true;
             base.needsUpdate = true;
-            scale.needsUpdate = true;
             offset.needsUpdate = true;
+            scale.needsUpdate = true;
             orientation.needsUpdate = true;
+            rotation.needsUpdate = true;
         }
 
         return loop;
