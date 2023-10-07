@@ -79,8 +79,8 @@ const eny_sm = new THREE.ShaderMaterial({
         uMap1: { value: orbTintable }, // 球状着色图
         uMap2: { value: orbEnergyTintable }, // 电球着色图
         // 电球色
-        uColor1: { value: new THREE.Color(0xFDF5FB) },
-        uColor2: { value: new THREE.Color(0x916594) },
+        uColor1: { value: new THREE.Color(0xDCC8E1) },
+        uColor2: { value: new THREE.Color(0xAA63AF) },
     },
     vertexShader: orb_vs,
     fragmentShader: eny_fs,
@@ -105,10 +105,6 @@ const fre_sm = new THREE.ShaderMaterial({
         // 火球色
         uColor1: { value: new THREE.Color(0xFBD4A0) },
         uColor2: { value: new THREE.Color(0xEA8B44) },
-        // 火圈色
-        uColor3: { value: new THREE.Color(0xFFFFFF) },
-        uColor4: { value: new THREE.Color(0xFFFF89) },
-        uColor5: { value: new THREE.Color(0x7B431B) },
     },
     vertexShader: orb_vs,
     fragmentShader: fre_fs,

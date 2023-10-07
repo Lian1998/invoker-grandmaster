@@ -8,12 +8,17 @@ import embersFragmentShader from './emberFrag.glsl?raw'
 import hazeVertexShader from './hazeVert.glsl?raw'
 import hazeFragmentShader from './hazeFrag.glsl?raw'
 
-let textureLoader = new THREE.TextureLoader();
+
 
 (function () {
+    const textureLoader = new THREE.TextureLoader();
+
     let _renderer, _scene, _scene1, _camera, _controls, _rtt, _fire;
     let _width, _height;
     let fireLoop, emberLoop, hazeLoop;
+
+    let startStamp = undefined;
+    let previousStamp = 0;
 
     window.onload = init;
 
@@ -80,16 +85,22 @@ let textureLoader = new THREE.TextureLoader();
         _rtt = new THREE.WebGLRenderTarget(_width / dpr, _height / dpr, _parameters);
     }
 
-    function render(e) {
-        requestAnimationFrame(render);
+    function render(timeStamp) {
+        if (timeStamp === undefined) { startStamp = timeStamp = 0; }
+        const apiElapsedTime = (timeStamp - startStamp) / 1000.;
+        const apiDeltaTime = (timeStamp - previousStamp) / 1000.;
+        const apiDeltaTimeRatio = apiDeltaTime / (1. / 60.);
 
-        if (fireLoop) { fireLoop(e); }
-        if (emberLoop) { emberLoop(e); }
-        if (hazeLoop) { hazeLoop(e); }
+        if (fireLoop) { fireLoop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio); }
+        if (emberLoop) { emberLoop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio); }
+        if (hazeLoop) { hazeLoop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio); }
 
         _renderer.setRenderTarget(null);
         _renderer.clear();
         _renderer.render(_scene, _camera);
+
+        previousStamp = timeStamp;
+        requestAnimationFrame(render);
     }
 
     // Scene
@@ -218,8 +229,8 @@ let textureLoader = new THREE.TextureLoader();
             _fire = _group;
         }
 
-        function loop(e) {
-            _shader.uniforms.uTime.value = e * 0.001;
+        function loop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio) {
+            _shader.uniforms.uTime.value = apiElapsedTime * 0.1;
 
             let life = _geometry.attributes.life;
             let orientation = _geometry.attributes.orientation;
@@ -228,7 +239,7 @@ let textureLoader = new THREE.TextureLoader();
 
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.04;
+                value += 0.04 * apiDeltaTimeRatio;
 
                 if (value > 1) {
                     value -= 1;
@@ -251,9 +262,9 @@ let textureLoader = new THREE.TextureLoader();
             scale.needsUpdate = true;
             randoms.needsUpdate = true;
 
-            _group.position.x = Math.sin(e * 0.002) * 1.4;
-            _group.position.y = Math.cos(e * 0.0014) * 0.2;
-            _group.position.z = Math.cos(e * 0.0014) * 0.5;
+            _group.position.x = Math.sin(apiElapsedTime * 2) * 1.4;
+            _group.position.y = Math.cos(apiElapsedTime * 1.4) * 0.2;
+            _group.position.z = Math.cos(apiElapsedTime * 1.4) * 0.5;
 
             let tipOffset = 0.4;
             _tipTarget.copy(_group.position);
@@ -317,24 +328,20 @@ let textureLoader = new THREE.TextureLoader();
             _scene.add(_points);
         }
 
-        function loop() {
+        function loop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio) {
             let life = _geometry.attributes.life;
             let position = _geometry.attributes.position;
             let size = _geometry.attributes.size;
             let offset = _geometry.attributes.offset;
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.02;
+                value += 0.02 * apiDeltaTimeRatio;
 
                 if (value > 1) {
                     value -= 1;
 
                     position.setXYZ(i, _fire.position.x, _fire.position.y + 0.1, _fire.position.z);
-                    offset.setXYZ(i,
-                        random(-0.2, 0.2, 3),
-                        random(0.7, 1.2, 3),
-                        random(-0.2, 0.2, 3)
-                    );
+                    offset.setXYZ(i, random(-0.2, 0.2, 3), random(0.7, 1.2, 3), random(-0.2, 0.2, 3));
                     size.setX(i, random(0.2, 0.5, 3));
                 }
 
@@ -434,7 +441,7 @@ let textureLoader = new THREE.TextureLoader();
             _shader.uniforms.uResolution.value.set(_width * dpr, _height * dpr);
         }
 
-        function loop(e) {
+        function loop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio) {
             _mesh.visible = false;
             _renderer.setRenderTarget(_rtt);
             _renderer.clear();
@@ -453,7 +460,7 @@ let textureLoader = new THREE.TextureLoader();
             let rotation = _geometry.attributes.rotation;
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.008;
+                value += 0.008 * apiDeltaTimeRatio;
 
                 if (value > 1) {
                     value -= 1;
@@ -461,11 +468,7 @@ let textureLoader = new THREE.TextureLoader();
                     rotation.setX(i, random(0, 3.14, 3));
 
                     base.setXYZ(i, _fire.position.x, _fire.position.y + 0.1, _fire.position.z);
-                    offset.setXYZ(i,
-                        random(-0.2, 0.2, 3),
-                        random(2.5, 3.0, 3),
-                        0
-                    );
+                    offset.setXYZ(i, random(-0.2, 0.2, 3), random(2.5, 3.0, 3), 0);
                     scale.setXY(i, random(0.6, 1.2, 3), random(0.6, 1.2, 3));
                 }
 

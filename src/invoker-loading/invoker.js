@@ -337,14 +337,14 @@ export const initialize3D = (domElement) => {
     // F9 暂停/启动
     window.addEventListener('keydown', (e) => {
         if (e.code === 'F9') {
-            if (animationLongID) {
-                window.cancelAnimationFrame(animationLongID);
-                animationLongID = undefined;
+            if (frameLoopLongID) {
+                window.cancelAnimationFrame(frameLoopLongID);
+                frameLoopLongID = undefined;
                 if (orbitcontrols) {
                     orbitcontrols.enabled = false;
                 }
             } else {
-                animate();
+                frameLoop();
                 if (orbitcontrols) {
                     orbitcontrols.enabled = true;
                 }

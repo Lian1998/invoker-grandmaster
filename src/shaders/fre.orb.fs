@@ -36,24 +36,11 @@ float getFireNoise(vec2 mapUv) {
 void main() {
 
     // 球状描边
-    float outerFactor = .34;
-    float innerFactor = .2 + smoothed_rand(uRandDinamic) * .1;
+    float outerFactor = .30;
+    float innerFactor = .1 + smoothed_rand(uRandDinamic) * .1;
     float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .3);
-    float orbhaloStrength = 1.;
+    float orbhaloStrength = .5;
     vec3 orbHaloColor = mix(vec3(0.), uColor2, orbhaloFactor) * orbhaloStrength; // 描边
-
-    // 帧贴图色
-    vec2 frameTexUv = vUv;
-    vec2 frameScale = vec2(1.5, 1.5); // 每帧雪碧图的缩放
-    float frameNum = 29.; // 雪碧图包含了多少帧
-    float frameIndex = floor(mod((frameNum * uRand + uLifeTime), 1.) * frameNum); // 计算当前显示的雪碧图帧数 int[0 ~ 28]
-    float frameFloating = frameIndex * (1. / frameNum); // 雪碧图当前帧漂移的距离
-    frameTexUv.x = ((frameTexUv.x / frameScale.x) + (frameScale.x - 1.) / (2. * frameScale.x)) / frameNum + frameFloating;
-    frameTexUv.y = (frameTexUv.y / frameScale.y) + (frameScale.y - 1.) / (2. * frameScale.y);
-    vec4 uMap1Color = texture2D(uMap1, frameTexUv);
-    float uMap1ColorStrengthScale = 1.2;
-    float uMap1ColorStrength = (uMap1Color.r + uMap1Color.g + uMap1Color.b) / 3. * uMap1ColorStrengthScale; // 普通球体贴图的通道值
-    vec3 uMap1ColorMixed = mix(uColor2, uColor1, uMap1ColorStrength); // 贴图色
 
     // 迸发火焰色 from shadertoy https://www.shadertoy.com/view/ds3cWB
 
@@ -88,6 +75,6 @@ void main() {
     vec4 flameColor4 = mix(vec4(0.), vec4(flameColor, 1.), alpha);
     float flameStep = step(0., flameColor4.r + flameColor4.g + flameColor4.b);
 
-    // 如果有火焰明度使用火焰明度, 否则的话就使用描边色+贴图色
-    gl_FragColor = vec4(flameStep * (orbHaloColor.rgb + uMap1ColorMixed.rgb) + flameStep * flameColor4.rgb, max(max(uMap1ColorStrength, orbhaloFactor), flameColor4.a));
+    // 如果有火焰明度使用火焰明度, 否则的话就使用描边色
+    gl_FragColor = vec4(flameStep * orbHaloColor.rgb + flameStep * flameColor4.rgb, max(orbhaloFactor, flameColor4.a));
 }
