@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
-import { iceOrbShaderMaterial, energyOrbShaderMaterial, fireOrbShaderMaterial } from './orbs/invokerOrbShaderMaterials.js'
+import { orbQuasShaderMaterial, orbWexShaderMaterial, orbExortShaderMaterial } from './orbs/invokerOrbShaderMaterials.js'
 
 export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
 
@@ -156,9 +156,9 @@ const dealwithModel = () => {
 
         // 使用自制的ShaderMaterial
         const planeGeom = new THREE.PlaneGeometry(1., 1.);
-        orb1 = new THREE.Mesh(planeGeom, iceOrbShaderMaterial());
-        orb2 = new THREE.Mesh(planeGeom, energyOrbShaderMaterial());
-        orb3 = new THREE.Mesh(planeGeom, fireOrbShaderMaterial());
+        orb1 = new THREE.Mesh(planeGeom, orbQuasShaderMaterial());
+        orb2 = new THREE.Mesh(planeGeom, orbWexShaderMaterial());
+        orb3 = new THREE.Mesh(planeGeom, orbExortShaderMaterial());
 
         // attach模型
         orbAttach1.attach(orb1);

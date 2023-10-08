@@ -38,22 +38,22 @@ import exortf from '@shaders/orb.exort.fs';
 // console.log(exortf);
 
 const textureLoader = new THREE.TextureLoader();
-const orbTintable = textureLoader.load('/invoker-textures/orbs/orb_framemap_scale2.png');
-const orbEnergyTintable = textureLoader.load('/invoker-textures/orbs/energyorb_framemap_scale2.png');
-const graynoise = textureLoader.load('/invoker-textures/orbs/graynoise_by_shadertoy.png');
-graynoise.wrapS = THREE.RepeatWrapping;
-graynoise.wrapT = THREE.RepeatWrapping;
+const orbTintableT = textureLoader.load('/invoker-textures/orbs/orb_framemap_scale2.png');
+const orbEnergyTintableT = textureLoader.load('/invoker-textures/orbs/energyorb_framemap_scale2.png');
+const graynoiseT = textureLoader.load('/invoker-textures/orbs/graynoise_by_shadertoy.png');
+graynoiseT.wrapS = THREE.RepeatWrapping;
+graynoiseT.wrapT = THREE.RepeatWrapping;
 
 const planeGeom = new THREE.PlaneGeometry(1., 1.);
-const ice_sm = new THREE.ShaderMaterial({
+const orbQuasShaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: .1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
         uLifeTime: { value: 0.0 }, // 切球时间
-        uMap1: { value: orbTintable }, // 球状着色图
-        uMap2: { value: orbEnergyTintable }, // 能量球着色图
+        uMap1: { value: orbTintableT }, // 球状着色图
+        uMap2: { value: orbEnergyTintableT }, // 能量球着色图
         // 冰球色
         uColor1: { value: new THREE.Color(0x9ADDFF) },
         uColor2: { value: new THREE.Color(0x3688E3) },
@@ -65,19 +65,19 @@ const ice_sm = new THREE.ShaderMaterial({
     blending: THREE.NormalBlending,
     opacity: 1.,
 });
-const sprite = new THREE.Mesh(planeGeom, ice_sm);
+const sprite = new THREE.Mesh(planeGeom, orbQuasShaderMaterial);
 sprite.position.set(0, 0, 0);
 scene.add(sprite);
 
-const eny_sm = new THREE.ShaderMaterial({
+const orbWexShaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: 1.1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
         uLifeTime: { value: 0.0 }, // 切球时间
-        uMap1: { value: orbTintable }, // 球状着色图
-        uMap2: { value: orbEnergyTintable }, // 电球着色图
+        uMap1: { value: orbTintableT }, // 球状着色图
+        uMap2: { value: orbEnergyTintableT }, // 电球着色图
         // 电球色
         uColor1: { value: new THREE.Color(0x563659) },
         uColor2: { value: new THREE.Color(0xDCC8E1) },
@@ -89,20 +89,20 @@ const eny_sm = new THREE.ShaderMaterial({
     blending: THREE.NormalBlending,
     opacity: 1.,
 });
-const sprite1 = new THREE.Mesh(planeGeom, eny_sm);
+const sprite1 = new THREE.Mesh(planeGeom, orbWexShaderMaterial);
 sprite1.position.set(0, 0, 0);
 scene.add(sprite1);
 
-const fre_sm = new THREE.ShaderMaterial({
+const orbExortShaderMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: 2.1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
         uLifeTime: { value: 0.0 }, // 切球时间
-        uMap1: { value: orbTintable }, // 球状着色图
-        uMap2: { value: orbEnergyTintable }, // 能量球着色图
-        uMap3: { value: graynoise }, // 能量球着色图
+        uMap1: { value: orbTintableT }, // 球状着色图
+        uMap2: { value: orbEnergyTintableT }, // 能量球着色图
+        uMap3: { value: graynoiseT }, // 火焰纹理
         // 火球色
         uColor1: { value: new THREE.Color(0xFBD4A0) },
         uColor2: { value: new THREE.Color(0xEA8B44) },
@@ -113,7 +113,7 @@ const fre_sm = new THREE.ShaderMaterial({
     blending: THREE.NormalBlending,
     opacity: 1.,
 });
-const sprite2 = new THREE.Mesh(planeGeom, fre_sm);
+const sprite2 = new THREE.Mesh(planeGeom, orbExortShaderMaterial);
 sprite2.position.set(0, 0, 0);
 scene.add(sprite2);
 
@@ -122,17 +122,17 @@ const animate = () => {
     const deltaTime = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
 
-    ice_sm.uniforms.uTime.value = elapsedTime;
-    ice_sm.uniforms.uRandDinamic.value = Math.random();
-    ice_sm.uniforms.uLifeTime.value += deltaTime;
+    orbQuasShaderMaterial.uniforms.uTime.value = elapsedTime;
+    orbQuasShaderMaterial.uniforms.uRandDinamic.value = Math.random();
+    orbQuasShaderMaterial.uniforms.uLifeTime.value += deltaTime;
 
-    eny_sm.uniforms.uTime.value = elapsedTime;
-    eny_sm.uniforms.uRandDinamic.value = Math.random();
-    eny_sm.uniforms.uLifeTime.value += deltaTime;
+    orbWexShaderMaterial.uniforms.uTime.value = elapsedTime;
+    orbWexShaderMaterial.uniforms.uRandDinamic.value = Math.random();
+    orbWexShaderMaterial.uniforms.uLifeTime.value += deltaTime;
 
-    fre_sm.uniforms.uTime.value = elapsedTime;
-    fre_sm.uniforms.uRandDinamic.value = Math.random();
-    fre_sm.uniforms.uLifeTime.value += deltaTime;
+    orbExortShaderMaterial.uniforms.uTime.value = elapsedTime;
+    orbExortShaderMaterial.uniforms.uRandDinamic.value = Math.random();
+    orbExortShaderMaterial.uniforms.uLifeTime.value += deltaTime;
 
     sprite.visible = true;
     sprite1.visible = false;
