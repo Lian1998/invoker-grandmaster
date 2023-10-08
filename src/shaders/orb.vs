@@ -1,4 +1,6 @@
 
+// threejs shader material invisiable attributes & uniforms:
+
 // attribute vec3 position;
 // attribute vec3 normal;
 // attribute vec2 uv;
@@ -13,14 +15,13 @@
 // gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); // MVP
 // gl_Position = projectionMatrix * (viewMatrix * modelMatrix) * vec4( position, 1.0 );
 
-// ps: threejs 生成的planeGeometry的uvCoord是左上角为vec2(0., 0.), 右下角为vec2(1., 1.)
-
 varying vec2 vUv;
 
 vec2 center = vec2(.5); // 传入的几何体是一块(1, 1)对准z轴的平面, 中心点是vec2(.5, .5)
 
 void main() {
 
+    // ps: threejs 生成的planeGeometry的uvCoord是左上角为vec2(0., 0.), 右下角为vec2(1., 1.)
     vUv = uv;
 
     // modelViewMatrix = camera.matrixWorldInverse * object.matrixWorld; object位置vec4, 齐次坐标(homogeneous coordinates)
@@ -38,7 +39,7 @@ void main() {
 
     vec2 alignedPosition = (position.xy - (center - vec2(0.5))) * scaleVertex * scaleStrength;
     mvPosition.xy += alignedPosition.xy;
-    
+
     gl_Position = projectionMatrix * mvPosition;
 
 }

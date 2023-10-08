@@ -20,7 +20,7 @@ void main() {
 
     // 球状描边相关
     float outerFactor = .38; // 要比贴图大一圈 生成一层颜色稍淡的黑边, 有点立体效果
-    float innerFactor = .2 + smoothed_rand(uRandDinamic) * .05; // 一点随机值使得边缘有点动态的感觉
+    float innerFactor = .2 + valuenoise_smoothed1d(uRandDinamic) * .05; // 一点随机值使得边缘有点动态的感觉
     float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .9);
     float orbhaloStrength = 2.; // 描边颜色强度
     vec3 orbHaloColor = mix(vec3(0.), uColor3, orbhaloFactor) * orbhaloStrength; // 描边
@@ -53,16 +53,16 @@ void main() {
     vec2 highlight2Pos = vec2(.7, .55);
     vec3 highlightCyan = vec3(160. / 255., 245. / 255., 1.); // 高光颜色
     float highlightSize = .13; // 高光点大小
-    float highlight1Size = highlightSize + .05 * smoothed_rand(uRandDinamic); // 大小随机
-    float highlight2Size = highlightSize + .05 * smoothed_rand(uRandDinamic);
-    highlight1Pos.x += (smoothed_rand(uTime) - .5) * 0.03; // 轻微移动
-    highlight1Pos.y += (smoothed_rand(uTime) - .5) * 0.03;
-    highlight2Pos.x += (smoothed_rand(uTime) - .5) * 0.03;
-    highlight2Pos.y += (smoothed_rand(uTime) - .5) * 0.03;
+    float highlight1Size = highlightSize + .05 * valuenoise_smoothed1d(uRandDinamic); // 大小随机
+    float highlight2Size = highlightSize + .05 * valuenoise_smoothed1d(uRandDinamic);
+    highlight1Pos.x += (valuenoise_smoothed1d(uTime) - .5) * 0.03; // 轻微移动
+    highlight1Pos.y += (valuenoise_smoothed1d(uTime) - .5) * 0.03;
+    highlight2Pos.x += (valuenoise_smoothed1d(uTime) - .5) * 0.03;
+    highlight2Pos.y += (valuenoise_smoothed1d(uTime) - .5) * 0.03;
     float orbHighlight1Factor = smoothstep(highlight1Size, 0., length(vUv - highlight1Pos));
     float orbHighlight2Factor = smoothstep(highlight2Size, 0., length(vUv - highlight2Pos));
     float orbHighlightFactor = orbHighlight1Factor + orbHighlight2Factor;
-    vec3 orbHighlightColor = orbHighlightFactor * highlightCyan * clamp(rand(vUv.x * vUv.y * uTime), .45, .55);
+    vec3 orbHighlightColor = orbHighlightFactor * highlightCyan * clamp(valuenoise_1d(vUv.x * vUv.y * uTime), .45, .55);
 
     // gl_FragColor = vec4(vec3(wave), 1.); // wave Factor
     // gl_FragColor = vec4(vec3(orbhaloFactor), 1.);  // halo Factor

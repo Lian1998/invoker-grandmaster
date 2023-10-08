@@ -9,7 +9,7 @@
 //               https://github.com/ashima/webgl-noise
 //
 
-float glslnoise_simplex4d_mod289(float x) {
+float glslnoise_simplex4d_mod289v1(float x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
@@ -18,7 +18,7 @@ vec4 glslnoise_simplex4d_mod289v4(vec4 x) {
 }
 
 float glslnoise_simplex4d_permute(float x) {
-    return glslnoise_simplex4d_mod289(((x * 34.0) + 1.0) * x);
+    return glslnoise_simplex4d_mod289v1(((x * 34.0) + 1.0) * x);
 }
 
 vec4 glslnoise_simplex4d_permutev4(vec4 x) {

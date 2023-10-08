@@ -125,7 +125,7 @@ const dealwithModel = () => {
         scene.add(rockModel);
     });
 
-    gltf_loader.load('/vrfcrack/invoker/invoker.gltf', (gltf) => {
+    gltf_loader.load('/vrfcracked/invoker/invoker.gltf', (gltf) => {
         animationClips = gltf.animations; // 动画资源
         heroModel = gltf.scene;
         heroModel.traverse(child => {
@@ -279,6 +279,8 @@ const frameLoop = () => {
     const deltaTime = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
 
+    if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(); }
+
     // 更新场景
     renderer.render(scene, camera);
 
@@ -323,12 +325,12 @@ export const initialize3D = (domElement) => {
 
     // controls
     orbitcontrols = new OrbitControls(camera, renderer.domElement);
-    orbitcontrols.minDistance = 3;
-    orbitcontrols.maxDistance = 5;
+    orbitcontrols.minDistance = 2;
+    orbitcontrols.maxDistance = 7;
     orbitcontrols.maxPolarAngle = Math.PI / 2;
+    orbitcontrols.enablePan = false; // 禁止平移
     orbitcontrols.enableDamping = true;
-    orbitcontrols.dampingFacto = 0.035;
-    orbitcontrols.enablePan = false;
+    orbitcontrols.dampingFactor = 0.05;
 
     initScene();
     dealwithModel();
@@ -340,14 +342,10 @@ export const initialize3D = (domElement) => {
             if (frameLoopLongID) {
                 window.cancelAnimationFrame(frameLoopLongID);
                 frameLoopLongID = undefined;
-                if (orbitcontrols) {
-                    orbitcontrols.enabled = false;
-                }
+                if (orbitcontrols) { orbitcontrols.enabled = false; }
             } else {
                 frameLoop();
-                if (orbitcontrols) {
-                    orbitcontrols.enabled = true;
-                }
+                if (orbitcontrols) { orbitcontrols.enabled = true; }
             }
         }
     });

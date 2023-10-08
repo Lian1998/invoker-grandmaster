@@ -9,7 +9,6 @@ import hazeVertexShader from './hazeVert.glsl?raw'
 import hazeFragmentShader from './hazeFrag.glsl?raw'
 
 
-
 (function () {
     const textureLoader = new THREE.TextureLoader();
 

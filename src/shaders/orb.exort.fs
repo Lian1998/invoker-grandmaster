@@ -30,14 +30,15 @@ float getFireNoise(vec2 mapUv) {
     // 使用由shadertoy提供的静态通道贴图: texture2D(uMap3, mapUv).r
     // 使用由sin波生成的随机噪声: valueNoise2d(mapUvFreqed)
     float n = (texture2D(uMap3, mapUv).r - .5) * .5 + (texture2D(uMap3, mapUv * 2.).r - .5) * .5 * .5 + .5;
+
     return n;
 }
 
 void main() {
 
     // 球状描边
-    float outerFactor = .30;
-    float innerFactor = .1 + smoothed_rand(uRandDinamic) * .1;
+    float outerFactor = .3;
+    float innerFactor = .1 + valuenoise_smoothed1d(uRandDinamic) * .1;
     float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .3);
     float orbhaloStrength = .5;
     vec3 orbHaloColor = mix(vec3(0.), uColor2, orbhaloFactor) * orbhaloStrength; // 描边
@@ -45,13 +46,13 @@ void main() {
     // 迸发火焰色 from shadertoy https://www.shadertoy.com/view/ds3cWB
 
     // 将坐标转化为极坐标x是中心点到边缘 y是角坐标 
-    float PI = 3.14159265358979323844;
+    const float PI = 3.14159265358979323844;
     vec2 polarUv = vUv; // 计算出的极坐标 
     polarUv -= center; // (x=[-0.5, 0.5], y=[-0.5, 0.5])
     polarUv = vec2(length(polarUv) / sqrt(0.5), (atan(polarUv.y, polarUv.x) / (2.0 * PI) + 0.5)); // (r, a) (r=[0., 1.], a=[0., 1. CCW from W])
     // 参数计算
     vec2 flameUv = polarUv;
-    flameUv.x /= 1.8; // 生成火焰贴图的缩放
+    flameUv.x /= 2.; // 生成火焰贴图的缩放
     float flameSpeed = .2;
     float flameTime = uTime * flameSpeed;
     // Get noise for this fragment (in polar coordinates) and time

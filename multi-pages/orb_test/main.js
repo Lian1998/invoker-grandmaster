@@ -28,19 +28,19 @@ renderer2.setSize(width, height);
 renderer2.setPixelRatio(pixelRatio);
 renderer2.setClearColor(0x000000);
 
-import orb_vs from '@shaders/orb.vs';
-import ice_fs from '@shaders/ice.orb.fs';
-import eny_fs from '@shaders/eny.orb.fs';
-import fre_fs from '@shaders/fre.orb.fs';
+import orbv from '@shaders/orb.vs';
+import quasf from '@shaders/orb.quas.fs';
+import wexf from '@shaders/orb.wex.fs';
+import exortf from '@shaders/orb.exort.fs';
 
-// console.log(ice_fs);
-// console.log(eny_fs);
-// console.log(fre_fs);
+// console.log(quasf);
+// console.log(wexf);
+// console.log(exortf);
 
 const textureLoader = new THREE.TextureLoader();
-const orbTintable = textureLoader.load('/invoker-orbs/orb_framemap_scale2.png');
-const orbEnergyTintable = textureLoader.load('/invoker-orbs/energyorb_framemap_scale2.png');
-const graynoise = textureLoader.load('/invoker-orbs/graynoise_by_shadertoy.png');
+const orbTintable = textureLoader.load('/invoker-textures/orbs/orb_framemap_scale2.png');
+const orbEnergyTintable = textureLoader.load('/invoker-textures/orbs/energyorb_framemap_scale2.png');
+const graynoise = textureLoader.load('/invoker-textures/orbs/graynoise_by_shadertoy.png');
 graynoise.wrapS = THREE.RepeatWrapping;
 graynoise.wrapT = THREE.RepeatWrapping;
 
@@ -59,8 +59,8 @@ const ice_sm = new THREE.ShaderMaterial({
         uColor2: { value: new THREE.Color(0x3688E3) },
         uColor3: { value: new THREE.Color(0x4A76D3) },
     },
-    vertexShader: orb_vs,
-    fragmentShader: ice_fs,
+    vertexShader: orbv,
+    fragmentShader: quasf,
     transparent: true,
     blending: THREE.NormalBlending,
     opacity: 1.,
@@ -79,11 +79,12 @@ const eny_sm = new THREE.ShaderMaterial({
         uMap1: { value: orbTintable }, // 球状着色图
         uMap2: { value: orbEnergyTintable }, // 电球着色图
         // 电球色
-        uColor1: { value: new THREE.Color(0xDCC8E1) },
-        uColor2: { value: new THREE.Color(0xAA63AF) },
+        uColor1: { value: new THREE.Color(0x563659) },
+        uColor2: { value: new THREE.Color(0xDCC8E1) },
+        uColor3: { value: new THREE.Color(0xAA63AF) },
     },
-    vertexShader: orb_vs,
-    fragmentShader: eny_fs,
+    vertexShader: orbv,
+    fragmentShader: wexf,
     transparent: true,
     blending: THREE.NormalBlending,
     opacity: 1.,
@@ -106,8 +107,8 @@ const fre_sm = new THREE.ShaderMaterial({
         uColor1: { value: new THREE.Color(0xFBD4A0) },
         uColor2: { value: new THREE.Color(0xEA8B44) },
     },
-    vertexShader: orb_vs,
-    fragmentShader: fre_fs,
+    vertexShader: orbv,
+    fragmentShader: exortf,
     transparent: true,
     blending: THREE.NormalBlending,
     opacity: 1.,
