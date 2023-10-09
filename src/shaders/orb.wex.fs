@@ -9,6 +9,7 @@ uniform float uTime; // 时间
 uniform float uLifeTime; // 存在时间
 
 varying vec2 vUv; // uv
+varying vec3 vPosition; // uv
 
 vec2 center = vec2(.5);
 
@@ -22,7 +23,7 @@ void main() {
     float outerFactor = .34; // 要比贴图稍微大一点, 这样会在外圈生成一层颜色稍淡的黑边, 有点立体效果
     float innerFactor = 0.;
     vec2 uvShake = vec2(.03 * (valuenoise_smoothed1d(uTime) - .5), .03 * (valuenoise_smoothed1d(uTime) - .5)); // 随便来点抖动
-    float orbhaloFactor = orbhalo_fuzzy(vUv + uvShake, center, outerFactor, innerFactor, .08, 1.); // 注意扩散边缘的长度
+    float orbhaloFactor = orbhalo_fuzzy(vUv + uvShake, center, outerFactor, innerFactor, .1, 1.); // 注意扩散边缘的长度
     float orbhaloStrength = 1.5;
     float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 22. - uTime * 5.)); // 中心点向内推波
     if (orbhaloFactor > 0.) {
@@ -30,9 +31,13 @@ void main() {
     }
     vec3 orbHaloColor = uColor1 * orbhaloStrength * orbhaloFactor; // 描边
 
+    // 角度影响数值
+    vec3 worldUp = vec3(0, 1., 0);
+    float watchFactor = 1. - dot(worldUp, normalize(cameraPosition - vPosition)); // 角度越小越接近1
+
     // 帧贴图色
     vec2 frameTexUv = vUv;
-    vec2 frameScale = vec2(1.4, 1.4); // 每帧雪碧图的缩放
+    vec2 frameScale = vec2(1.45, 1.45); // 每帧雪碧图的缩放
     float frameNum = 29.; // 雪碧图包含了多少帧
     float frameSpeedScale = 1.5; // 收到时间影响的因数
     float frameIndex = floor(mod((frameNum * uRand + uLifeTime * frameSpeedScale), 1.) * frameNum); // 计算当前显示的雪碧图帧数 int[0 ~ 28]
@@ -44,15 +49,18 @@ void main() {
     if (uMap2ColorStrength > 0.) { // 通道值加强
         uMap2ColorStrength += .2;
     }
-    uMap2ColorStrength += step(distance(center, vUv), .36) * .12; // 边框内的一个基础强度
+    uMap2ColorStrength += step(distance(center, vUv), .36) * .15; // 边框内的一个基础强度
+    uMap2ColorStrength += step(distance(center, vUv), .36) * .35 * watchFactor;
     vec3 uMap2ColorMixed = mix(uColor3, uColor2, uMap2ColorStrength); // 贴图
 
-    // 高光点 补光
+    // 高光点补光
     vec2 highlight1Pos = vec2(.5, .5);
-    vec3 highlightCyan = vec3(1., 1., 1.);
     float highlight1Size = .5;
     float orbHighlightFactor = smoothstep(highlight1Size, 0., length(vUv - highlight1Pos));
-    vec3 orbHighlightColor = orbHighlightFactor * highlightCyan * .55;
+
+    // 角度影响高光点补光强度
+    float orbHighlightStrength = .35 + .45 * watchFactor; // .55
+    vec3 orbHighlightColor = vec3(orbHighlightFactor) * orbHighlightStrength;
 
     // gl_FragColor = vec4(vec3(wave), 1.); // wave Factor
     // gl_FragColor = vec4(vec3(orbhaloFactor), 1.);  // halo Factor
@@ -62,6 +70,7 @@ void main() {
     // gl_FragColor = uMap2Color; // uMap2Color
     // gl_FragColor = vec4(uMap2ColorStrength); // uMap2Color Strength
     // gl_FragColor = vec4(uMap2ColorMixed, uMap2ColorStrength); // uMap2ColorMixed
+    // gl_FragColor = vec4(vec3(watchFactor), 1.);
 
     gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb + orbHighlightColor.rgb, max(uMap2ColorStrength, orbhaloFactor - .4));
 

@@ -1,15 +1,19 @@
 import * as THREE from 'three';
 
-import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
+import { textureLoader, gltfLoader } from './invokerLoadingManager.js';
 import { orbQuasShaderMaterial, orbWexShaderMaterial, orbExortShaderMaterial } from './orbs/invokerOrbShaderMaterials.js'
+
+import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
 export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
 
 // FRAME LOOP
+let frameLoopLongID = undefined; // 这一次开启循环的id
+let startStamp = undefined; // 这一次开启帧循环时的时间戳
+let previousStamp = 0; // 上一帧的时间戳
+
+// CONTEXT
 let renderer, camera, orbitcontrols;
-let frameLoopLongID = undefined;
-const clock = new THREE.Clock();
 
 // SCENE
 let scene, ambient_light, hemisphere_light, directional_light, spot_light;
@@ -19,11 +23,35 @@ let rockModel, heroModel, animationClips, animationMixer, animationMixer1;
 let orbsSpawnActionL, orbsSpawnActionR;
 let orbAttach1, orbAttach2, orbAttach3, orb1, orb2, orb3;
 
-// LOADERS
-const texture_loader = new THREE.TextureLoader();
-const gltf_loader = new GLTFLoader();
+// HELPERS
+let grid_helper, axes_helper, directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1, skeleton_helper;
 
-/** 初始化场景 */
+const initContext = (domElement) => {
+
+    // render
+    renderer = new THREE.WebGLRenderer({ canvas: domElement, antialias: true });
+    renderer.setClearColor(0x000000);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const v = new THREE.Vector3(-2, 2, 3);
+    v.normalize().multiplyScalar(4.5);
+    camera.position.copy(v);
+
+    // controls
+    orbitcontrols = new OrbitControls(camera, renderer.domElement);
+    orbitcontrols.minDistance = 2;
+    orbitcontrols.maxDistance = 7;
+    orbitcontrols.maxPolarAngle = Math.PI / 2;
+    orbitcontrols.enablePan = false; // 禁止平移
+    orbitcontrols.enableDamping = true;
+    orbitcontrols.dampingFactor = 0.05;
+
+}
+
 const initScene = () => {
 
     // scene
@@ -61,45 +89,9 @@ const initScene = () => {
     scene.add(spot_light);
 }
 
-/** 场景资源显示 */
-const initHelpers = (active = true) => {
-    if (!active) return;
+const dealwithResources = () => {
 
-    // grid
-    const grid = new THREE.GridHelper(100, 100, 0xffffff, 0xffffff);
-    grid.material.opacity = 0.2;
-    grid.material.transparent = true;
-    grid.name = 'GridHelper';
-    scene.add(grid);
-
-    const axes = new THREE.AxesHelper(500);
-    axes.name = 'AxesHelper';
-    scene.add(axes);
-
-    if (directional_light) {
-        const directional_light_helper = new THREE.DirectionalLightHelper(directional_light, 5);
-        scene.add(directional_light_helper);
-        const directional_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
-        scene.add(directional_light_helper1);
-    }
-
-    if (spot_light) {
-        const spot_light_helper = new THREE.SpotLightHelper(spot_light);
-        scene.add(spot_light_helper);
-        const spot_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
-        scene.add(spot_light_helper1);
-    }
-
-    if (heroModel) {
-        const skeletonHelper = new THREE.SkeletonHelper(heroModel);
-        scene.add(skeletonHelper);
-    }
-}
-
-/** 处理模型 */
-const dealwithModel = () => {
-
-    gltf_loader.load('/rock/rock.gltf', (gltf) => {
+    gltfLoader.load('/rock/rock.gltf', (gltf) => {
         rockModel = gltf.scene;
         rockModel.traverse(child => {
             if (child.isMesh) {
@@ -109,7 +101,7 @@ const dealwithModel = () => {
                     const oldMat = child.material;
                     const newMat = new THREE.MeshPhysicalMaterial({
                         map: oldMat.map,
-                        specularIntensityMap: texture_loader.load('/rock/badside_rocks001_spec.png'),
+                        specularIntensityMap: textureLoader.load('/rock/badside_rocks001_spec.png'),
                         normalScale: oldMat.normalScale,
                         roughness: oldMat.roughness,
                         metalness: .6,
@@ -125,7 +117,7 @@ const dealwithModel = () => {
         scene.add(rockModel);
     });
 
-    gltf_loader.load('/vrfcracked/invoker/invoker.gltf', (gltf) => {
+    gltfLoader.load('/vrfcracked/invoker/invoker.gltf', (gltf) => {
         animationClips = gltf.animations; // 动画资源
         heroModel = gltf.scene;
         heroModel.traverse(child => {
@@ -165,7 +157,7 @@ const dealwithModel = () => {
         orbAttach2.attach(orb2);
         orbAttach3.attach(orb3);
 
-        initHelpers(false); // 处理附加帮助图元
+        toggleHelpers(false); // 处理附加帮助图元
 
     });
 }
@@ -272,13 +264,17 @@ const dealwithAnimations = () => {
 }
 
 /** 帧循环 */
-const frameLoop = () => {
+const frameLoop = (timeStamp) => {
 
     frameLoopLongID = requestAnimationFrame(frameLoop);
 
-    const deltaTime = clock.getDelta();
-    const elapsedTime = clock.getElapsedTime();
+    if (timeStamp === undefined) { startStamp = timeStamp = 0; }
+    const elapsedTime = (timeStamp - startStamp) / 1000.;
+    const deltaTime = (timeStamp - previousStamp) / 1000.;
+    const deltaTimeRatioed60 = deltaTime / 0.0166666666666667; // (1. / 60.)
+    previousStamp = timeStamp;
 
+    // oribitControl需要对damp进行插值
     if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(); }
 
     // 更新场景
@@ -309,31 +305,11 @@ const frameLoop = () => {
 }
 
 export const initialize3D = (domElement) => {
+    initContext(domElement); // 初始化上下文, 绑定dom信息
+    initScene(); // 初始化场景资源
 
-    // render
-    renderer = new THREE.WebGLRenderer({ canvas: domElement, antialias: true });
-    renderer.setClearColor(0x000000);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    dealwithResources();
 
-    // camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const v = new THREE.Vector3(-2, 2, 3);
-    v.normalize().multiplyScalar(4.5);
-    camera.position.copy(v);
-
-    // controls
-    orbitcontrols = new OrbitControls(camera, renderer.domElement);
-    orbitcontrols.minDistance = 2;
-    orbitcontrols.maxDistance = 7;
-    orbitcontrols.maxPolarAngle = Math.PI / 2;
-    orbitcontrols.enablePan = false; // 禁止平移
-    orbitcontrols.enableDamping = true;
-    orbitcontrols.dampingFactor = 0.05;
-
-    initScene();
-    dealwithModel();
     frameLoop();
 
     // F9 暂停/启动
@@ -348,7 +324,69 @@ export const initialize3D = (domElement) => {
                 if (orbitcontrols) { orbitcontrols.enabled = true; }
             }
         }
+
+        if (e.code === 'KeyH') {
+            toggleHelpers()
+        }
     });
+}
+
+
+/** 切换显示此场景所需的所有threejs图元helper */
+const toggleHelpers = (active) => {
+    let paramActive = active;
+
+    // 网格
+    if (!grid_helper) {
+        grid_helper = new THREE.GridHelper(100, 100, 0xffffff, 0xffffff);
+        grid_helper.material.opacity = 0.2;
+        grid_helper.material.transparent = true;
+        grid_helper.name = 'GridHelper';
+        scene.add(grid_helper);
+    }
+    if (paramActive === undefined) { paramActive = !grid_helper.visible; }
+    grid_helper.visible = paramActive;
+
+    // 轴向
+    if (!axes_helper) {
+        axes_helper = new THREE.AxesHelper(500);
+        axes_helper.name = 'AxesHelper';
+        scene.add(axes_helper);
+    }
+    axes_helper.visible = paramActive;
+
+    // 直射光
+    if (directional_light) {
+        if (!directional_light_helper) {
+            directional_light_helper = new THREE.DirectionalLightHelper(directional_light, 5);
+            scene.add(directional_light_helper);
+            directional_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
+            scene.add(directional_light_helper1);
+        }
+        directional_light_helper.visible = paramActive;
+        directional_light_helper1.visible = paramActive;
+    }
+
+    // 点光
+    if (spot_light) {
+        if (!spot_light_helper) {
+            spot_light_helper = new THREE.SpotLightHelper(spot_light);
+            scene.add(spot_light_helper);
+            spot_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
+            scene.add(spot_light_helper1);
+        }
+        spot_light_helper.visible = paramActive;
+        spot_light_helper1.visible = paramActive;
+    }
+
+    // 骨骼
+    if (heroModel) {
+        if (!skeleton_helper) {
+            skeleton_helper = new THREE.SkeletonHelper(heroModel);
+            scene.add(skeleton_helper);
+        }
+        skeleton_helper.visible = paramActive;
+    }
 }
 
 

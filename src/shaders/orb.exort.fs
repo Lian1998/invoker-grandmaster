@@ -37,11 +37,12 @@ float getFireNoise(vec2 mapUv) {
 void main() {
 
     // 球状描边
-    float outerFactor = .3;
-    float innerFactor = .1 + valuenoise_smoothed1d(uRandDinamic) * .1;
+    float outerFactor = .32;
+    float innerFactor = .22 + valuenoise_smoothed1d(uRandDinamic) * .1;
     float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .3);
     float orbhaloStrength = .5;
-    vec3 orbHaloColor = mix(vec3(0.), uColor2, orbhaloFactor) * orbhaloStrength; // 描边
+    float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 8. - uTime * 2.)); // 计算波形(收缩)因数, uTime为负的话是扩张
+    vec3 orbHaloColor = mix(vec3(0.), uColor2, orbhaloFactor) * orbhaloStrength * wave; // 描边
 
     // 迸发火焰色 from shadertoy https://www.shadertoy.com/view/ds3cWB
 
@@ -77,5 +78,5 @@ void main() {
     float flameStep = step(0., flameColor4.r + flameColor4.g + flameColor4.b);
 
     // 如果有火焰明度使用火焰明度, 否则的话就使用描边色
-    gl_FragColor = vec4(flameStep * orbHaloColor.rgb + flameStep * flameColor4.rgb, max(orbhaloFactor, flameColor4.a));
+    gl_FragColor = vec4(flameStep * orbHaloColor.rgb + flameStep * flameColor4.rgb, max(orbhaloFactor * orbhaloStrength, flameColor4.a));
 }

@@ -1,5 +1,5 @@
 import 'normalize.css'
-import { initialize3D, INFO } from './invoker-loading/invoker';
+import { initialize3D, INFO } from './invoker-webglpart/invoker';
 
 console.log(INFO);
 

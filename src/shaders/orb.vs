@@ -16,13 +16,16 @@
 // gl_Position = projectionMatrix * (viewMatrix * modelMatrix) * vec4( position, 1.0 );
 
 varying vec2 vUv;
+varying vec3 vPosition;
 
 vec2 center = vec2(.5); // 传入的几何体是一块(1, 1)对准z轴的平面, 中心点是vec2(.5, .5)
 
 void main() {
 
     // ps: threejs 生成的planeGeometry的uvCoord是左上角为vec2(0., 0.), 右下角为vec2(1., 1.)
+    
     vUv = uv;
+    vPosition = position;
 
     // modelViewMatrix = camera.matrixWorldInverse * object.matrixWorld; object位置vec4, 齐次坐标(homogeneous coordinates)
     // 只取modelViewMatrix的w列 (平移信息)
