@@ -3,29 +3,42 @@
 import { logger } from '@src/DevLogger';
 
 import * as THREE from 'three';
+
 const invokerLoadingManager = new THREE.LoadingManager();
 
-let loadedResouces = 0;
-let totalResouces = 0;
+let loadedResouces = 0; // 当前已经加载的资源
+let totalResouces = 0; // 所有需要加载的资源
 
 invokerLoadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
     logger.debug('Started loading file: ' + url, 'Loaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
-    if (totalResouces < itemsTotal) { totalResouces = itemsTotal; }
+
+    if (totalResouces < itemsTotal) { // 记录总资源数
+        totalResouces = itemsTotal;
+    }
 };
 
 invokerLoadingManager.onLoad = function () {
     loadedResouces += 1;
     if (loadedResouces >= totalResouces) {
         logger.debug('Loading complete!');
+
+        // 这里代表资源完全加载完毕了
     }
 };
 
 invokerLoadingManager.onProgress = function (url, itemsLoaded, itemsTotal) {
+
     // logger.debug('Loading file: ' + url, 'Loaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+
+    // 这里代表资源加载的进度, 需要结合dom给出提示
+
+
 };
 
 invokerLoadingManager.onError = function (url) {
+
     logger.error('There was an error loading ' + url);
+
 };
 
 
@@ -37,4 +50,11 @@ export const gltfLoader = new GLTFLoader(invokerLoadingManager);
 const modelResources = {
     rock: '/rock/rock.gltf',
     invoker: '/vrfcracked/invoker/invoker.gltf',
+}
+
+export const invokerResources = () => {
+
+    return new Promise((resolve, reject) => {
+
+    })
 }

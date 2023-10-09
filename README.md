@@ -61,6 +61,7 @@ invoker 官网英雄介绍里的视频文件: https://cdn.cloudflare.steamstatic
 photoshop怎么用噪声制作闪电球 https://jingyan.baidu.com/article/90895e0fb4b45464ec6b0bd3.html
 photoshop怎么制作闪电帧动画 https://www.bilibili.com/video/BV1Sh4y1U78v
 vite的glsl打包工具 https://gitee.com/lian_1998/vitejs_plugins
+查询战队相关物品id https://www.dota2.com/majorsregistration/rosters
 
 # 记录
 在 2023年8月31日 (上线TI12敌法宝瓶)的非游戏性更新中其中一条 `游戏特效优化, 粒子光照优化`, 对卡尔的特效有以下优化(我的肉眼观察):

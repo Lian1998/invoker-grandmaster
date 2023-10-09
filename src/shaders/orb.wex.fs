@@ -47,15 +47,14 @@ void main() {
     vec4 uMap2Color = texture2D(uMap2, frameTexUv);
     float uMap2ColorStrength = (uMap2Color.r + uMap2Color.g + uMap2Color.b) / 3. * 1.2; // 普通球体贴图的通道值
     if (uMap2ColorStrength > 0.) { // 通道值加强
-        uMap2ColorStrength += .2;
+        uMap2ColorStrength += .35;
     }
-    uMap2ColorStrength += step(distance(center, vUv), .36) * .15; // 边框内的一个基础强度
-    uMap2ColorStrength += step(distance(center, vUv), .36) * .35 * watchFactor;
+    uMap2ColorStrength += step(distance(center, vUv), .36) * .6 * watchFactor;
     vec3 uMap2ColorMixed = mix(uColor3, uColor2, uMap2ColorStrength); // 贴图
 
     // 高光点补光
     vec2 highlight1Pos = vec2(.5, .5);
-    float highlight1Size = .5;
+    float highlight1Size = .4;
     float orbHighlightFactor = smoothstep(highlight1Size, 0., length(vUv - highlight1Pos));
 
     // 角度影响高光点补光强度

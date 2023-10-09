@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 
-import { textureLoader, gltfLoader } from './invokerLoadingManager.js';
+import { textureLoader, gltfLoader } from './invoker_resources_store.js';
 import { orbQuasShaderMaterial, orbWexShaderMaterial, orbExortShaderMaterial } from './orbs/invokerOrbShaderMaterials.js'
-
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
 export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
+
+// 主文件存放所有指针
 
 // FRAME LOOP
 let frameLoopLongID = undefined; // 这一次开启循环的id
@@ -17,6 +18,9 @@ let renderer, camera, orbitcontrols;
 
 // SCENE
 let scene, ambient_light, hemisphere_light, directional_light, spot_light;
+
+// Resources
+let rockGLTF, invokerGLTF;
 
 // HERO
 let rockModel, heroModel, animationClips, animationMixer, animationMixer1;
@@ -44,7 +48,7 @@ const initContext = (domElement) => {
     // controls
     orbitcontrols = new OrbitControls(camera, renderer.domElement);
     orbitcontrols.minDistance = 2;
-    orbitcontrols.maxDistance = 7;
+    orbitcontrols.maxDistance = 5;
     orbitcontrols.maxPolarAngle = Math.PI / 2;
     orbitcontrols.enablePan = false; // 禁止平移
     orbitcontrols.enableDamping = true;
@@ -305,6 +309,7 @@ const frameLoop = (timeStamp) => {
 }
 
 export const initialize3D = (domElement) => {
+
     initContext(domElement); // 初始化上下文, 绑定dom信息
     initScene(); // 初始化场景资源
 
