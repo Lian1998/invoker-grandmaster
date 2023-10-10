@@ -44,7 +44,7 @@ blender插件下载地址: http://steamreview.org/BlenderSourceTools/
 卡尔的模型rootIndex有多个(modelRoot和orbRoot), 用他自己封装的 SMDLoader.js 读取的时候, 导致了问题 https://github.com/pissang/dota2hero/issues/9  
 
 # 第二代尝试
-使用VRF对起源引擎的 `pak[]_[].vpk` 文件进行解包, 这个软件提供gltf格式导出功能  
+使用VRF对起源引擎的 `pak[]_[].vpk` 文件进行整合并解包, 这个软件提供gltf格式导出功能  
 VRF github首页: https://github.com/ValveResourceFormat/ValveResourceFormat  
 VRF gitpages: https://valveresourceformat.github.io/  
 使用VRF导出小松鼠的案例 https://www.youtube.com/watch?v=odZz7sNbqDo  
@@ -66,7 +66,7 @@ vite的glsl打包工具 https://gitee.com/lian_1998/vitejs_plugins
 # 记录
 在 2023年8月31日 (上线TI12敌法宝瓶)的非游戏性更新中其中一条 `游戏特效优化, 粒子光照优化`, 对卡尔的特效有以下优化(我的肉眼观察):
 1. 去除卡尔冰球中的高光点特效, 现在冰球更白了, 并且边框有一点云层冷气的效果
-2. 电球不再是透明的了, 现在当改变视点角度时电球球内的颜色会从透明色到白色之间过渡插值
+2. 电球不再是透明的了, 现在当改变视点与Y轴夹角时, 电球球内的颜色会从透明色到白色之间过渡插值
 3. 球的运动会有拖尾的轨迹
 4. 切技能会在脚下生成法阵, 并且会有一个后处理的震荡效果
 5. 切球的时候手部会有一个震荡效果, 并且球是从手的骨骼节点出现插值到对应骨骼位置的, 如果快速的切3次以上, 会放弃插值

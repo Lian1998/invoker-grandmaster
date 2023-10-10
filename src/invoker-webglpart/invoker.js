@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { textureLoader, gltfLoader } from './invoker_resources_store.js';
+import { invokerGLTFResources } from './invokerResourcePretreat.js';
 import { orbQuasShaderMaterial, orbWexShaderMaterial, orbExortShaderMaterial } from './orbs/invokerOrbShaderMaterials.js'
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
@@ -19,16 +19,16 @@ let renderer, camera, orbitcontrols;
 // SCENE
 let scene, ambient_light, hemisphere_light, directional_light, spot_light;
 
-// Resources
-let rockGLTF, invokerGLTF;
-
 // HERO
 let rockModel, heroModel, animationClips, animationMixer, animationMixer1;
 let orbsSpawnActionL, orbsSpawnActionR;
-let orbAttach1, orbAttach2, orbAttach3, orb1, orb2, orb3;
+let orbSlot1, orbSlot2, orbSlot3;
+let orb1, orb2, orb3;
 
 // HELPERS
 let grid_helper, axes_helper, directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1, skeleton_helper;
+
+const textureLoader = new THREE.TextureLoader();
 
 const initContext = (domElement) => {
 
@@ -93,80 +93,51 @@ const initScene = () => {
     scene.add(spot_light);
 }
 
-const dealwithResources = () => {
+const dealwithModels = () => {
 
-    gltfLoader.load('/rock/rock.gltf', (gltf) => {
-        rockModel = gltf.scene;
-        rockModel.traverse(child => {
-            if (child.isMesh) {
-                child.receiveShadow = true;
-                if (child.material) {
-                    // 替换一下材质
-                    const oldMat = child.material;
-                    const newMat = new THREE.MeshPhysicalMaterial({
-                        map: oldMat.map,
-                        specularIntensityMap: textureLoader.load('/rock/badside_rocks001_spec.png'),
-                        normalScale: oldMat.normalScale,
-                        roughness: oldMat.roughness,
-                        metalness: .6,
-                        reflectivity: .7,
-                    });
-                    newMat.generateMipmaps = true;
-                    newMat.needsUpdate = true;
-                    child.material = newMat;
-                }
+    const rockGLTF = invokerGLTFResources.get('rock');
+    rockModel = rockGLTF.scene;
+    rockModel.traverse(child => {
+        if (child.isMesh) {
+            child.receiveShadow = true;
+            if (child.material) {
+                // 替换一下材质
+                const oldMat = child.material;
+                const newMat = new THREE.MeshPhysicalMaterial({
+                    map: oldMat.map,
+                    specularIntensityMap: textureLoader.load('/rock/badside_rocks001_spec.png'),
+                    normalScale: oldMat.normalScale,
+                    roughness: oldMat.roughness,
+                    metalness: .6,
+                    reflectivity: .7,
+                });
+                newMat.generateMipmaps = true;
+                newMat.needsUpdate = true;
+                child.material = newMat;
             }
-        });
-        rockModel.scale.set(.5, .5, .5);
-        scene.add(rockModel);
+        }
     });
+    rockModel.scale.set(.4, .4, .4);
+    scene.add(rockModel);
 
-    gltfLoader.load('/vrfcracked/invoker/invoker.gltf', (gltf) => {
-        animationClips = gltf.animations; // 动画资源
-        heroModel = gltf.scene;
-        heroModel.traverse(child => {
-            // 绑定orbAttacher指针
-            if (child.name === 'orb1') { orbAttach1 = child; }
-            else if (child.name === 'orb2') { orbAttach2 = child; }
-            else if (child.name === 'orb3') { orbAttach3 = child; }
+    const invokerGLTF = invokerGLTFResources.get('invoker');
+    animationClips = invokerGLTF.animations; // 动画资源
+    heroModel = invokerGLTF.scene;
+    heroModel.traverse(child => {
+        // 绑定orbSloter指针
+        if (child.name === 'orb1') { orbSlot1 = child; }
+        else if (child.name === 'orb2') { orbSlot2 = child; }
+        else if (child.name === 'orb3') { orbSlot3 = child; }
 
-            if (child.isSkinnedMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-            }
-        });
-        heroModel.scale.set(.4, .4, .4);
-        scene.add(heroModel);
-
-        // 处理动画
-        dealwithAnimations();
-
-        // 添加卡尔的球
-
-        // 白模
-        // const sphere_geometry = new THREE.SphereGeometry(.1, 20, 20);
-        // const sphere_material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        // const orb1 = new THREE.Mesh(sphere_geometry, sphere_material);
-        // const orb2 = new THREE.Mesh(sphere_geometry, sphere_material);
-        // const orb3 = new THREE.Mesh(sphere_geometry, sphere_material);
-
-        // 使用自制的ShaderMaterial
-        const planeGeom = new THREE.PlaneGeometry(1., 1.);
-        orb1 = new THREE.Mesh(planeGeom, orbQuasShaderMaterial());
-        orb2 = new THREE.Mesh(planeGeom, orbWexShaderMaterial());
-        orb3 = new THREE.Mesh(planeGeom, orbExortShaderMaterial());
-
-        // attach模型
-        orbAttach1.attach(orb1);
-        orbAttach2.attach(orb2);
-        orbAttach3.attach(orb3);
-
-        toggleHelpers(false); // 处理附加帮助图元
-
+        if (child.isSkinnedMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
     });
+    heroModel.scale.set(.4, .4, .4);
+    scene.add(heroModel);
 }
 
-/** 处理动画 */
 const dealwithAnimations = () => {
 
     animationMixer = new THREE.AnimationMixer(heroModel);
@@ -267,6 +238,27 @@ const dealwithAnimations = () => {
     })
 }
 
+const dealwithInvokerOrbs = () => {
+
+    // 使用白模查看动画是否加载完成
+    // const sphere_geometry = new THREE.SphereGeometry(.1, 20, 20);
+    // const sphere_material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    // const orb1 = new THREE.Mesh(sphere_geometry, sphere_material);
+    // const orb2 = new THREE.Mesh(sphere_geometry, sphere_material);
+    // const orb3 = new THREE.Mesh(sphere_geometry, sphere_material);
+
+    // 使用平面精灵以及自制的ShaderMaterial
+    const planeGeom = new THREE.PlaneGeometry(1., 1.);
+    orb1 = new THREE.Mesh(planeGeom, orbQuasShaderMaterial());
+    orb2 = new THREE.Mesh(planeGeom, orbWexShaderMaterial());
+    orb3 = new THREE.Mesh(planeGeom, orbExortShaderMaterial());
+
+    // 将对象attach到插槽中
+    orbSlot1.attach(orb1);
+    orbSlot2.attach(orb2);
+    orbSlot3.attach(orb3);
+}
+
 /** 帧循环 */
 const frameLoop = (timeStamp) => {
 
@@ -307,35 +299,6 @@ const frameLoop = (timeStamp) => {
     }
 
 }
-
-export const initialize3D = (domElement) => {
-
-    initContext(domElement); // 初始化上下文, 绑定dom信息
-    initScene(); // 初始化场景资源
-
-    dealwithResources();
-
-    frameLoop();
-
-    // F9 暂停/启动
-    window.addEventListener('keydown', (e) => {
-        if (e.code === 'F9') {
-            if (frameLoopLongID) {
-                window.cancelAnimationFrame(frameLoopLongID);
-                frameLoopLongID = undefined;
-                if (orbitcontrols) { orbitcontrols.enabled = false; }
-            } else {
-                frameLoop();
-                if (orbitcontrols) { orbitcontrols.enabled = true; }
-            }
-        }
-
-        if (e.code === 'KeyH') {
-            toggleHelpers()
-        }
-    });
-}
-
 
 /** 切换显示此场景所需的所有threejs图元helper */
 const toggleHelpers = (active) => {
@@ -394,6 +357,36 @@ const toggleHelpers = (active) => {
     }
 }
 
+export const initialize3D = (domElement) => {
+
+    initContext(domElement); // 初始化上下文, 绑定dom信息
+    initScene(); // 初始化场景资源
+
+    dealwithModels();
+    dealwithAnimations();
+    dealwithInvokerOrbs();
+    toggleHelpers(true); // 处理附加帮助图元
+
+    frameLoop();
+
+    // F9 暂停/启动
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'F9') {
+            if (frameLoopLongID) {
+                window.cancelAnimationFrame(frameLoopLongID);
+                frameLoopLongID = undefined;
+                if (orbitcontrols) { orbitcontrols.enabled = false; }
+            } else {
+                frameLoop();
+                if (orbitcontrols) { orbitcontrols.enabled = true; }
+            }
+        }
+
+        if (e.code === 'KeyH') {
+            toggleHelpers()
+        }
+    });
+}
 
 
 
