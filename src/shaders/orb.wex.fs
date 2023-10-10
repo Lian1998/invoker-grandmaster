@@ -20,14 +20,14 @@ vec2 center = vec2(.5);
 void main() {
 
     // 球状描边色 particles/units/heroes/hero_invoker/invoker_soft_wex_sphere.vpcf_c
-    float outerFactor = .34; // 要比贴图稍微大一点, 这样会在外圈生成一层颜色稍淡的黑边, 有点立体效果
+    float outerFactor = .3; // 要比贴图稍微大一点, 这样会在外圈生成一层颜色稍淡的黑边, 有点立体效果
     float innerFactor = 0.;
     vec2 uvShake = vec2(.03 * (valuenoise_smoothed1d(uTime) - .5), .03 * (valuenoise_smoothed1d(uTime) - .5)); // 随便来点抖动
-    float orbhaloFactor = orbhalo_fuzzy(vUv + uvShake, center, outerFactor, innerFactor, .1, 1.); // 注意扩散边缘的长度
+    float orbhaloFactor = orbhalo_fuzzy(vUv + uvShake, center, outerFactor, innerFactor, .12, 1.); // 注意扩散边缘的长度
     float orbhaloStrength = 1.5;
     float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 22. - uTime * 5.)); // 中心点向内推波
     if (orbhaloFactor > 0.) {
-        orbhaloFactor += wave * .12;
+        orbhaloFactor += wave * .22;
     }
     vec3 orbHaloColor = uColor1 * orbhaloStrength * orbhaloFactor; // 描边
 
@@ -72,5 +72,4 @@ void main() {
     // gl_FragColor = vec4(vec3(watchFactor), 1.);
 
     gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb + orbHighlightColor.rgb, max(uMap2ColorStrength, orbhaloFactor - .4));
-
 }

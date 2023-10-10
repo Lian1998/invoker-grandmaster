@@ -88,7 +88,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         if (timeStamp === undefined) { startStamp = timeStamp = 0; }
         const apiElapsedTime = (timeStamp - startStamp) / 1000.;
         const apiDeltaTime = (timeStamp - previousStamp) / 1000.;
-        const apiDeltaTimeRatio = apiDeltaTime / (1. / 60.);
+        const apiDeltaTimeRatio = apiDeltaTime * 60.;
 
         if (fireLoop) { fireLoop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio); }
         if (emberLoop) { emberLoop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio); }

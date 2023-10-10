@@ -37,7 +37,7 @@ float getFireNoise(vec2 mapUv) {
 void main() {
 
     // 球状描边
-    float outerFactor = .32;
+    float outerFactor = .3;
     float innerFactor = .22 + valuenoise_smoothed1d(uRandDinamic) * .1;
     float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .3);
     float orbhaloStrength = .5;

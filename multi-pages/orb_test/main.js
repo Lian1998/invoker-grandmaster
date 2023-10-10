@@ -45,7 +45,7 @@ graynoiseT.wrapS = THREE.RepeatWrapping;
 graynoiseT.wrapT = THREE.RepeatWrapping;
 
 const planeGeom = new THREE.PlaneGeometry(1., 1.);
-const orbQuasShaderMaterial = new THREE.ShaderMaterial({
+const quasSM = new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: .1 },
         uRand: { value: Math.random() }, // 静态随机值
@@ -65,11 +65,11 @@ const orbQuasShaderMaterial = new THREE.ShaderMaterial({
     blending: THREE.NormalBlending,
     opacity: 1.,
 });
-const sprite = new THREE.Mesh(planeGeom, orbQuasShaderMaterial);
+const sprite = new THREE.Mesh(planeGeom, quasSM);
 sprite.position.set(0, 0, 0);
 scene.add(sprite);
 
-const orbWexShaderMaterial = new THREE.ShaderMaterial({
+const wexSM = new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: 1.1 },
         uRand: { value: Math.random() }, // 静态随机值
@@ -89,11 +89,11 @@ const orbWexShaderMaterial = new THREE.ShaderMaterial({
     blending: THREE.NormalBlending,
     opacity: 1.,
 });
-const sprite1 = new THREE.Mesh(planeGeom, orbWexShaderMaterial);
+const sprite1 = new THREE.Mesh(planeGeom, wexSM);
 sprite1.position.set(0, 0, 0);
 scene.add(sprite1);
 
-const orbExortShaderMaterial = new THREE.ShaderMaterial({
+const exortSM = new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: 2.1 },
         uRand: { value: Math.random() }, // 静态随机值
@@ -113,7 +113,7 @@ const orbExortShaderMaterial = new THREE.ShaderMaterial({
     blending: THREE.NormalBlending,
     opacity: 1.,
 });
-const sprite2 = new THREE.Mesh(planeGeom, orbExortShaderMaterial);
+const sprite2 = new THREE.Mesh(planeGeom, exortSM);
 sprite2.position.set(0, 0, 0);
 scene.add(sprite2);
 
@@ -122,29 +122,27 @@ const animate = () => {
     const deltaTime = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
 
-    orbQuasShaderMaterial.uniforms.uTime.value = elapsedTime;
-    orbQuasShaderMaterial.uniforms.uRandDinamic.value = Math.random();
-    orbQuasShaderMaterial.uniforms.uLifeTime.value += deltaTime;
+    quasSM.uniforms.uTime.value = elapsedTime;
+    quasSM.uniforms.uRandDinamic.value = Math.random();
+    quasSM.uniforms.uLifeTime.value += deltaTime;
 
-    orbWexShaderMaterial.uniforms.uTime.value = elapsedTime;
-    orbWexShaderMaterial.uniforms.uRandDinamic.value = Math.random();
-    orbWexShaderMaterial.uniforms.uLifeTime.value += deltaTime;
+    wexSM.uniforms.uTime.value = elapsedTime;
+    wexSM.uniforms.uRandDinamic.value = Math.random();
+    wexSM.uniforms.uLifeTime.value += deltaTime;
 
-    orbExortShaderMaterial.uniforms.uTime.value = elapsedTime;
-    orbExortShaderMaterial.uniforms.uRandDinamic.value = Math.random();
-    orbExortShaderMaterial.uniforms.uLifeTime.value += deltaTime;
+    exortSM.uniforms.uTime.value = elapsedTime;
+    exortSM.uniforms.uRandDinamic.value = Math.random();
+    exortSM.uniforms.uLifeTime.value += deltaTime;
 
     sprite.visible = true;
     sprite1.visible = false;
     sprite2.visible = false;
     renderer.render(scene, camera);
 
-
     sprite.visible = false;
     sprite1.visible = true;
     sprite2.visible = false;
     renderer1.render(scene, camera);
-
 
     sprite.visible = false;
     sprite1.visible = false;

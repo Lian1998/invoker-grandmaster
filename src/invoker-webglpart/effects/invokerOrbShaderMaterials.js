@@ -11,7 +11,7 @@ const graynoiseT = textureLoader.load('/invoker-textures/orbs/graynoise_by_shade
 graynoiseT.wrapS = THREE.RepeatWrapping;
 graynoiseT.wrapT = THREE.RepeatWrapping;
 
-const orbQuasShaderMaterial = () => new THREE.ShaderMaterial({
+const OrbQuasShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: .1 },
         uRand: { value: Math.random() }, // 静态随机值
@@ -32,7 +32,7 @@ const orbQuasShaderMaterial = () => new THREE.ShaderMaterial({
     opacity: 1.,
 });
 
-const orbWexShaderMaterial = () => new THREE.ShaderMaterial({
+const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: 1.1 },
         uRand: { value: Math.random() }, // 静态随机值
@@ -53,7 +53,7 @@ const orbWexShaderMaterial = () => new THREE.ShaderMaterial({
     opacity: 1.,
 });
 
-const orbExortShaderMaterial = () => new THREE.ShaderMaterial({
+const OrbExortShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {
         uType: { value: 2.1 },
         uRand: { value: Math.random() }, // 静态随机值
@@ -76,4 +76,4 @@ const orbExortShaderMaterial = () => new THREE.ShaderMaterial({
 
 
 
-export { orbQuasShaderMaterial, orbWexShaderMaterial, orbExortShaderMaterial };
+export { OrbQuasShaderMaterial, OrbWexShaderMaterial, OrbExortShaderMaterial };
