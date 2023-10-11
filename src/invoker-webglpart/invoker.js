@@ -102,6 +102,14 @@ const initScene = () => {
 
 const addBackground = () => {
 
+    // const geometry = new THREE.PlaneGeometry(30, 10);
+    // const material = new THREE.MeshBasicMaterial({ map: textureLoader.load('/invoker-textures/dota-2-wallpaper-10-940x390.jpg') });
+    // const plane = new THREE.Mesh(geometry, material);
+    // plane.position.set(0, 2.5, -5);
+    // scene.add(plane);
+
+    // scene.background = textureLoader.load('/invoker-textures/dota-2-wallpaper-10-940x390.jpg');
+
 }
 
 const addModels = () => {
@@ -384,6 +392,7 @@ export const initialize3D = (domElement) => {
     initScene();
 
     // Add Features
+    addBackground();
     addModels();
     addAnimations();
     addInvokerOrbs();
