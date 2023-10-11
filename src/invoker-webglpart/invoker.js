@@ -242,7 +242,7 @@ const frameLoop = (timeStamp) => {
     if (timeStamp === undefined) { startStamp = timeStamp = 0; }
     const elapsedTime = (timeStamp - startStamp) / 1000.;
     const deltaTime = (timeStamp - previousStamp) / 1000.;
-    const deltaTimeRatioed60 = 60 * Math.pow(deltaTime, 2); // (1. / 60.)
+    const deltaTimeRatioed60 = 60 * Math.pow(deltaTime, 2);
     previousStamp = timeStamp;
 
     // oribitControl需要对damp进行插值
