@@ -1,46 +1,35 @@
-
-// threejs shader material invisiable attributes & uniforms:
-
-// attribute vec3 position;
-// attribute vec3 normal;
-// attribute vec2 uv;
-
-// uniform mat4 modelViewMatrix; // = camera.matrixWorldInverse * object.matrixWorld
-// uniform mat4 modelMatrix; // = object.matrixWorld 
-// uniform mat4 projectionMatrix; // = camera.projectionMatrix
-// uniform mat4 viewMatrix; // = camera.matrixWorldInverse
-// uniform mat3 normalMatrix; // = inverse transpose of modelViewMatrix
-// uniform vec3 cameraPosition; // = camera position in world space
-
-// gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); // MVP
-// gl_Position = projectionMatrix * (viewMatrix * modelMatrix) * vec4( position, 1.0 );
-
 varying vec2 vUv;
 varying vec3 vPosition;
 
-vec2 center = vec2(.5); // 传入的几何体是一块(1, 1)对准z轴的平面, 中心点是vec2(.5, .5)
+// ps: 此顶点着色器需传入的BufferGeometry配合使用 
+// position [ -0.5, 0.5, 0,  0.5, 0.5, 0,  -0.5, -0.5, 0,  0.5, -0.5, 0 ]
+// uv [ 0, 1,  1, 1,  0, 0,  1, 0 ]
+// index [ 0, 2, 1, 2, 3, 1 ]
+
+// 传入的几何体是一块长度, 宽度都为1的正方形平面
+// 其法线方向是z轴负方向
+// 中心点是 vec2(.5)
+// UV左上角为 vec2(0.), 右下角为 vec2(1.)
+
+vec2 center = vec2(.5);
 
 void main() {
 
-    // ps: threejs 生成的planeGeometry的uvCoord是左上角为vec2(0., 0.), 右下角为vec2(1., 1.)
-    
     vUv = uv;
     vPosition = position;
 
-    // modelViewMatrix = camera.matrixWorldInverse * object.matrixWorld; object位置vec4, 齐次坐标(homogeneous coordinates)
-    // 只取modelViewMatrix的w列 (平移信息)
-    // mvPosition = [ vec4(modelViewMatrix[0][3], modelViewMatrix[1][3], modelViewMatrix[2][3], modelViewMatrix[3][3]) ];
-    vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
-    // 通过传入的几何计算平面的边长
-    vec2 scaleVertex = vec2(1., 1.); // 当前顶点在平面的位置
+    // 通过(被Object3D.scale影响后的)BufferGeometry传入的第一个第二个顶点间隔确定计算平面长宽
+    vec2 scaleVertex = vec2(1., 1.); // 默认长宽
     scaleVertex.x = length(vec3(modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z));
     scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
 
-    // 顶点位置到精灵位置这个距离的强度
-    float scaleStrength = .5;
+    vec2 vsOffset = vec2(0., 0.); // 设置一个变量用于在顶点控制器控制平面的偏移
+    float vsScale = .5; // 设置一个变量用于在顶点着色器控制平面的缩放
 
-    vec2 alignedPosition = (position.xy - (center - vec2(0.5))) * scaleVertex * scaleStrength;
+    // 计算偏移和缩放
+    vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;
     mvPosition.xy += alignedPosition.xy;
 
     gl_Position = projectionMatrix * mvPosition;
