@@ -34,9 +34,6 @@ let visiableMemery;
 // LOADERS
 const textureLoader = new THREE.TextureLoader();
 
-const clock = new THREE.Clock();
-
-
 const initContext = (domElement) => {
 
     // render
@@ -75,24 +72,25 @@ const initScene = () => {
     hemisphere_light = new THREE.HemisphereLight(0xF99221, 0x79440A, 0.5);
     scene.add(hemisphere_light);
 
-    directional_light = new THREE.DirectionalLight(0xFFDEDE, 3);
-    directional_light.position.set(2, 8, 8);
+    directional_light = new THREE.DirectionalLight(0xFFDEDE, 4);
+    directional_light.position.set(2, 4, 8);
     directional_light.shadow.camera.position.copy(directional_light.position);
     scene.add(directional_light);
     directional_light.castShadow = true;
-    directional_light.shadow.mapSize.width = 1024;
-    directional_light.shadow.mapSize.height = 1024;
+    directional_light.shadow.mapSize.width = 4096;
+    directional_light.shadow.mapSize.height = 4096;
     directional_light.shadow.focus = 10;
     directional_light.shadow.camera.near = 0.5;
     directional_light.shadow.camera.far = 30;
     directional_light.shadow.camera.fov = 50;
 
-    spot_light = new THREE.SpotLight(0xffffff, 150, 15, Math.PI / 6);
-    spot_light.position.set(0, 6, -4);
+    spot_light = new THREE.SpotLight(0xffffff, 100, 15, Math.PI / 6);
+    spot_light.position.set(0, 8, -2);
     spot_light.shadow.camera.position.copy(spot_light.position);
     spot_light.castShadow = true;
-    spot_light.shadow.mapSize.width = 1024;
-    spot_light.shadow.mapSize.height = 1024;
+    spot_light.shadow.bias = 0.0008; // 0.0001
+    spot_light.shadow.mapSize.width = 4096;
+    spot_light.shadow.mapSize.height = 4096;
     spot_light.shadow.focus = 10;
     spot_light.shadow.camera.near = 0.5;
     spot_light.shadow.camera.far = 30;
