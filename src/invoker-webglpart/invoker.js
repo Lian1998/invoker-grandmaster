@@ -69,10 +69,10 @@ const initScene = () => {
     scene = new THREE.Scene();
 
     // lights
-    ambient_light = new THREE.AmbientLight(0xFFFFFF, 3); // soft white light
+    ambient_light = new THREE.AmbientLight(0xFFFFFF, 1); // soft white light
     scene.add(ambient_light);
 
-    hemisphere_light = new THREE.HemisphereLight(0xF99221, 0x79440A, 1);
+    hemisphere_light = new THREE.HemisphereLight(0xF99221, 0x79440A, 0.5);
     scene.add(hemisphere_light);
 
     directional_light = new THREE.DirectionalLight(0xFFDEDE, 3);
@@ -87,7 +87,7 @@ const initScene = () => {
     directional_light.shadow.camera.far = 30;
     directional_light.shadow.camera.fov = 50;
 
-    spot_light = new THREE.SpotLight(0xffffff, 100, 15, Math.PI / 6);
+    spot_light = new THREE.SpotLight(0xffffff, 150, 15, Math.PI / 6);
     spot_light.position.set(0, 6, -4);
     spot_light.shadow.camera.position.copy(spot_light.position);
     spot_light.castShadow = true;
@@ -136,7 +136,7 @@ const addModels = () => {
             }
         }
     });
-    rockModel.scale.set(.4, .4, .4);
+    rockModel.scale.set(.6, .6, .6);
     scene.add(rockModel);
 
     const invokerGLTF = invokerGLTFResources.get('invoker');
