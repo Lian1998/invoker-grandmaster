@@ -10,24 +10,23 @@ uniform float uLifeTime; // 存在时间
 
 varying vec2 vUv; // uv
 varying vec3 vPosition; // uv
+varying vec2 vCenter;
 
-vec2 center = vec2(.5);
-
-#montage import('./glsl-noise/simplex/2d.glsl');
+#montage import('./glsl-noise/simplex2d.glsl');
 #montage import('./value-noise/1d.glsl');
-#montage import('./orb/orbhalo.glsl');
+#montage import('./orbhalo.glsl');
 
 void main() {
 
     // 球状描边色 particles/units/heroes/hero_invoker/invoker_soft_wex_sphere.vpcf_c
     float outerFactor = .3; // 要比贴图稍微大一点, 这样会在外圈生成一层颜色稍淡的黑边, 有点立体效果
     float innerFactor = 0.;
-    vec2 uvShake = vec2(.03 * (valuenoise_smoothed1d(uTime) - .5), .03 * (valuenoise_smoothed1d(uTime) - .5)); // 随便来点抖动
-    float orbhaloFactor = orbhalo_fuzzy(vUv + uvShake, center, outerFactor, innerFactor, .12, 1.); // 注意扩散边缘的长度
+    vec2 uvShake = vec2(.05 * (valuenoise_smoothed1d(uTime) - .5), .05 * (valuenoise_smoothed1d(uTime) - .5)); // 随便来点抖动
+    float orbhaloFactor = orbhalo_fuzzy(vUv + uvShake, vCenter, outerFactor, innerFactor, .12, .7); // 注意扩散边缘的长度
     float orbhaloStrength = 1.5;
-    float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 22. - uTime * 5.)); // 中心点向内推波
+    float wave = glslnoise_simplex2d(vec2(distance(vCenter, vUv) * 10. - uTime * 5.)); // 中心点向内推波
     if (orbhaloFactor > 0.) {
-        orbhaloFactor += wave * .22;
+        orbhaloFactor += wave * .25;
     }
     vec3 orbHaloColor = uColor1 * orbhaloStrength * orbhaloFactor; // 描边
 
@@ -49,7 +48,7 @@ void main() {
     if (uMap2ColorStrength > 0.) { // 通道值加强
         uMap2ColorStrength += .35;
     }
-    uMap2ColorStrength += step(distance(center, vUv), .36) * .6 * watchFactor;
+    uMap2ColorStrength += step(distance(vCenter, vUv), .36) * .6 * watchFactor;
     vec3 uMap2ColorMixed = mix(uColor3, uColor2, uMap2ColorStrength); // 贴图
 
     // 高光点补光
@@ -71,5 +70,5 @@ void main() {
     // gl_FragColor = vec4(uMap2ColorMixed, uMap2ColorStrength); // uMap2ColorMixed
     // gl_FragColor = vec4(vec3(watchFactor), 1.);
 
-    gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb + orbHighlightColor.rgb, max(uMap2ColorStrength, orbhaloFactor - .4));
+    gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb + orbHighlightColor.rgb, max(uMap2ColorStrength, orbhaloFactor));
 }

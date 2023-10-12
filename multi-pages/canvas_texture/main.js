@@ -1,86 +1,94 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
-const containerDiv = document.querySelector('#viewport-cotnainer');
-containerDiv.style.width = '100%';
-containerDiv.style.height = '100vh';
+const width = window.innerWidth;
+const height = window.innerHeight;
+const pixelRatio = window.pixelRatio;
+const el = document.getElementById('viewport');
 
-const clientQualityMap = {};
-const getClientQuality = (queryString = '#viewport') => {
-    let el = null;
-    if (clientQualityMap[queryString]) { el = clientQualityMap[queryString]; }
-    else { el = document.querySelector(queryString); }
-    if (!el) { throw new Error(`getClientQuality(queryString): could not find '${queryString}'`); }
-    const parentNode = el.parentNode;
-    const { width, height } = parentNode.getBoundingClientRect();
-    const pixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
-    return { el, width, height, pixelRatio };
-}
+const scene = new THREE.Scene();
+const clock = new THREE.Clock();
+const camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
+camera.position.set(2, 2, 2);
 
-const { el, width, height, pixelRatio } = getClientQuality();
+const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true });
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setSize(width, height);
+renderer.setPixelRatio(pixelRatio);
 
+const orbitcontrols = new OrbitControls(camera, renderer.domElement);
 
-const Camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-Camera.position.x = 2;
-Camera.position.y = 2;
-Camera.position.z = 2;
-Camera.lookAt(0, 0, 0);
+/////////////////////////////// VISIABLE TEXTURE RTT
 
+renderer.autoClear = false;
 
+let rtt_mesh;
 const RT_SIZE = 300;
 const rtt = new THREE.WebGLRenderTarget(RT_SIZE, RT_SIZE);
 
-// scene for renderTarget
-const scene_renderTarget = new THREE.Scene();
-const light_renderTarget_dir = new THREE.DirectionalLight(0xffffff, 1.5);
-light_renderTarget_dir.position.set(0, 1, 1).normalize();
-scene_renderTarget.add(light_renderTarget_dir);
-const geometryTorus = new THREE.TorusGeometry(10, 3, 16, 100);
-const materialTorus = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-const torusMesh = new THREE.Mesh(geometryTorus, materialTorus);
-torusMesh.scale.set(0.05, 0.05, 0.05);
-scene_renderTarget.add(torusMesh);
+const rttscene = new THREE.Scene();
+{
+    const light = new THREE.DirectionalLight(0xffffff, 1.5);
+    light.position.set(0, 1, 1).normalize();
+    rttscene.add(light);
+}
+{
+    const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
+    const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.scale.set(0.05, 0.05, 0.05);
+    rttscene.add(mesh);
+    rtt_mesh = mesh;
+}
 
+const domel = document.querySelector('#preview');
+const ctx2d = domel.getContext('2d');
+const buffer = new Uint8Array(4 * RT_SIZE * RT_SIZE); // 装buffer
+const pixcelArr = new Uint8ClampedArray(buffer.buffer);
 
-// scene
-const scene = new THREE.Scene();
-const light_amb = new THREE.AmbientLight(0xffffff, 1.5);
-scene.add(light_amb);
-const light_dir = new THREE.DirectionalLight(0xffffff, 1.5);
-light_dir.position.set(0, 1, 1).normalize();
-scene.add(light_dir);
-const geometryBox = new THREE.BoxGeometry(1, 1, 1);
-const materialBox = new THREE.MeshStandardMaterial({ color: 0xff9300, map: rtt.texture });
-const boxMesh = new THREE.Mesh(geometryBox, materialBox);
-scene.add(boxMesh);
+////////////////////////////////
+{
+    const light = new THREE.AmbientLight(0xffffff, 1.5);
+    scene.add(light);
+}
+{
+    const light = new THREE.DirectionalLight(0xffffff, 1.5);
+    light.position.set(0, 1, 1).normalize();
+    scene.add(light);
+}
+{
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, map: rtt.texture });
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+}
+
 scene.add(new THREE.AxesHelper(3));
 
+///////////////////////////////
 
-const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true });
-renderer.setClearColor(0xffffff, 1.0);
-renderer.setPixelRatio(pixelRatio);
-renderer.setSize(width, height);
 
-const preview = document.querySelector('#preview');
-const ctx_preview = preview.getContext('2d');
-const screenBuffer = new Uint8Array(4 * RT_SIZE * RT_SIZE); // 装buffer
-const clampedScreenBuffer = new Uint8ClampedArray(screenBuffer.buffer);
+const animate = () => {
 
-const animation = () => {
+    requestAnimationFrame(animate);
+
+    const deltaTime = clock.getDelta();
+    const elapsedTime = clock.getElapsedTime();
 
     renderer.clear();
 
-    torusMesh.rotation.y += 0.01;
-    boxMesh.rotation.y += 0.01;
+    rtt_mesh.rotation.y += 0.01; // 让rtt动起来
 
-    renderer.setRenderTarget(rtt);
-    renderer.render(scene_renderTarget, Camera);
-    renderer.readRenderTargetPixels(rtt, 0, 0, RT_SIZE, RT_SIZE, screenBuffer);
-    ctx_preview.putImageData(new ImageData(clampedScreenBuffer, RT_SIZE, RT_SIZE), 0, 0);
+    renderer.setRenderTarget(rtt); // 切换rtt为renderTarget
+    renderer.clear(); // 清除rtt上一帧残留的像素
+    renderer.render(rttscene, camera);
+    renderer.readRenderTargetPixels(rtt, 0, 0, RT_SIZE, RT_SIZE, buffer);
+    ctx2d.putImageData(new ImageData(pixcelArr, RT_SIZE, RT_SIZE), 0, 0);
 
-    renderer.setRenderTarget(null);
-    renderer.render(scene, Camera);
+    renderer.setRenderTarget(null); // 切换回来
+    renderer.render(scene, camera);
 
-    requestAnimationFrame(animation);
+    orbitcontrols.update();
 }
 
-animation();
+animate();

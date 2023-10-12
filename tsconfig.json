@@ -25,7 +25,7 @@
 
         "paths": {
             "@src/*": [ "./src/*" ],
-            "@shaders/*": [ "./src/shaders/*" ],
+            "@shaders/*": [ "./shaders/*" ],
             "three": [ "./lib/three.js-r156/src/Three.js" ],
             "three_addons/*": [ "./lib/three.js-r156/examples/jsm/*" ]
         }

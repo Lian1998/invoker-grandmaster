@@ -9,19 +9,18 @@ uniform float uTime; // 时间
 uniform float uLifeTime; // 存在时间
 
 varying vec2 vUv; // uv
+varying vec2 vCenter;
 
-vec2 center = vec2(.5);
-
-#montage import('./glsl-noise/simplex/2d.glsl');
+#montage import('./glsl-noise/simplex2d.glsl');
 #montage import('./value-noise/1d.glsl');
-#montage import('./orb/orbhalo.glsl');
+#montage import('./orbhalo.glsl');
 
 void main() {
 
     // 球状描边相关
     float outerFactor = .38; // 要比贴图大一圈 生成一层颜色稍淡的黑边, 有点立体效果
     float innerFactor = .2 + valuenoise_smoothed1d(uRandDinamic) * .05; // 一点随机值使得边缘有点动态的感觉
-    float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .9);
+    float orbhaloFactor = orbhalo(vUv, vCenter, outerFactor, innerFactor, .9);
     float orbhaloStrength = 2.; // 描边颜色强度
     vec3 orbHaloColor = mix(vec3(0.), uColor3, orbhaloFactor) * orbhaloStrength; // 描边
 
@@ -40,12 +39,12 @@ void main() {
     // 获取rgb三通道的平均强度
     float uMap1ColorStrength = (uMap1Color.r + uMap1Color.g + uMap1Color.b) / 3. * 1.2; 
     // 进行通道平均值的加强
-    float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 5. + uTime * frameSpeedScale)); // 计算波形(收缩)因数, uTime为负的话是扩张
+    float wave = glslnoise_simplex2d(vec2(distance(vCenter, vUv) * 5. + uTime * frameSpeedScale)); // 计算波形(收缩)因数, uTime为负的话是扩张
     if (uMap1ColorStrength > 0.) { // 贴图上的通道强度进行加强
         uMap1ColorStrength += .2;
         uMap1ColorStrength += wave * .2; // 产生碎片波
     }
-    uMap1ColorStrength += step(distance(center, vUv), .35) * .3; // 冰球像素内添加一个基础强度
+    uMap1ColorStrength += step(distance(vCenter, vUv), .35) * .3; // 冰球像素内添加一个基础强度
     vec3 uMap1ColorMixed = mix(uColor2, uColor1, uMap1ColorStrength); // 混合出贴图色
 
     // 两个高光点的颜色

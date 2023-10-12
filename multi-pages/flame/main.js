@@ -16,8 +16,8 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
     let _width, _height;
     let fireLoop, emberLoop, hazeLoop;
 
-    let startStamp = undefined;
-    let previousStamp = 0;
+    let startStamp = 0.; // 开始帧
+    let previousStamp = 0.; // 上一帧
 
     window.onload = init;
 
@@ -53,9 +53,9 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         _camera.lookAt(_camera.target);
 
         _controls = new OrbitControls(_camera, _renderer.domElement);
-        // _controls.enableDamping = true;
-        // _controls.dampingFactor = 0.1;
-        // _controls.rotateSpeed = 0.1;
+        _controls.enableDamping = true;
+        _controls.dampingFactor = 0.1;
+        _controls.rotateSpeed = 0.3;
 
         window.addEventListener('resize', resize, false);
         resize();
@@ -85,20 +85,22 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
     }
 
     function render(timeStamp) {
-        if (timeStamp === undefined) { startStamp = timeStamp = 0; }
-        const apiElapsedTime = (timeStamp - startStamp) / 1000.;
-        const apiDeltaTime = (timeStamp - previousStamp) / 1000.;
-        const apiDeltaTimeRatio60 = 60 * Math.pow(apiDeltaTime, 2);;
 
-        if (fireLoop) { fireLoop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio60); }
-        if (emberLoop) { emberLoop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio60); }
-        if (hazeLoop) { hazeLoop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio60); }
+        if (timeStamp === undefined) { startStamp = timeStamp = startStamp = previousStamp = 0.; }
+        const elapsedTime = (timeStamp - startStamp) / 1000.;
+        const deltaTime = (timeStamp - previousStamp) / 1000.;
+        const deltaTimeRatio60 = 60 * Math.pow(deltaTime, 2);
+        previousStamp = timeStamp;
+
+        if (fireLoop) { fireLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+        if (emberLoop) { emberLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+        if (hazeLoop) { hazeLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
 
         _renderer.setRenderTarget(null);
         _renderer.clear();
         _renderer.render(_scene, _camera);
 
-        previousStamp = timeStamp;
+        _controls.update();
         requestAnimationFrame(render);
     }
 
@@ -228,8 +230,8 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _fire = _group;
         }
 
-        function loop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio60) {
-            _shader.uniforms.uTime.value = apiElapsedTime * 0.1;
+        function loop(elapsedTime, deltaTime, deltaTimeRatio60) {
+            _shader.uniforms.uTime.value = elapsedTime * 0.1;
 
             let life = _geometry.attributes.life;
             let orientation = _geometry.attributes.orientation;
@@ -238,10 +240,10 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.04 * apiDeltaTimeRatio60 * 60.;
+                value += 0.04 * deltaTimeRatio60 * 60.;
 
                 if (value > 1) {
-                    value -= 1;
+                    value = value - Math.floor(value);
 
                     _quat.setFromAxisAngle(_y, random(0, 3.14, 3));
                     _quat2.setFromAxisAngle(_x, random(-1, 1, 2) * 0.1);
@@ -261,9 +263,9 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             scale.needsUpdate = true;
             randoms.needsUpdate = true;
 
-            _group.position.x = Math.sin(apiElapsedTime * 2) * 1.4;
-            _group.position.y = Math.cos(apiElapsedTime * 1.4) * 0.2;
-            _group.position.z = Math.cos(apiElapsedTime * 1.4) * 0.5;
+            _group.position.x = Math.sin(elapsedTime * 2) * 1.4;
+            _group.position.y = Math.cos(elapsedTime * 1.4) * 0.2;
+            _group.position.z = Math.cos(elapsedTime * 1.4) * 0.5;
 
             let tipOffset = 0.4;
             _tipTarget.copy(_group.position);
@@ -327,17 +329,17 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _scene.add(_points);
         }
 
-        function loop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio60) {
+        function loop(elapsedTime, deltaTime, deltaTimeRatio60) {
             let life = _geometry.attributes.life;
             let position = _geometry.attributes.position;
             let size = _geometry.attributes.size;
             let offset = _geometry.attributes.offset;
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.02 * apiDeltaTimeRatio60 * 60.;
+                value += 0.02 * deltaTimeRatio60 * 60.;
 
                 if (value > 1) {
-                    value -= 1;
+                    value = value - Math.floor(value);
 
                     position.setXYZ(i, _fire.position.x, _fire.position.y + 0.1, _fire.position.z);
                     offset.setXYZ(i, random(-0.2, 0.2, 3), random(0.7, 1.2, 3), random(-0.2, 0.2, 3));
@@ -440,7 +442,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _shader.uniforms.uResolution.value.set(_width * dpr, _height * dpr);
         }
 
-        function loop(apiElapsedTime, apiDeltaTime, apiDeltaTimeRatio60) {
+        function loop(elapsedTime, deltaTime, deltaTimeRatio60) {
             _mesh.visible = false;
             _renderer.setRenderTarget(_rtt);
             _renderer.clear();
@@ -459,10 +461,10 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             let rotation = _geometry.attributes.rotation;
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.008 * apiDeltaTimeRatio60 * 60.;
+                value += 0.008 * deltaTimeRatio60 * 60.;
 
                 if (value > 1) {
-                    value -= 1;
+                    value = value - Math.floor(value);
 
                     rotation.setX(i, random(0, 3.14, 3));
 

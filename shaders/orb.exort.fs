@@ -9,14 +9,13 @@ uniform float uTime; // 时间
 uniform float uLifeTime; // 存在时间
 
 varying vec2 vUv;
+varying vec2 vCenter;
 
-vec2 center = vec2(.5);
-
-#montage import('./glsl-noise/simplex/2d.glsl');
-#montage import('./glsl-noise/simplex/3d.glsl');
+#montage import('./glsl-noise/simplex2d.glsl');
+#montage import('./glsl-noise/simplex3d.glsl');
 #montage import('./value-noise/1d.glsl');
 #montage import('./value-noise/2d.glsl');
-#montage import('./orb/orbhalo.glsl');
+#montage import('./orbhalo.glsl');
 
 // 从 graynoise 中获取颜色
 float getFireNoise(vec2 mapUv) {
@@ -39,9 +38,9 @@ void main() {
     // 球状描边
     float outerFactor = .3;
     float innerFactor = .22 + valuenoise_smoothed1d(uRandDinamic) * .1;
-    float orbhaloFactor = orbhalo(vUv, center, outerFactor, innerFactor, .3);
+    float orbhaloFactor = orbhalo(vUv, vCenter, outerFactor, innerFactor, .3);
     float orbhaloStrength = .5;
-    float wave = glslnoise_simplex2d(vec2(distance(center, vUv) * 8. - uTime * 2.)); // 计算波形(收缩)因数, uTime为负的话是扩张
+    float wave = glslnoise_simplex2d(vec2(distance(vCenter, vUv) * 8. - uTime * 2.)); // 计算波形(收缩)因数, uTime为负的话是扩张
     vec3 orbHaloColor = mix(vec3(0.), uColor2, orbhaloFactor) * orbhaloStrength * wave; // 描边
 
     // 迸发火焰色 from shadertoy https://www.shadertoy.com/view/ds3cWB
@@ -49,7 +48,7 @@ void main() {
     // 将坐标转化为极坐标x是中心点到边缘 y是角坐标 
     const float PI = 3.14159265358979323844;
     vec2 polarUv = vUv; // 计算出的极坐标 
-    polarUv -= center; // (x=[-0.5, 0.5], y=[-0.5, 0.5])
+    polarUv -= vCenter; // (x=[-0.5, 0.5], y=[-0.5, 0.5])
     polarUv = vec2(length(polarUv) / sqrt(0.5), (atan(polarUv.y, polarUv.x) / (2.0 * PI) + 0.5)); // (r, a) (r=[0., 1.], a=[0., 1. CCW from W])
     // 参数计算
     vec2 flameUv = polarUv;

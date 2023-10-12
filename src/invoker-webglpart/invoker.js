@@ -16,11 +16,6 @@ let renderer, camera, orbitcontrols;
 // SCENE
 let scene, ambient_light, hemisphere_light, directional_light, spot_light;
 
-// FRAME LOOP
-let frameLoopLongID = undefined; // 这一次开启循环的id
-let startStamp = undefined; // 这一次开启帧循环时的时间戳
-let previousStamp = 0; // 上一帧的时间戳
-
 // HERO
 let rockModel, heroModel, animationClips, animationMixer, animationMixer1;
 let orbsSpawnActionL, orbsSpawnActionR;
@@ -28,8 +23,10 @@ let orbSlot1, orbSlot2, orbSlot3;
 let orb1, orb2, orb3;
 
 // HELPERS
-let grid_helper, axes_helper, directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1, skeleton_helper;
-let visiableMemery;
+let grid_helper, axes_helper;
+let directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1;
+let skeleton_helper;
+let helperVisiable;
 
 // LOADERS
 const textureLoader = new THREE.TextureLoader();
@@ -241,14 +238,19 @@ const addInvokerOrbs = () => {
     orbSlot3.attach(orb3);
 }
 
+
+let frameLoopLongID = undefined;
+let startStamp = 0.;
+let previousStamp = 0.;
+
 const frameLoop = (timeStamp) => {
 
     frameLoopLongID = requestAnimationFrame(frameLoop);
 
-    if (timeStamp === undefined) { startStamp = timeStamp = 0; }
+    if (timeStamp === undefined) { startStamp = timeStamp = startStamp = previousStamp = 0.; }
     const elapsedTime = (timeStamp - startStamp) / 1000.;
     const deltaTime = (timeStamp - previousStamp) / 1000.;
-    const deltaTimeRatioed60 = 60 * Math.pow(deltaTime, 2);
+    const deltaTimeRatio60 = 60 * Math.pow(deltaTime, 2);
     previousStamp = timeStamp;
 
     // oribitControl需要对damp进行插值
@@ -274,9 +276,9 @@ const frameLoop = (timeStamp) => {
         orb2.material.uniforms.uRandDinamic.value = Math.random();
         orb3.material.uniforms.uRandDinamic.value = Math.random();
 
-        orb1.material.uniforms.uLifeTime.value += deltaTime;
-        orb2.material.uniforms.uLifeTime.value += deltaTime;
-        orb3.material.uniforms.uLifeTime.value += deltaTime;
+        orb1.material.uniforms.uLifeTime.value += deltaTimeRatio60;
+        orb2.material.uniforms.uLifeTime.value += deltaTimeRatio60;
+        orb3.material.uniforms.uLifeTime.value += deltaTimeRatio60;
     }
 
 }
@@ -396,10 +398,10 @@ export const initialize3D = (domElement) => {
     addInvokerOrbs();
 
     // Visiable Helper
-    visiableMemery = false;
-    sceneVisiableHelper(visiableMemery);
-    lightVisiableHelper(visiableMemery);
-    boneVisiableHelper(visiableMemery);
+    helperVisiable = false;
+    sceneVisiableHelper(helperVisiable);
+    lightVisiableHelper(helperVisiable);
+    boneVisiableHelper(helperVisiable);
 
     // Tests
     animtaionTest();
@@ -422,11 +424,10 @@ export const initialize3D = (domElement) => {
         }
 
         if (e.code === 'KeyH') {
-            visiableMemery = !visiableMemery;
-
-            sceneVisiableHelper(visiableMemery);
-            lightVisiableHelper(visiableMemery);
-            boneVisiableHelper(visiableMemery);
+            helperVisiable = !helperVisiable;
+            sceneVisiableHelper(helperVisiable);
+            lightVisiableHelper(helperVisiable);
+            boneVisiableHelper(helperVisiable);
         }
     });
 }

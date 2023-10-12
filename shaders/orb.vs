@@ -1,5 +1,6 @@
 varying vec2 vUv;
 varying vec3 vPosition;
+varying vec2 vCenter;
 
 // ps: 此顶点着色器需传入的BufferGeometry配合使用 
 // position [ -0.5, 0.5, 0,  0.5, 0.5, 0,  -0.5, -0.5, 0,  0.5, -0.5, 0 ]
@@ -11,12 +12,11 @@ varying vec3 vPosition;
 // 中心点是 vec2(.5)
 // UV左上角为 vec2(0.), 右下角为 vec2(1.)
 
-vec2 center = vec2(.5);
-
 void main() {
 
     vUv = uv;
     vPosition = position;
+    vCenter = vec2(.5);
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
