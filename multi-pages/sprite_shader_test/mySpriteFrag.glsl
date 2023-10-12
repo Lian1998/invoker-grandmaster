@@ -11,5 +11,5 @@ void main() {
 
     vec4 mapcolor = texture2D(map, vUv);
 
-    gl_FragColor = vec4(mapcolor);
+    gl_FragColor = mapcolor;
 }

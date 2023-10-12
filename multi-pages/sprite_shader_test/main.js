@@ -44,7 +44,8 @@ const mySpriteMaterial = new THREE.ShaderMaterial({
     },
     vertexShader: mySpriteVert,
     fragmentShader: mySpriteFrag,
-    side: THREE.DoubleSide
+    side: THREE.FrontSide,
+    transparent: true
 });
 const sprite1 = new THREE.Mesh(planeGeom, mySpriteMaterial);
 sprite1.position.set(3, 0, 0);

@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 
 import { invokerGLTFResources } from './invokerResourcePretreat.js';
+import { FrameLoopMachine } from './FrameLoopMachine.js';
+import { logger } from '@src/DevLogger.ts';
 
 import { SpritePlaneBufferGeometry } from './effects/SpritePlaneBufferGeometry.js';
 import { OrbQuasShaderMaterial, OrbWexShaderMaterial, OrbExortShaderMaterial } from './effects/invokerOrbShaderMaterials.js';
@@ -220,12 +222,12 @@ const addAnimations = () => {
 
 const addInvokerOrbs = () => {
 
-    // 使用白模查看动画是否加载完成
-    // const sphere_geometry = new THREE.SphereGeometry(.1, 20, 20);
-    // const sphere_material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    // const orb1 = new THREE.Mesh(sphere_geometry, sphere_material);
-    // const orb2 = new THREE.Mesh(sphere_geometry, sphere_material);
-    // const orb3 = new THREE.Mesh(sphere_geometry, sphere_material);
+    // // 使用白模查看动画是否加载完成
+    // const geometry = new THREE.SphereGeometry(.1, 20, 20);
+    // const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    // const orb1 = new THREE.Mesh(geometry, material);
+    // const orb2 = new THREE.Mesh(geometry, material);
+    // const orb3 = new THREE.Mesh(geometry, material);
 
     // 使用平面精灵以及自制的ShaderMaterial
     orb1 = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbQuasShaderMaterial());
@@ -238,20 +240,7 @@ const addInvokerOrbs = () => {
     orbSlot3.attach(orb3);
 }
 
-
-let frameLoopLongID = undefined;
-let startStamp = 0.;
-let previousStamp = 0.;
-
-const frameLoop = (timeStamp) => {
-
-    frameLoopLongID = requestAnimationFrame(frameLoop);
-
-    if (timeStamp === undefined) { startStamp = timeStamp = startStamp = previousStamp = 0.; }
-    const elapsedTime = (timeStamp - startStamp) / 1000.;
-    const deltaTime = (timeStamp - previousStamp) / 1000.;
-    const deltaTimeRatio60 = 60 * Math.pow(deltaTime, 2);
-    previousStamp = timeStamp;
+const frameLoop = (elapsedTime, deltaTime, deltaTimeRatio60) => {
 
     // oribitControl需要对damp进行插值
     if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(deltaTime); }
@@ -282,6 +271,8 @@ const frameLoop = (timeStamp) => {
     }
 
 }
+
+const frameloopMachine = FrameLoopMachine(frameLoop);
 
 const sceneVisiableHelper = (active) => {
 
@@ -407,23 +398,21 @@ export const initialize3D = (domElement) => {
     animtaionTest();
 
     // RenderLoop
-    frameLoop();
+    frameloopMachine.startLoop();
 
     // Pasuse F9
     window.addEventListener('keydown', (e) => {
 
         if (e.code === 'F9') {
-            if (frameLoopLongID) {
-                window.cancelAnimationFrame(frameLoopLongID);
-                frameLoopLongID = undefined;
+            const stop = frameloopMachine.stopLoop();
+            if (stop) {
                 if (orbitcontrols) { orbitcontrols.enabled = false; }
             } else {
-                frameLoop();
                 if (orbitcontrols) { orbitcontrols.enabled = true; }
             }
         }
 
-        if (e.code === 'KeyH') {
+        else if (e.code === 'KeyH') {
             helperVisiable = !helperVisiable;
             sceneVisiableHelper(helperVisiable);
             lightVisiableHelper(helperVisiable);
