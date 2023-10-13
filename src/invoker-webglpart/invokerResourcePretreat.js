@@ -1,9 +1,10 @@
 // 用于控制卡尔大资源的加载, 需要给出一个加载函数和一个回调函数, 回调函数中需要放出
 
-import { logger } from '@src/DevLogger';
+import { logger } from './logger';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
+import { urlJoin } from '@src/utils/url-join.js';
 
 const invokerLoadingManager = new THREE.LoadingManager();
 const gltfLoader = new GLTFLoader(invokerLoadingManager);
@@ -16,11 +17,11 @@ export const invokerGLTFResources = (() => {
     // gltf资源映射, 这个项目的模型资源我应该都会用gltf进行操作
     const gltfMap = {
         rock: {
-            url: '/rock/rock.gltf',
+            url: urlJoin(import.meta.env.BASE_URL, '/badside_rocks006_b/badside_rocks006_b.gltf'),
             resolved: undefined,
         },
         invoker: {
-            url: '/vrfcracked/invoker/invoker.gltf',
+            url: urlJoin(import.meta.env.BASE_URL, '/vrfcracked/invoker/invoker.gltf'),
             resolved: undefined,
         },
     }

@@ -2,25 +2,22 @@ import * as THREE from 'three';
 
 import { invokerGLTFResources } from './invokerResourcePretreat.js';
 import { FrameLoopMachine } from './FrameLoopMachine.js';
-import { logger } from '@src/DevLogger.ts';
 
-import { SpritePlaneBufferGeometry } from './effects/SpritePlaneBufferGeometry.js';
-import { OrbQuasShaderMaterial, OrbWexShaderMaterial, OrbExortShaderMaterial } from './effects/invokerOrbShaderMaterials.js';
+import { SingleSlotOrbMachine } from './effects/orbs/OrbMachine.js'
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
 export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
-
-// POINTERS
 
 // CONTEXT
 let renderer, camera, orbitcontrols;
 
 // SCENE
-let scene, ambient_light, hemisphere_light, directional_light, spot_light;
+let scene;
+let ambient_light, hemisphere_light, directional_light, spot_light;
 
 // HERO
-let rockModel, heroModel, animationClips, animationMixer, animationMixer1;
-let orbsSpawnActionL, orbsSpawnActionR;
+let rockModel, heroModel, animationClips, animationMixer1, animationMixer2; // resources
+let orbsSpawnActionL, orbsSpawnActionR; // animation actions
 let orbSlot1, orbSlot2, orbSlot3;
 let orb1, orb2, orb3;
 
@@ -28,7 +25,7 @@ let orb1, orb2, orb3;
 let grid_helper, axes_helper;
 let directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1;
 let skeleton_helper;
-let helperVisiable;
+let helperActive;
 
 // LOADERS
 const textureLoader = new THREE.TextureLoader();
@@ -43,19 +40,20 @@ const initContext = (domElement) => {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     // camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000.);
     const v = new THREE.Vector3(-2, 2, 3);
-    v.normalize().multiplyScalar(4.5);
+    v.normalize().multiplyScalar(6);
     camera.position.copy(v);
+
 
     // controls
     orbitcontrols = new OrbitControls(camera, renderer.domElement);
-    orbitcontrols.minDistance = 2;
-    orbitcontrols.maxDistance = 5;
-    orbitcontrols.maxPolarAngle = Math.PI / 2;
+    orbitcontrols.minDistance = 3.;
+    orbitcontrols.maxDistance = 9.;
+    orbitcontrols.maxPolarAngle = Math.PI / 2.;
     orbitcontrols.enablePan = false; // 禁止平移
     orbitcontrols.enableDamping = true;
-    orbitcontrols.dampingFactor = 0.05;
+    orbitcontrols.dampingFactor = .05;
 
 }
 
@@ -65,75 +63,51 @@ const initScene = () => {
     scene = new THREE.Scene();
 
     // lights
-    ambient_light = new THREE.AmbientLight(0xFFFFFF, 1); // soft white light
+    ambient_light = new THREE.AmbientLight(0xFFFFFF, 1.); // soft white light
     scene.add(ambient_light);
 
-    hemisphere_light = new THREE.HemisphereLight(0xF99221, 0x79440A, 0.5);
+    hemisphere_light = new THREE.HemisphereLight(0xF99221, 0x79440A, .5);
     scene.add(hemisphere_light);
 
-    directional_light = new THREE.DirectionalLight(0xFFDEDE, 4);
-    directional_light.position.set(2, 4, 8);
+    directional_light = new THREE.DirectionalLight(0xFFDEDE, 5.);
+    directional_light.position.set(2., 4., 8.);
     directional_light.shadow.camera.position.copy(directional_light.position);
     scene.add(directional_light);
     directional_light.castShadow = true;
     directional_light.shadow.mapSize.width = 4096;
     directional_light.shadow.mapSize.height = 4096;
-    directional_light.shadow.focus = 10;
-    directional_light.shadow.camera.near = 0.5;
-    directional_light.shadow.camera.far = 30;
-    directional_light.shadow.camera.fov = 50;
+    directional_light.shadow.focus = 10.;
+    directional_light.shadow.camera.near = .5;
+    directional_light.shadow.camera.far = 30.;
+    directional_light.shadow.camera.fov = 50.;
 
-    spot_light = new THREE.SpotLight(0xffffff, 100, 15, Math.PI / 6);
-    spot_light.position.set(0, 8, -2);
+    spot_light = new THREE.SpotLight(0xffffff, 80., 15., Math.PI / 6.);
+    spot_light.position.set(0., 8., -2.);
     spot_light.shadow.camera.position.copy(spot_light.position);
     spot_light.castShadow = true;
-    spot_light.shadow.bias = 0.0008; // 0.0001
+    spot_light.shadow.bias = .0008; // 0.0001
     spot_light.shadow.mapSize.width = 4096;
     spot_light.shadow.mapSize.height = 4096;
-    spot_light.shadow.focus = 10;
-    spot_light.shadow.camera.near = 0.5;
-    spot_light.shadow.camera.far = 30;
-    spot_light.shadow.camera.fov = 50;
+    spot_light.shadow.focus = 10.;
+    spot_light.shadow.camera.near = .5;
+    spot_light.shadow.camera.far = 30.;
+    spot_light.shadow.camera.fov = 50.;
     scene.add(spot_light);
 }
 
-const addBackground = () => {
 
-    // const geometry = new THREE.PlaneGeometry(30, 10);
-    // const material = new THREE.MeshBasicMaterial({ map: textureLoader.load('/invoker-textures/dota-2-wallpaper-10-940x390.jpg') });
-    // const plane = new THREE.Mesh(geometry, material);
-    // plane.position.set(0, 2.5, -5);
-    // scene.add(plane);
-
-    // scene.background = textureLoader.load('/invoker-textures/dota-2-wallpaper-10-940x390.jpg');
-
-}
-
-const addModels = () => {
+const addInvokerModels = () => {
 
     const rockGLTF = invokerGLTFResources.get('rock');
     rockModel = rockGLTF.scene;
     rockModel.traverse(child => {
         if (child.isMesh) {
+            child.castShadow = true;
             child.receiveShadow = true;
-            if (child.material) {
-                // 替换一下材质
-                const oldMat = child.material;
-                const newMat = new THREE.MeshPhysicalMaterial({
-                    map: oldMat.map,
-                    specularIntensityMap: textureLoader.load('/rock/badside_rocks001_spec.png'),
-                    normalScale: oldMat.normalScale,
-                    roughness: oldMat.roughness,
-                    metalness: .6,
-                    reflectivity: .7,
-                });
-                newMat.generateMipmaps = true;
-                newMat.needsUpdate = true;
-                child.material = newMat;
-            }
         }
     });
-    rockModel.scale.set(.6, .6, .6);
+    rockModel.rotateY(Math.PI / 2.);
+    rockModel.scale.set(.8, 1., .8);
     scene.add(rockModel);
 
     const invokerGLTF = invokerGLTFResources.get('invoker');
@@ -150,23 +124,24 @@ const addModels = () => {
             child.receiveShadow = true;
         }
     });
-    heroModel.scale.set(.4, .4, .4);
+    heroModel.scale.set(.5, .5, .5);
+    heroModel.position.set(0., .5, 0.);
     scene.add(heroModel);
+
+    if (orbitcontrols) { orbitcontrols.target.set(0., 1., 0.); }
 }
 
-const addAnimations = () => {
-
-    animationMixer = new THREE.AnimationMixer(heroModel);
+const addInvokerAnimations = () => {
 
     animationMixer1 = new THREE.AnimationMixer(heroModel);
-    animationMixer1 = animationMixer1;
+    animationMixer2 = new THREE.AnimationMixer(heroModel);
 
     // 去除idle切片中的球运动
     const idleClip = animationClips.find(item => item.name === 'idle');
     const idleClip1Tracks = [];
     idleClip.tracks.forEach(item => { if (item.name.indexOf('orb') === -1) { idleClip1Tracks.push(item); } });
     const idleClip1 = new THREE.AnimationClip('idle', -1, idleClip1Tracks);
-    const idleAction = animationMixer.clipAction(idleClip1, heroModel);
+    const idleAction = animationMixer1.clipAction(idleClip1, heroModel);
     idleAction.play();
 
     // 添加球运动动画
@@ -174,7 +149,7 @@ const addAnimations = () => {
     const orbsClip1Tracks = [];
     orbsClip.tracks.forEach(item => { if (item.name.indexOf('orb') !== -1) { orbsClip1Tracks.push(item); } });
     const orbsClip1 = new THREE.AnimationClip('orbs', -1, orbsClip1Tracks);
-    const orbsAction = animationMixer.clipAction(orbsClip1, heroModel);
+    const orbsAction = animationMixer1.clipAction(orbsClip1, heroModel);
     orbsAction.blendMode = THREE.NormalAnimationBlendMode;
     orbsAction.play();
 
@@ -211,75 +186,86 @@ const addAnimations = () => {
     });
     const orbsSpawnClipL = new THREE.AnimationClip('orbsSpawnL', -1, orbsSpawnClipL_Tracks);
     const orbsSpawnClipR = new THREE.AnimationClip('orbsSpawnR', -1, orbsSpawnClipR_Tracks);
-    orbsSpawnActionL = animationMixer1.clipAction(orbsSpawnClipL, heroModel);
-    orbsSpawnActionR = animationMixer1.clipAction(orbsSpawnClipR, heroModel);
+    orbsSpawnActionL = animationMixer2.clipAction(orbsSpawnClipL, heroModel);
+    orbsSpawnActionR = animationMixer2.clipAction(orbsSpawnClipR, heroModel);
     orbsSpawnActionL.blendMode = THREE.NormalAnimationBlendMode;
     orbsSpawnActionL.loop = THREE.LoopOnce;
     orbsSpawnActionR.blendMode = THREE.NormalAnimationBlendMode;
     orbsSpawnActionR.loop = THREE.LoopOnce;
 
+    window.addEventListener('keydown', (e) => {
+
+        if (e.code !== 'KeyQ' && e.code !== 'KeyW' && e.code !== 'KeyE') { return; }
+        if (e.code === 'KeyQ') { orb1.callingOrb('quas'); };
+        if (e.code === 'KeyW') { orb2.callingOrb('wex'); };
+        if (e.code === 'KeyE') { orb3.callingOrb('exort'); };
+
+        const duration = orbsSpawnActionL._clip.duration;
+        let isLeft = Math.random() < .5 ? true : false;
+
+        let orbAction = null;
+
+        if (isLeft) { orbAction = orbsSpawnActionL; }
+        else { orbAction = orbsSpawnActionR; }
+
+        if (orbAction.time <= 0.) {
+            orbAction.play();
+            return;
+        }
+
+        // 看看动画是不是手放下去的阶段
+        if (orbAction.time >= duration / 2.) {
+            if (orbAction.time >= duration) {
+                orbAction.reset();
+                orbAction.play();
+                return;
+            }
+
+            orbAction.time = THREE.MathUtils.clamp(duration / 2. - (duration - orbAction.time), 0., 1.); // clamp一下以免出现bug
+            return;
+        }
+    });
 }
 
 const addInvokerOrbs = () => {
 
-    // // 使用白模查看动画是否加载完成
-    // const geometry = new THREE.SphereGeometry(.1, 20, 20);
-    // const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    // const orb1 = new THREE.Mesh(geometry, material);
-    // const orb2 = new THREE.Mesh(geometry, material);
-    // const orb3 = new THREE.Mesh(geometry, material);
+    // 使用白模查看动画是否加载完成
+    // const sphere1 = new THREE.Mesh(new THREE.SphereGeometry(.1, 20, 20), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    // orbSlot1.attach(sphere1);
 
     // 使用平面精灵以及自制的ShaderMaterial
-    orb1 = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbQuasShaderMaterial());
-    orb2 = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbWexShaderMaterial());
-    orb3 = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbExortShaderMaterial());
-
-    // 将对象attach到插槽中
-    orbSlot1.attach(orb1);
-    orbSlot2.attach(orb2);
-    orbSlot3.attach(orb3);
+    orb1 = SingleSlotOrbMachine(orbSlot1, scene);
+    orb2 = SingleSlotOrbMachine(orbSlot2, scene);
+    orb3 = SingleSlotOrbMachine(orbSlot3, scene);
 }
 
-const frameLoop = (elapsedTime, deltaTime, deltaTimeRatio60) => {
 
-    // oribitControl需要对damp进行插值
+const frameloopMachine = FrameLoopMachine((elapsedTime, deltaTime, deltaTimeRatio60) => {
+
+    // oribitControl damp
     if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(deltaTime); }
+
+    // 动画Layer1
+    if (animationMixer1) { animationMixer1.update(deltaTime); }
+
+    // 动画Layer2 手部动画覆盖
+    if (animationMixer2) { animationMixer2.update(deltaTime); }
+
+    // 卡尔的球
+    if (orb1) { orb1.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+    if (orb2) { orb2.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+    if (orb3) { orb3.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
 
     // 更新场景
     renderer.render(scene, camera);
-
-    // 动画Layer1
-    if (animationMixer) { animationMixer.update(deltaTime); }
-
-    // 动画Layer2 手部动画覆盖
-    if (animationMixer1) { animationMixer1.update(deltaTime); }
-
-    // 卡尔的球
-    if (orb1 && orb2 && orb3) {
-
-        orb1.material.uniforms.uTime.value = elapsedTime;
-        orb2.material.uniforms.uTime.value = elapsedTime;
-        orb3.material.uniforms.uTime.value = elapsedTime;
-
-        orb1.material.uniforms.uRandDinamic.value = Math.random();
-        orb2.material.uniforms.uRandDinamic.value = Math.random();
-        orb3.material.uniforms.uRandDinamic.value = Math.random();
-
-        orb1.material.uniforms.uLifeTime.value += deltaTimeRatio60;
-        orb2.material.uniforms.uLifeTime.value += deltaTimeRatio60;
-        orb3.material.uniforms.uLifeTime.value += deltaTimeRatio60;
-    }
-
-}
-
-const frameloopMachine = FrameLoopMachine(frameLoop);
+});
 
 const sceneVisiableHelper = (active) => {
 
     // 网格
     if (!grid_helper) {
-        grid_helper = new THREE.GridHelper(100, 100, 0xffffff, 0xffffff);
-        grid_helper.material.opacity = 0.2;
+        grid_helper = new THREE.GridHelper(100., 100., 0xffffff, 0xffffff);
+        grid_helper.material.opacity = .2;
         grid_helper.material.transparent = true;
         grid_helper.name = 'GridHelper';
         scene.add(grid_helper);
@@ -288,7 +274,7 @@ const sceneVisiableHelper = (active) => {
 
     // 轴向
     if (!axes_helper) {
-        axes_helper = new THREE.AxesHelper(500);
+        axes_helper = new THREE.AxesHelper(500.);
         axes_helper.name = 'AxesHelper';
         scene.add(axes_helper);
     }
@@ -301,7 +287,7 @@ const lightVisiableHelper = (active) => {
     // 直射光
     if (directional_light) {
         if (!directional_light_helper) {
-            directional_light_helper = new THREE.DirectionalLightHelper(directional_light, 5);
+            directional_light_helper = new THREE.DirectionalLightHelper(directional_light, 5.);
             scene.add(directional_light_helper);
             directional_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
             scene.add(directional_light_helper1);
@@ -337,65 +323,37 @@ const boneVisiableHelper = (active) => {
     }
 }
 
-const animtaionTest = () => {
+const toggleHelper = (active) => {
 
-    let lastAction = null;
-    window.addEventListener('keydown', (e) => {
-        if (e.code !== 'KeyQ' && e.code !== 'KeyW' && e.code !== 'KeyE') { return; }
+    if (active !== undefined) { helperActive = active; }
+    else {
+        if (helperActive) { helperActive = true; }
+        else { helperActive = false; }
+        helperActive = !helperActive;
+    }
 
-        if (orbsSpawnActionL.time === 0) {
-            orbsSpawnActionL.reset();
-            orbsSpawnActionL.play();
-            lastAction = orbsSpawnActionL;
-            return;
-        }
-
-        else if (orbsSpawnActionR.time === 0) {
-            orbsSpawnActionR.reset();
-            orbsSpawnActionR.play();
-            lastAction = orbsSpawnActionR;
-            return;
-        }
-
-        else {
-            if (lastAction === orbsSpawnActionL) {
-                orbsSpawnActionR.reset();
-                orbsSpawnActionR.play();
-                lastAction = orbsSpawnActionR;
-                return;
-            } else {
-                orbsSpawnActionL.reset();
-                orbsSpawnActionL.play();
-                lastAction = orbsSpawnActionL;
-                return;
-            }
-        }
-    })
+    sceneVisiableHelper(helperActive);
+    lightVisiableHelper(helperActive);
+    boneVisiableHelper(helperActive);
 }
+
 
 /**
  * 初始化三维画面, 绑定三维画面到浏览器DOM
  * @param {*} domElement 
  */
-export const initialize3D = (domElement) => {
+export const invokerInitialize3D = (domElement) => {
 
     initContext(domElement);
     initScene();
 
     // Add Features
-    addBackground();
-    addModels();
-    addAnimations();
+    addInvokerModels();
+    addInvokerAnimations();
     addInvokerOrbs();
 
     // Visiable Helper
-    helperVisiable = false;
-    sceneVisiableHelper(helperVisiable);
-    lightVisiableHelper(helperVisiable);
-    boneVisiableHelper(helperVisiable);
-
-    // Tests
-    animtaionTest();
+    toggleHelper(false);
 
     // RenderLoop
     frameloopMachine.startLoop();
@@ -413,10 +371,7 @@ export const initialize3D = (domElement) => {
         }
 
         else if (e.code === 'KeyH') {
-            helperVisiable = !helperVisiable;
-            sceneVisiableHelper(helperVisiable);
-            lightVisiableHelper(helperVisiable);
-            boneVisiableHelper(helperVisiable);
+            toggleHelper();
         }
     });
 }

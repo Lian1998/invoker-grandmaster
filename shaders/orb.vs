@@ -26,7 +26,7 @@ void main() {
     scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
 
     vec2 vsOffset = vec2(0., 0.); // 设置一个变量用于在顶点控制器控制平面的偏移
-    float vsScale = .5; // 设置一个变量用于在顶点着色器控制平面的缩放
+    float vsScale = .6; // 设置一个变量用于在顶点着色器控制平面的缩放
 
     // 计算偏移和缩放
     vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;

@@ -5,8 +5,8 @@ uniform sampler2D uMap2; // 能量球状着色图
 uniform vec3 uColor1;
 uniform vec3 uColor2;
 uniform vec3 uColor3;
-uniform float uTime; // 时间
-uniform float uLifeTime; // 存在时间
+uniform float uTime; // 渲染总时间
+uniform float uLifeTime; // 生命时间
 
 varying vec2 vUv; // uv
 varying vec2 vCenter;

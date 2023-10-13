@@ -33,6 +33,9 @@ const animate = () => {
     const deltaTime = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
 
+    mesh.rotation.x += 0.01;
+    mesh.rotation.y += 0.01;
+
     renderer.render(scene, camera);
 
     orbitcontrols.update();

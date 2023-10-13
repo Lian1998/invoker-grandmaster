@@ -1,4 +1,4 @@
-class DevLogger {
+export class DevLogger {
 
     static loglevelsMap = { 'error': 1, 'warn': 2, 'info': 3, 'debug': 4 };
 
@@ -34,9 +34,3 @@ class DevLogger {
         }
     }
 }
-
-export const logger = new DevLogger('Invoker Grandmaster');
-
-
-// 判断vite执行当前命令时候所resolved的mode
-if (import.meta.env.MODE === 'development') { logger.loglevel = 'debug'; } 

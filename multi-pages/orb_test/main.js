@@ -10,7 +10,7 @@ const el2 = document.getElementById('viewport2');
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
 const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000.);
-camera.position.set(0., 0., .5);
+camera.position.set(0., 0., 1.);
 
 const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true, stencil: false });
 const renderer1 = new THREE.WebGLRenderer({ canvas: el1, antialias: true, stencil: false });
