@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { invokerGLTFResources } from './invokerResourcePretreat.js';
+import { invokerGLTFResources } from './invokerResources.js';
 import { FrameLoopMachine } from './FrameLoopMachine.js';
 
 import { SingleSlotOrbMachine } from './effects/orbs/OrbMachine.js'
@@ -9,26 +9,23 @@ import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
 
 // CONTEXT
-let renderer, camera, orbitcontrols;
+export let renderer, camera, orbitcontrols;
+export let frameloopMachine;
 
 // SCENE
-let scene;
-let ambient_light, hemisphere_light, directional_light, spot_light;
+export let scene;
+export let ambient_light, hemisphere_light, directional_light, spot_light;
 
 // HERO
-let rockModel, heroModel, animationClips, animationMixer1, animationMixer2; // resources
-let orbsSpawnActionL, orbsSpawnActionR; // animation actions
-let orbSlot1, orbSlot2, orbSlot3;
-let orb1, orb2, orb3;
+export let rockModel, heroModel, animationClips, animationMixer1, animationMixer2; // resources
+export let orbsSpawnActionL, orbsSpawnActionR; // animation actions
+export let orbSlot1, orbSlot2, orbSlot3;
+export let orb1, orb2, orb3;
 
 // HELPERS
-let grid_helper, axes_helper;
-let directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1;
-let skeleton_helper;
-let helperActive;
-
-// LOADERS
-const textureLoader = new THREE.TextureLoader();
+export let grid_helper, axes_helper; // scene
+export let directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1; // lights
+export let skeleton_helper; // hero skeleton
 
 const initContext = (domElement) => {
 
@@ -45,7 +42,6 @@ const initContext = (domElement) => {
     v.normalize().multiplyScalar(6);
     camera.position.copy(v);
 
-
     // controls
     orbitcontrols = new OrbitControls(camera, renderer.domElement);
     orbitcontrols.minDistance = 3.;
@@ -54,7 +50,6 @@ const initContext = (domElement) => {
     orbitcontrols.enablePan = false; // 禁止平移
     orbitcontrols.enableDamping = true;
     orbitcontrols.dampingFactor = .05;
-
 }
 
 const initScene = () => {
@@ -95,9 +90,7 @@ const initScene = () => {
     scene.add(spot_light);
 }
 
-
 const addInvokerModels = () => {
-
     const rockGLTF = invokerGLTFResources.get('rock');
     rockModel = rockGLTF.scene;
     rockModel.traverse(child => {
@@ -153,32 +146,26 @@ const addInvokerAnimations = () => {
     orbsAction.blendMode = THREE.NormalAnimationBlendMode;
     orbsAction.play();
 
-    // 左/右手切球动画
-    const orbsSpawnClip = animationClips.find(item => item.name === '@orb_spawn_rt');
+    // 从 `@orb_spawn_lf` 片段分出左/右手切球动画
+    const orbsSpawnClip = animationClips.find(item => item.name === '@orb_spawn_lf');
     const orbsSpawnClipL_Tracks = [];
     const orbsSpawnClipR_Tracks = [];
     orbsSpawnClip.tracks.forEach(item => {
         const trackName = item.name;
-
         if (trackName.toLowerCase().indexOf('orb') !== -1) { return; }
-
         else if (trackName.toLowerCase().indexOf('root') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('spine') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('head') !== -1) { return; }
-
         else if (trackName.toLowerCase().indexOf('shoulder') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('clavicle') !== -1) { return; }
-
         else if (trackName.toLowerCase().indexOf('thigh') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('knee') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('ankle') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('toe') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('tobase') !== -1) { return; }
-
         else if (trackName.toLowerCase().indexOf('cape') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('belt') !== -1) { return; }
         else if (trackName.toLowerCase().indexOf('manskirt') !== -1) { return; }
-
         else {
             if (trackName.indexOf('_L.') !== -1) { orbsSpawnClipL_Tracks.push(item); }
             if (trackName.indexOf('_R.') !== -1) { orbsSpawnClipR_Tracks.push(item); }
@@ -193,8 +180,8 @@ const addInvokerAnimations = () => {
     orbsSpawnActionR.blendMode = THREE.NormalAnimationBlendMode;
     orbsSpawnActionR.loop = THREE.LoopOnce;
 
+    // 动画测试
     window.addEventListener('keydown', (e) => {
-
         if (e.code !== 'KeyQ' && e.code !== 'KeyW' && e.code !== 'KeyE') { return; }
         if (e.code === 'KeyQ') { orb1.callingOrb('quas'); };
         if (e.code === 'KeyW') { orb2.callingOrb('wex'); };
@@ -228,7 +215,6 @@ const addInvokerAnimations = () => {
 }
 
 const addInvokerOrbs = () => {
-
     // 使用白模查看动画是否加载完成
     // const sphere1 = new THREE.Mesh(new THREE.SphereGeometry(.1, 20, 20), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     // orbSlot1.attach(sphere1);
@@ -239,141 +225,84 @@ const addInvokerOrbs = () => {
     orb3 = SingleSlotOrbMachine(orbSlot3, scene);
 }
 
-
-const frameloopMachine = FrameLoopMachine((elapsedTime, deltaTime, deltaTimeRatio60) => {
-
-    // oribitControl damp
-    if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(deltaTime); }
-
-    // 动画Layer1
-    if (animationMixer1) { animationMixer1.update(deltaTime); }
-
-    // 动画Layer2 手部动画覆盖
-    if (animationMixer2) { animationMixer2.update(deltaTime); }
-
-    // 卡尔的球
-    if (orb1) { orb1.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
-    if (orb2) { orb2.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
-    if (orb3) { orb3.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
-
-    // 更新场景
-    renderer.render(scene, camera);
-});
-
-const sceneVisiableHelper = (active) => {
-
+const addHelpers = () => {
     // 网格
-    if (!grid_helper) {
-        grid_helper = new THREE.GridHelper(100., 100., 0xffffff, 0xffffff);
-        grid_helper.material.opacity = .2;
-        grid_helper.material.transparent = true;
-        grid_helper.name = 'GridHelper';
-        scene.add(grid_helper);
-    }
-    grid_helper.visible = active;
+    grid_helper = new THREE.GridHelper(100., 100., 0xffffff, 0xffffff);
+    grid_helper.material.opacity = .2;
+    grid_helper.material.transparent = true;
+    grid_helper.name = 'GridHelper';
+    scene.add(grid_helper);
 
     // 轴向
-    if (!axes_helper) {
-        axes_helper = new THREE.AxesHelper(500.);
-        axes_helper.name = 'AxesHelper';
-        scene.add(axes_helper);
-    }
-    axes_helper.visible = active;
-
-}
-
-const lightVisiableHelper = (active) => {
+    axes_helper = new THREE.AxesHelper(500.);
+    axes_helper.name = 'AxesHelper';
+    scene.add(axes_helper);
 
     // 直射光
     if (directional_light) {
-        if (!directional_light_helper) {
-            directional_light_helper = new THREE.DirectionalLightHelper(directional_light, 5.);
-            scene.add(directional_light_helper);
-            directional_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
-            scene.add(directional_light_helper1);
-        }
-        directional_light_helper.visible = active;
-        directional_light_helper1.visible = active;
+        directional_light_helper = new THREE.DirectionalLightHelper(directional_light, 5.);
+        scene.add(directional_light_helper);
+        directional_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
+        scene.add(directional_light_helper1);
     }
 
     // 点光
     if (spot_light) {
-        if (!spot_light_helper) {
-            spot_light_helper = new THREE.SpotLightHelper(spot_light);
-            scene.add(spot_light_helper);
-            spot_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
-            scene.add(spot_light_helper1);
-        }
-        spot_light_helper.visible = active;
-        spot_light_helper1.visible = active;
+        spot_light_helper = new THREE.SpotLightHelper(spot_light);
+        scene.add(spot_light_helper);
+        spot_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
+        scene.add(spot_light_helper1);
     }
-}
 
-const boneVisiableHelper = (active) => {
-
-    let paramActive = active;
-
-    // 骨骼
     if (heroModel) {
-        if (!skeleton_helper) {
-            skeleton_helper = new THREE.SkeletonHelper(heroModel);
-            scene.add(skeleton_helper);
-        }
-        skeleton_helper.visible = paramActive;
+        skeleton_helper = new THREE.SkeletonHelper(heroModel);
+        scene.add(skeleton_helper);
     }
 }
-
-const toggleHelper = (active) => {
-
-    if (active !== undefined) { helperActive = active; }
-    else {
-        if (helperActive) { helperActive = true; }
-        else { helperActive = false; }
-        helperActive = !helperActive;
-    }
-
-    sceneVisiableHelper(helperActive);
-    lightVisiableHelper(helperActive);
-    boneVisiableHelper(helperActive);
-}
-
 
 /**
  * 初始化三维画面, 绑定三维画面到浏览器DOM
- * @param {*} domElement 
+ * @param {*} domElement 挂载到的dom元素
+ * @returns 
  */
 export const invokerInitialize3D = (domElement) => {
 
-    initContext(domElement);
-    initScene();
+    return new Promise((resolve, reject) => {
 
-    // Add Features
-    addInvokerModels();
-    addInvokerAnimations();
-    addInvokerOrbs();
+        initContext(domElement);
+        initScene();
 
-    // Visiable Helper
-    toggleHelper(false);
+        // Add Features
+        addInvokerModels(); // 模型
+        addInvokerAnimations(); // 动画处理
+        addInvokerOrbs(); // 卡尔法球特效
 
-    // RenderLoop
-    frameloopMachine.startLoop();
+        // Add Helpers
+        addHelpers();
 
-    // Pasuse F9
-    window.addEventListener('keydown', (e) => {
+        // 渲染循环机
+        frameloopMachine = FrameLoopMachine((elapsedTime, deltaTime, deltaTimeRatio60) => {
 
-        if (e.code === 'F9') {
-            const stop = frameloopMachine.stopLoop();
-            if (stop) {
-                if (orbitcontrols) { orbitcontrols.enabled = false; }
-            } else {
-                if (orbitcontrols) { orbitcontrols.enabled = true; }
-            }
-        }
+            // oribitControl damp
+            if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(deltaTime); }
 
-        else if (e.code === 'KeyH') {
-            toggleHelper();
-        }
-    });
+            // 动画Layer1
+            if (animationMixer1) { animationMixer1.update(deltaTime); }
+
+            // 动画Layer2 手部动画覆盖
+            if (animationMixer2) { animationMixer2.update(deltaTime); }
+
+            // 卡尔的球
+            if (orb1) { orb1.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+            if (orb2) { orb2.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+            if (orb3) { orb3.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+
+            // 更新场景
+            renderer.render(scene, camera);
+        });
+
+        resolve(true);
+    })
 }
 
 

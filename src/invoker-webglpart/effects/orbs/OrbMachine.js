@@ -59,6 +59,13 @@ export const SingleSlotOrbMachine = (orbSlot, scene) => {
         orb.material.uniforms.uLifeTime.value += deltaTimeRatio60;
     }
 
-
     return { orbsMap, callingOrb, frameLoop }
+}
+
+
+/**
+ * 球体更新机
+ */
+export const OrbMachine = (orbSlot1, orbSlot2, orbSlot3, scene) => {
+
 }

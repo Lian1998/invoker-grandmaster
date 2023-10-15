@@ -59,7 +59,7 @@ export const invokerGLTFResources = (() => {
  * 用于标记资源是否加载完毕
  * @returns {Promise<boolean>} Promise函数
  */
-export const invokerResourcePretreat = () => {
+export const invokerResourcesPretreat = () => {
 
     let loadedResouces = 0; // 当前已经加载的资源
     let totalResouces = 0; // 所有需要加载的资源

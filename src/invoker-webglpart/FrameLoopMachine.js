@@ -3,7 +3,7 @@ const now = () => ((typeof performance === 'undefined' ? Date : performance).now
 /**
  * 用于管理渲染循环的闭包
  * @param {(elapsedTime?: number, deltaTime?: number, deltaTimeRatio60?: number) => void} LoopFunctionIn 输入的循环函数 
- * @returns {{startLoop: () => void, stopLoop: () => boolean}} 闭包对象
+ * @returns {{startLoop: () => void, stopLoop: () => void, toggleLoop: () => boolean}} 闭包对象
  */
 export const FrameLoopMachine = (LoopFunctionIn) => {
 
@@ -31,6 +31,16 @@ export const FrameLoopMachine = (LoopFunctionIn) => {
 
     const stopLoop = () => {
 
+        if (!frameLoopLongID) return;
+
+        window.cancelAnimationFrame(frameLoopLongID);
+        frameLoopLongID = undefined;
+
+        lastStopStamp = now(); // 记录下次启动的开始时间为当前的渲染时间
+    }
+
+    const toggleLoop = () => {
+
         if (frameLoopLongID) {
 
             window.cancelAnimationFrame(frameLoopLongID);
@@ -48,8 +58,9 @@ export const FrameLoopMachine = (LoopFunctionIn) => {
 
             return false;
         }
+
     }
 
-    return { startLoop, stopLoop };
+    return { startLoop, stopLoop, toggleLoop };
 
 }

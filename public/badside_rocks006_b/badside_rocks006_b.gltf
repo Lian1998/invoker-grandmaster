@@ -1,158 +1,154 @@
 {
-	"asset":{
-		"generator":"Khronos glTF Blender I/O v3.6.27",
-		"version":"2.0"
-	},
-	"scene":0,
-	"scenes":[
-		{
-			"name":"Scene",
-			"nodes":[
-				0
-			]
-		}
-	],
-	"nodes":[
-		{
-			"mesh":0,
-			"name":"badside_rocks006.vmdl_c.badside_rocks006_model",
-			"rotation":[
-				-0.4999999403953552,
-				-0.4999999403953552,
-				-0.5000000596046448,
-				0.5000001788139343
-			],
-			"scale":[
-				0.02539999783039093,
-				0.02539999783039093,
-				0.02539999783039093
-			]
-		}
-	],
-	"materials":[
-		{
-			"emissiveTexture":{
-				"index":0
-			},
-			"name":"badside_rocks001",
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
-				"metallicFactor":0
-			}
-		}
-	],
-	"meshes":[
-		{
-			"name":"badside_rocks006.vmdl_c.badside_rocks006_model",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":0,
-						"NORMAL":1,
-						"TEXCOORD_0":2
-					},
-					"indices":3,
-					"material":0
-				}
-			]
-		}
-	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"badside_rocks001_refl_tga_2c516307",
-			"uri":"badside_rocks001_refl_tga_2c516307.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"badside_rocks001_color_psd_5f67f788",
-			"uri":"badside_rocks001_color_psd_5f67f788.png"
-		}
-	],
-	"accessors":[
-		{
-			"bufferView":0,
-			"componentType":5126,
-			"count":1305,
-			"max":[
-				156.56051635742188,
-				199.7882080078125,
-				31.137577056884766
-			],
-			"min":[
-				-197.10231018066406,
-				-180.68385314941406,
-				-7.457018852233887
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":1,
-			"componentType":5126,
-			"count":1305,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":2,
-			"componentType":5126,
-			"count":1305,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":3,
-			"componentType":5123,
-			"count":2232,
-			"type":"SCALAR"
-		}
-	],
-	"bufferViews":[
-		{
-			"buffer":0,
-			"byteLength":15660,
-			"byteOffset":0,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":15660,
-			"byteOffset":15660,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":10440,
-			"byteOffset":31320,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":4464,
-			"byteOffset":41760,
-			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9729,
-			"minFilter":9987
-		}
-	],
-	"buffers":[
-		{
-			"byteLength":46224,
-			"uri":"badside_rocks006_b.bin"
-		}
-	]
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "badside_rocks006.vmdl_c.badside_rocks006_model",
+            "rotation" : [
+                -0.4999999403953552,
+                -0.4999999403953552,
+                -0.5000000596046448,
+                0.5000001788139343
+            ],
+            "scale" : [
+                0.02539999783039093,
+                0.02539999783039093,
+                0.02539999783039093
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "emissiveTexture" : {
+                "index" : 0
+            },
+            "name" : "badside_rocks001",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1
+                },
+                "metallicFactor" : 0
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "badside_rocks006.vmdl_c.badside_rocks006_model",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "badside_rocks001_refl_tga_2c516307",
+            "uri" : "badside_rocks001_refl_tga_2c516307.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "badside_rocks001_color_psd_5f67f788",
+            "uri" : "badside_rocks001_color_psd_5f67f788.png"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 1431,
+            "max" : [
+                156.56051635742188,
+                199.7882080078125,
+                31.137577056884766
+            ],
+            "min" : [
+                -197.10231018066406,
+                -180.68385314941406,
+                -8.769469261169434
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 1431,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 1431,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 2232,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 17172,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 17172,
+            "byteOffset" : 17172
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 11448,
+            "byteOffset" : 34344
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 4464,
+            "byteOffset" : 45792
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 50256,
+            "uri" : "badside_rocks006_b.bin"
+        }
+    ]
 }
