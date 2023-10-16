@@ -5,7 +5,7 @@ import { orbitcontrols, frameloopMachine } from './invoker'
  * @param {*} active true/false 激活/不激活
  * @returns 
  */
-export const toogleLoopState = (active = undefined) => {
+export const toggleLoopState = (active = undefined) => {
     if (!frameloopMachine) return;
 
     // 如果传入了参数
@@ -16,7 +16,7 @@ export const toogleLoopState = (active = undefined) => {
 
     // 如果没有传入参数
     else {
-        const stop = frameloopMachine.toogleLoop();
+        const stop = frameloopMachine.toggleLoop();
         if (!orbitcontrols) return;
         if (stop) { orbitcontrols.enabled = false; }
         else { orbitcontrols.enabled = true; }

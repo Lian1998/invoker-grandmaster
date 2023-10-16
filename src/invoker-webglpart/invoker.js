@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { invokerGLTFResources } from './invokerResources.js';
 import { FrameLoopMachine } from './FrameLoopMachine.js';
 
-import { SingleSlotOrbMachine } from './effects/orbs/OrbMachine.js'
+import { OrbAnimationMachine } from './effects/orbs/OrbAnimationMachine.js'
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
 export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
@@ -20,7 +20,7 @@ export let ambient_light, hemisphere_light, directional_light, spot_light;
 export let rockModel, heroModel, animationClips, animationMixer1, animationMixer2; // resources
 export let orbsSpawnActionL, orbsSpawnActionR; // animation actions
 export let orbSlot1, orbSlot2, orbSlot3;
-export let orb1, orb2, orb3;
+export let orbAnimationMachine;
 
 // HELPERS
 export let grid_helper, axes_helper; // scene
@@ -45,7 +45,7 @@ const initContext = (domElement) => {
     // controls
     orbitcontrols = new OrbitControls(camera, renderer.domElement);
     orbitcontrols.minDistance = 3.;
-    orbitcontrols.maxDistance = 9.;
+    orbitcontrols.maxDistance = 7.;
     orbitcontrols.maxPolarAngle = Math.PI / 2.;
     orbitcontrols.enablePan = false; // 禁止平移
     orbitcontrols.enableDamping = true;
@@ -179,39 +179,6 @@ const addInvokerAnimations = () => {
     orbsSpawnActionL.loop = THREE.LoopOnce;
     orbsSpawnActionR.blendMode = THREE.NormalAnimationBlendMode;
     orbsSpawnActionR.loop = THREE.LoopOnce;
-
-    // 动画测试
-    window.addEventListener('keydown', (e) => {
-        if (e.code !== 'KeyQ' && e.code !== 'KeyW' && e.code !== 'KeyE') { return; }
-        if (e.code === 'KeyQ') { orb1.callingOrb('quas'); };
-        if (e.code === 'KeyW') { orb2.callingOrb('wex'); };
-        if (e.code === 'KeyE') { orb3.callingOrb('exort'); };
-
-        const duration = orbsSpawnActionL._clip.duration;
-        let isLeft = Math.random() < .5 ? true : false;
-
-        let orbAction = null;
-
-        if (isLeft) { orbAction = orbsSpawnActionL; }
-        else { orbAction = orbsSpawnActionR; }
-
-        if (orbAction.time <= 0.) {
-            orbAction.play();
-            return;
-        }
-
-        // 看看动画是不是手放下去的阶段
-        if (orbAction.time >= duration / 2.) {
-            if (orbAction.time >= duration) {
-                orbAction.reset();
-                orbAction.play();
-                return;
-            }
-
-            orbAction.time = THREE.MathUtils.clamp(duration / 2. - (duration - orbAction.time), 0., 1.); // clamp一下以免出现bug
-            return;
-        }
-    });
 }
 
 const addInvokerOrbs = () => {
@@ -220,9 +187,7 @@ const addInvokerOrbs = () => {
     // orbSlot1.attach(sphere1);
 
     // 使用平面精灵以及自制的ShaderMaterial
-    orb1 = SingleSlotOrbMachine(orbSlot1, scene);
-    orb2 = SingleSlotOrbMachine(orbSlot2, scene);
-    orb3 = SingleSlotOrbMachine(orbSlot3, scene);
+    orbAnimationMachine = OrbAnimationMachine();
 }
 
 const addHelpers = () => {
@@ -293,9 +258,7 @@ export const invokerInitialize3D = (domElement) => {
             if (animationMixer2) { animationMixer2.update(deltaTime); }
 
             // 卡尔的球
-            if (orb1) { orb1.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
-            if (orb2) { orb2.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
-            if (orb3) { orb3.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+            orbAnimationMachine.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60);
 
             // 更新场景
             renderer.render(scene, camera);

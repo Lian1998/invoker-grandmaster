@@ -4,7 +4,7 @@ import { invokerResourcesPretreat } from './invoker-webglpart/invokerResources.j
 import { invokerInitialize3D, INFO, frameloopMachine } from './invoker-webglpart/invoker.js';
 
 import { toggleHelper } from './invoker-webglpart/toggleHelper.js';
-import { toogleLoopState } from './invoker-webglpart/toogleLoopState.js';
+import { toggleLoopState } from './invoker-webglpart/toggleLoopState.js';
 import { invokerInitializeKeyListening } from './invoker-webglpart/events/invokerEventPipe.js';
 
 console.log(INFO);
@@ -22,7 +22,7 @@ window.addEventListener('load', () => {
         invokerInitialize3D(viewport1el).then(() => {
 
             // 显示/关闭 帮助对象
-            if (import.meta.env.MODE === 'development') { toggleHelper(true); }
+            if (import.meta.env.MODE === 'development') { toggleHelper(false); }
             else { toggleHelper(false); }
 
             // 开启渲染循环
@@ -30,7 +30,7 @@ window.addEventListener('load', () => {
 
             // 注册事件
             window.addEventListener('keydown', (e) => {
-                if (e.code === 'F9') { toogleLoopState(); }
+                if (e.code === 'F9') { toggleLoopState(); }
                 else if (e.code === 'KeyH') { toggleHelper(); }
             });
         });

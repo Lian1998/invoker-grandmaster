@@ -28,8 +28,10 @@ const OrbQuasShaderMaterial = () => new THREE.ShaderMaterial({
     },
     vertexShader: orbv,
     fragmentShader: quasf,
-    transparent: true,
     blending: THREE.NormalBlending,
+    depthWrite: false,
+    depthTest: true,
+    transparent: true,
     opacity: 1.,
 });
 
@@ -49,8 +51,10 @@ const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
     },
     vertexShader: orbv,
     fragmentShader: wexf,
-    transparent: true,
     blending: THREE.NormalBlending,
+    depthWrite: false,
+    depthTest: true,
+    transparent: true,
     opacity: 1.,
 });
 
@@ -68,13 +72,13 @@ const OrbExortShaderMaterial = () => new THREE.ShaderMaterial({
         uColor1: { value: new THREE.Color(0xFBD4A0) },
         uColor2: { value: new THREE.Color(0xEA8B44) },
     },
+    blending: THREE.NormalBlending,
     vertexShader: orbv,
     fragmentShader: exortf,
+    depthWrite: false,
+    depthTest: true,
     transparent: true,
-    blending: THREE.NormalBlending,
     opacity: 1.,
 });
-
-
 
 export { OrbQuasShaderMaterial, OrbWexShaderMaterial, OrbExortShaderMaterial };

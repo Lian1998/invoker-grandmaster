@@ -12,6 +12,8 @@ varying vec2 vCenter;
 // 中心点是 vec2(.5)
 // UV左上角为 vec2(0.), 右下角为 vec2(1.)
 
+uniform float uLifeTime;
+
 void main() {
 
     vUv = uv;
@@ -25,8 +27,10 @@ void main() {
     scaleVertex.x = length(vec3(modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z));
     scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
 
-    vec2 vsOffset = vec2(0., 0.); // 设置一个变量用于在顶点控制器控制平面的偏移
-    float vsScale = .6; // 设置一个变量用于在顶点着色器控制平面的缩放
+    // 设置一个变量用于在顶点控制器控制平面的偏移
+    vec2 vsOffset = vec2(0., 0.); 
+    // 设置一个变量用于在顶点着色器控制平面的缩放 这个值最终控制在.6会比较合理
+    float vsScale = .37 + .23 * smoothstep(0., .5, uLifeTime); 
 
     // 计算偏移和缩放
     vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;
