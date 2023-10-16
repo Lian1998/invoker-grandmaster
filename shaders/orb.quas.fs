@@ -10,6 +10,7 @@ uniform float uLifeTime; // 生命时间
 
 varying vec2 vUv; // uv
 varying vec2 vCenter;
+varying float vAlpha;
 
 #montage import('./glsl-noise/simplex2d.glsl');
 #montage import('./value-noise/1d.glsl');
@@ -73,6 +74,8 @@ void main() {
 
     // Dota2卡尔该全才的那个版本, 在更新前冰球是有俩高光点的, 更新后冰球特效去除了高光点外壳有一个黑色的颜色递减描边
     // gl_FragColor = vec4(mix(vec3(uMap1ColorMixed.rgb), vec3(.2), smoothstep(0., 1., orbhaloFactor)) + orbHighlightColor.rgb, uMap1ColorStrength + orbHighlightFactor);
-    gl_FragColor = vec4(mix(vec3(uMap1ColorMixed.rgb), vec3(.25), smoothstep(0., 1., orbhaloFactor)), uMap1ColorStrength);
+
+    float alpha = (uMap1ColorStrength) * vAlpha;
+    gl_FragColor = vec4(mix(vec3(uMap1ColorMixed.rgb), vec3(.25), smoothstep(0., 1., orbhaloFactor)), alpha);
 
 }

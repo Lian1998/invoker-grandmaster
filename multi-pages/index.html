@@ -6,95 +6,22 @@
     <link rel="icon" type="image/svg+xml" href="/invoker.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Invoker Grandmaster</title>
-    <style>
-        html {
-            height: 100%;
-        }
-
-        body {
-            overflow: hidden;
-            padding: 0;
-            margin: 0;
-        }
-
-        #viewport1 {
-            width: 100%;
-            height: 100vh;
-
-            cursor: url("vrfcracked/cursor/cursor_default.png"), default;
-        }
-
-        .invoker-abilities {
-            position: absolute;
-            display: flex;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 8px;
-        }
-
-        .invoker-abilities .invoker-ability {
-            cursor: pointer;
-            width: 64px;
-            height: 64px;
-            padding: 2px;
-            margin: 4px;
-            background-color: #333;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-position: center;
-            background-size: 64px 64px;
-        }
-
-        .invoker-abilities .invoker-ability:hover {
-            box-shadow: 0 0 16px 4px #999;
-        }
-
-        @media screen and (max-width: 1024px) {
-            .invoker-abilities .invoker-ability {
-                width: 48px;
-                height: 48px;
-                padding: 1px;
-                margin: 2px;
-                background-size: 48px 48px;
-            }
-
-            .invoker-abilities .invoker-ability:hover {
-                box-shadow: 0 0 8px 2px #999;
-            }
-        }
-
-        .a1 {
-            background-image: url(/invoker-textures/icons/invoker_quas.png);
-        }
-
-        .a2 {
-            background-image: url(/invoker-textures/icons/invoker_wex.png);
-        }
-
-        .a3 {
-            background-image: url(/invoker-textures/icons/invoker_exort.png);
-        }
-
-        .a4 {
-            background-image: url(/invoker-textures/icons/invoker_invoke.png);
-        }
-    </style>
 </head>
 
 <body>
     <canvas id="viewport1"></canvas>
 
     <div class="invoker-abilities">
-        <div class="invoker-ability a1"></div>
-        <div class="invoker-ability a2"></div>
-        <div class="invoker-ability a3"></div>
-        <div class="invoker-ability a4"></div>
-        <div class="invoker-ability a5"></div>
-        <div class="invoker-ability a6"></div>
+        <div class="invoker-ability" id="a1"></div>
+        <div class="invoker-ability" id="a2"></div>
+        <div class="invoker-ability" id="a3"></div>
+        <div class="invoker-ability" id="a4"></div>
+        <div class="invoker-ability" id="a5"></div>
+        <div class="invoker-ability" id="a6"></div>
     </div>
 
     <script type="module">
-        import '@src/main.ts'
+        import '@src/main.ts'; 
     </script>
 </body>
 

@@ -17,6 +17,7 @@
     "dependencies": {
         "normalize.css": "^8.0.1",
         "qs": "^6.11.2",
+        "sass": "^1.69.3",
         "url": "^0.11.3"
     }
 }

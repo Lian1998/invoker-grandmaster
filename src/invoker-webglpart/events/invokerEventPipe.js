@@ -1,3 +1,6 @@
+import { ability5el, ability6el } from '@src/invoker-dompart.js';
+import { viteBaseUrlJoined } from '@src/utils/viteBaseUrlJoined.js';
+
 // 事件管线
 // https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/EventTarget
 export const invokerEventPipe = new EventTarget();
@@ -81,6 +84,8 @@ export const invokerInitializeKeyListening = () => {
     // "元素祈唤"
 
     invokerEventPipe.addEventListener('Invoke', () => {
+
+        // 计算state字符串, 并在映射表中找到对应的技能名
         let quasNum = 0, wexNum = 0, exortNum = 0;
         quasNum = wexNum = exortNum = 0;
         invokerOrbStatesStack.forEach(item => {
@@ -89,16 +94,26 @@ export const invokerInitializeKeyListening = () => {
             if (item === 'Exort') { exortNum += 1; }
         });
         const stateStr = `Quas${quasNum}Wex${wexNum}Exort${exortNum}`;
-
         const abilityName = invokerState2AbilityName.get(stateStr);
         if (!abilityName) return;
         if (invokerExtraAbility[0] === abilityName) { return; }
         invokerExtraAbility[1] = invokerExtraAbility[0];
         invokerExtraAbility[0] = abilityName;
+
+        // 通过技能事件获取里面记录的iconurl, 尝试更新UI
+        const event5 = invokerAbilityEvents.get(invokerExtraAbility[0]);
+        if (ability5el && event5) {
+            const url5 = viteBaseUrlJoined(event5.detail.icon);
+            ability5el.style.backgroundImage = `url(${url5})`;
+        }
+        const event6 = invokerAbilityEvents.get(invokerExtraAbility[1]);
+        if (ability6el && event6) {
+            const url6 = viteBaseUrlJoined(event6.detail.icon);
+            ability6el.style.backgroundImage = `url(${url6})`;
+        }
     })
 
-    // 打印
-
+    // // 打印测试
     // invokerAbilityEvents.forEach((value, key, map) => {
     //     invokerEventPipe.addEventListener(value.type, (e) => {
     //         const abilityName = value.type;
@@ -107,9 +122,7 @@ export const invokerInitializeKeyListening = () => {
     //             console.log(abilityName);
     //         }
     //         // 如果是切球
-    //         else {
-    //             console.log(invokerOrbStatesStack, invokerExtraAbility[0], invokerExtraAbility[1]);
-    //         }
+    //         else { console.log(invokerOrbStatesStack, invokerExtraAbility[0], invokerExtraAbility[1]); }
     //     });
     // });
 

@@ -19,6 +19,7 @@ export let ambient_light, hemisphere_light, directional_light, spot_light;
 // HERO
 export let rockModel, heroModel, animationClips, animationMixer1, animationMixer2; // resources
 export let orbsSpawnActionL, orbsSpawnActionR; // animation actions
+export let wristL, wristR;
 export let orbSlot1, orbSlot2, orbSlot3;
 export let orbAnimationMachine;
 
@@ -50,6 +51,7 @@ const initContext = (domElement) => {
     orbitcontrols.enablePan = false; // 禁止平移
     orbitcontrols.enableDamping = true;
     orbitcontrols.dampingFactor = .05;
+    orbitcontrols.target.set(0., 1., 0.);
 }
 
 const initScene = () => {
@@ -90,6 +92,7 @@ const initScene = () => {
     scene.add(spot_light);
 }
 
+
 const addInvokerModels = () => {
     const rockGLTF = invokerGLTFResources.get('rock');
     rockModel = rockGLTF.scene;
@@ -111,6 +114,8 @@ const addInvokerModels = () => {
         if (child.name === 'orb1') { orbSlot1 = child; }
         else if (child.name === 'orb2') { orbSlot2 = child; }
         else if (child.name === 'orb3') { orbSlot3 = child; }
+        else if (child.name === 'wrist_L') { wristL = child; }
+        else if (child.name === 'wrist_R') { wristR = child; }
 
         if (child.isSkinnedMesh) {
             child.castShadow = true;
@@ -120,8 +125,6 @@ const addInvokerModels = () => {
     heroModel.scale.set(.5, .5, .5);
     heroModel.position.set(0., .5, 0.);
     scene.add(heroModel);
-
-    if (orbitcontrols) { orbitcontrols.target.set(0., 1., 0.); }
 }
 
 const addInvokerAnimations = () => {
@@ -219,6 +222,7 @@ const addHelpers = () => {
         scene.add(spot_light_helper1);
     }
 
+    // 骨骼
     if (heroModel) {
         skeleton_helper = new THREE.SkeletonHelper(heroModel);
         scene.add(skeleton_helper);

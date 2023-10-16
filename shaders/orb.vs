@@ -1,6 +1,7 @@
 varying vec2 vUv;
 varying vec3 vPosition;
 varying vec2 vCenter;
+varying float vAlpha;
 
 // ps: 此顶点着色器需传入的BufferGeometry配合使用 
 // position [ -0.5, 0.5, 0,  0.5, 0.5, 0,  -0.5, -0.5, 0,  0.5, -0.5, 0 ]
@@ -19,6 +20,7 @@ void main() {
     vUv = uv;
     vPosition = position;
     vCenter = vec2(.5);
+    vAlpha = .4 + .6 * smoothstep(0., .12, uLifeTime);
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
@@ -30,7 +32,7 @@ void main() {
     // 设置一个变量用于在顶点控制器控制平面的偏移
     vec2 vsOffset = vec2(0., 0.); 
     // 设置一个变量用于在顶点着色器控制平面的缩放 这个值最终控制在.6会比较合理
-    float vsScale = .37 + .23 * smoothstep(0., .5, uLifeTime); 
+    float vsScale = .25 + .35 * smoothstep(0., .12, uLifeTime); 
 
     // 计算偏移和缩放
     vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;

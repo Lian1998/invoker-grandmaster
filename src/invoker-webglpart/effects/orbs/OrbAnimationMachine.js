@@ -6,7 +6,11 @@ import { SpritePlaneBufferGeometry } from '../SpritePlaneBufferGeometry.js';
 import { invokerEventPipe } from '@src/invoker-webglpart/events/invokerEventPipe.js';
 import { invokerAbilityEvents } from '@src/invoker-webglpart/events/invokerAbilityEvents.js';
 
-import { orbsSpawnActionL, orbsSpawnActionR, orbSlot1, orbSlot2, orbSlot3, scene } from '../../invoker.js';
+import {
+    orbsSpawnActionL, orbsSpawnActionR,
+    wristL, wristR,
+    orbSlot1, orbSlot2, orbSlot3, scene
+} from '../../invoker.js';
 
 const vec3Util = new THREE.Vector3();
 
@@ -133,13 +137,26 @@ export const OrbAnimationMachine = () => {
             currentOrbObject.fadeToAnotherOrb(abilityName);
         });
 
-    })
+    });
+
+    // const testplane1 = new THREE.Mesh(new THREE.PlaneGeometry(1.), new THREE.MeshBasicMaterial({ color: 0xFFF, depthTest: false }));
+    // const testplane2 = new THREE.Mesh(new THREE.PlaneGeometry(1.), new THREE.MeshBasicMaterial({ color: 0xFFF, depthTest: false }));
+    // scene.add(testplane1);
+    // scene.add(testplane2);
 
     /** 帧更新函数 */
     const frameLoop = (elapsedTime, deltaTime, deltaTimeRatio60) => {
+
+        // 更新 SingleOrbObject
         orb1.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60);
         orb2.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60);
         orb3.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60);
+
+        // wristL.getWorldPosition(vec3Util);
+        // testplane1.position.lerp(vec3Util, 1.);
+
+        // wristR.getWorldPosition(vec3Util);
+        // testplane2.position.lerp(vec3Util, 1.);
     }
 
     return { frameLoop };

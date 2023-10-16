@@ -10,6 +10,7 @@ uniform float uLifeTime; // 生命时间
 
 varying vec2 vUv;
 varying vec2 vCenter;
+varying float vAlpha;
 
 #montage import('./glsl-noise/simplex2d.glsl');
 #montage import('./glsl-noise/simplex3d.glsl');
@@ -72,10 +73,10 @@ void main() {
     vec3 flameColor = mix(vec3(.9, .9, .9), vec3(.9, .9, .6), smoothstep(.1, .2, radius1));
     flameColor = mix(flameColor, vec3(.9, .4, 0.1), smoothstep(.18, .25, radius1));
     // Blend with background
-    float alpha = brightness;
-    vec4 flameColor4 = mix(vec4(0.), vec4(flameColor, 1.), alpha);
-    float flameStep = step(0., flameColor4.r + flameColor4.g + flameColor4.b);
+    vec4 flameColor4 = mix(vec4(0.), vec4(flameColor, 1.), brightness);
 
     // 如果有火焰明度使用火焰明度, 否则的话就使用描边色
-    gl_FragColor = vec4(flameStep * orbHaloColor.rgb + flameStep * flameColor4.rgb, max(orbhaloFactor * orbhaloStrength, flameColor4.a));
+    float flameStep = step(0., flameColor4.r + flameColor4.g + flameColor4.b);
+    float alpha = (max(orbhaloFactor * orbhaloStrength, flameColor4.a)) * vAlpha;
+    gl_FragColor = vec4(flameStep * orbHaloColor.rgb + flameStep * flameColor4.rgb, alpha);
 }

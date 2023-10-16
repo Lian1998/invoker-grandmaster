@@ -11,6 +11,7 @@ uniform float uLifeTime; // 生命时间
 varying vec2 vUv; // uv
 varying vec3 vPosition; // uv
 varying vec2 vCenter;
+varying float vAlpha;
 
 #montage import('./glsl-noise/simplex2d.glsl');
 #montage import('./value-noise/1d.glsl');
@@ -70,5 +71,6 @@ void main() {
     // gl_FragColor = vec4(uMap2ColorMixed, uMap2ColorStrength); // uMap2ColorMixed
     // gl_FragColor = vec4(vec3(watchFactor), 1.);
 
-    gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb + orbHighlightColor.rgb, max(uMap2ColorStrength, orbhaloFactor));
+    float alpha = (max(uMap2ColorStrength, orbhaloFactor)) * vAlpha;
+    gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb + orbHighlightColor.rgb, alpha);
 }
