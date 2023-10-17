@@ -47,7 +47,6 @@ graynoiseT.wrapT = THREE.RepeatWrapping;
 const planeGeom = new THREE.PlaneGeometry(1., 1.);
 const quasSM = new THREE.ShaderMaterial({
     uniforms: {
-        uType: { value: .1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
@@ -71,7 +70,6 @@ scene.add(sprite);
 
 const wexSM = new THREE.ShaderMaterial({
     uniforms: {
-        uType: { value: 1.1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
@@ -95,7 +93,6 @@ scene.add(sprite1);
 
 const exortSM = new THREE.ShaderMaterial({
     uniforms: {
-        uType: { value: 2.1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间

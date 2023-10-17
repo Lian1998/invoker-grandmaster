@@ -14,7 +14,6 @@ graynoiseT.wrapT = THREE.RepeatWrapping;
 
 const OrbQuasShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {
-        uType: { value: .1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
@@ -37,7 +36,6 @@ const OrbQuasShaderMaterial = () => new THREE.ShaderMaterial({
 
 const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {
-        uType: { value: 1.1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间
@@ -60,7 +58,6 @@ const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
 
 const OrbExortShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {
-        uType: { value: 2.1 },
         uRand: { value: Math.random() }, // 静态随机值
         uRandDinamic: { value: Math.random() }, // 动态随机值
         uTime: { value: 0.0 }, // 渲染时间

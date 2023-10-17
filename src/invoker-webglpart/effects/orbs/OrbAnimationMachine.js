@@ -6,74 +6,16 @@ import { SpritePlaneBufferGeometry } from '../SpritePlaneBufferGeometry.js';
 import { invokerEventPipe } from '@src/invoker-webglpart/events/invokerEventPipe.js';
 import { invokerAbilityEvents } from '@src/invoker-webglpart/events/invokerAbilityEvents.js';
 
+import { TurbShaderMaterial } from '../TurbShaderMaterial.js';
+
 import {
-    orbsSpawnActionL, orbsSpawnActionR,
-    wristL, wristR,
-    orbSlot1, orbSlot2, orbSlot3, scene
+    orbsSpawnActionL, orbsSpawnActionR, // 动画
+    wristL, wristR, // 手腕骨骼
+    orbSlot1, orbSlot2, orbSlot3, // 球骨骼
+    scene, // 场景
 } from '../../invoker.js';
 
 const vec3Util = new THREE.Vector3();
-
-/**
- * 单个祈求者球体
- * 一个祈求者的球体包含了三个平面精灵, 分别对应了 冰/雷/火(Quas/Wex/Exort) 球体
- * 
- * @param {THREE.Bone} orbSlot 当前球体所对应的插槽
- * @returns {{ 
- *  containOrbsMap: { quas: THREE.Mesh, wex: THREE.Mesh, exort: THREE.Mesh, activeP: undefined | THREE.Mesh },
- *  fadeToAnotherOrb: (name: 'Quas'|'Wex'|'Exort') => void,
- *  frameLoop: (elapsedTime: number, deltaTime: number) => void,
- * }} 球体更新机闭包
- */
-export const SingleOrbObject = (orbSlot, scene) => {
-    const orbSlotP = orbSlot; // 记录插槽的指针
-
-    // 生成三个球的Mesh
-    const quas = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbQuasShaderMaterial());
-    const wex = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbWexShaderMaterial());
-    const exort = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbExortShaderMaterial());
-
-    // 添加到场景中
-    quas.visible = false;
-    wex.visible = false;
-    exort.visible = false;
-    scene.add(quas);
-    scene.add(wex);
-    scene.add(exort);
-
-    // 用于保存对象
-    const containOrbsMap = { 'Quas': quas, 'Wex': wex, 'Exort': exort, activeP: undefined };
-
-    /** 此位点的球切换显示 */
-    const fadeToAnotherOrb = (name) => {
-        if (name !== 'Quas' && name !== 'Wex' && name !== 'Exort') { return; }
-
-        // 不是当前切换球的话直接消失
-        quas.visible = false;
-        wex.visible = false;
-        exort.visible = false;
-
-        const targetOrb = containOrbsMap[name]; // 目标球
-        containOrbsMap.activeP = targetOrb; // 设置指针
-        targetOrb.visible = true; // 设置可见性
-        targetOrb.material.uniforms.uLifeTime.value = 0.; // 设置uniform
-    }
-
-    /** 帧更新函数 */
-    const frameLoop = (elapsedTime, deltaTime) => {
-        if (!orbSlotP) { return; } // 球体插槽骨骼
-        const currentOrb = containOrbsMap.activeP; // 当前球体
-        if (!currentOrb) { return; }
-
-        orbSlotP.getWorldPosition(vec3Util);
-        currentOrb.position.lerp(vec3Util, 1.);
-        currentOrb.material.uniforms.uTime.value = elapsedTime;
-        currentOrb.material.uniforms.uRandDinamic.value = Math.random();
-        currentOrb.material.uniforms.uLifeTime.value += deltaTime;
-    }
-
-    return { containOrbsMap, fadeToAnotherOrb, frameLoop };
-}
 
 /**
  * 播放召唤法球的动画
@@ -111,6 +53,80 @@ const playOrbSpawnAnimation = () => {
 }
 
 /**
+ * 单个祈求者球体
+ * 一个祈求者的球体包含了三个平面精灵, 分别对应了 冰/雷/火(Quas/Wex/Exort) 球体
+ * 
+ * @param {THREE.Bone} orbSlot 当前球体所对应的插槽
+ * @returns {{ 
+ *  meshesMap: { quas: THREE.Mesh, wex: THREE.Mesh, exort: THREE.Mesh, activeP: undefined | THREE.Mesh },
+ *  fadeToAnotherMesh: (name: 'Quas'|'Wex'|'Exort') => void,
+ *  frameLoop: (elapsedTime: number, deltaTime: number) => void,
+ * }} 球体更新机闭包
+ */
+export const SingleOrbObject = (orbSlot, scene) => {
+    const orbSlotPointer = orbSlot; // 记录插槽的指针
+
+    // 生成三个球的Mesh
+    const quas = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbQuasShaderMaterial());
+    const wex = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbWexShaderMaterial());
+    const exort = new THREE.Mesh(SpritePlaneBufferGeometry(), OrbExortShaderMaterial());
+
+    // 添加到场景中
+    quas.visible = false;
+    wex.visible = false;
+    exort.visible = false;
+    scene.add(quas);
+    scene.add(wex);
+    scene.add(exort);
+
+    // 用于保存对象
+    const meshesMap = { 'Quas': quas, 'Wex': wex, 'Exort': exort, active: undefined };
+
+    /** 此位点的球切换显示 */
+    const fadeToAnotherMesh = (name) => {
+        if (name !== 'Quas' && name !== 'Wex' && name !== 'Exort') { return; }
+
+        // 不是当前切换球的话直接消失
+        quas.visible = false;
+        wex.visible = false;
+        exort.visible = false;
+
+        // 播放手部召唤法球的动画
+        const isLeft = playOrbSpawnAnimation();
+
+        const targetMesh = meshesMap[name]; // 目标球
+        meshesMap.active = targetMesh; // 设置指针
+        targetMesh.visible = true; // 设置可见性
+        targetMesh.material.uniforms.uLifeTime.value = 0.; // 设置uniform
+
+        // 目标球的位置应该立刻修改到手腕位置
+        if (isLeft) { wristL.getWorldPosition(vec3Util); }
+        else { wristR.getWorldPosition(vec3Util); }
+        vec3Util.y += .15; // 比手腕位置稍微高一点
+        targetMesh.position.copy(vec3Util);
+    }
+
+    /** 帧更新函数 */
+    const frameLoop = (elapsedTime, deltaTime) => {
+        if (!orbSlotPointer) { return; } // 球体插槽骨骼
+        const activeMesh = meshesMap.active; // 当前球体
+        if (!activeMesh) { return; }
+
+        activeMesh.material.uniforms.uTime.value = elapsedTime;
+        activeMesh.material.uniforms.uRandDinamic.value = Math.random();
+        activeMesh.material.uniforms.uLifeTime.value += deltaTime;
+
+        // 目标球的位置应该不断插值到Slot位置
+        orbSlotPointer.getWorldPosition(vec3Util);
+        const smoothstepFactor = THREE.MathUtils.smootherstep(activeMesh.material.uniforms.uLifeTime.value, 0., .8);
+        vec3Util.y += (1. - smoothstepFactor) * .3; // 向上方向加一个值, 召唤时有弹出的感觉
+        activeMesh.position.lerp(vec3Util, smoothstepFactor);
+    }
+
+    return { meshesMap, fadeToAnotherMesh, frameLoop };
+}
+
+/**
  * 球体状态更新机
  * @returns {{frameLoop: (elapsedTime: number, deltaTime: number) => void}}
  */
@@ -120,29 +136,29 @@ export const OrbAnimationMachine = () => {
     const orb2 = SingleOrbObject(orbSlot2, scene);
     const orb3 = SingleOrbObject(orbSlot3, scene);
 
-    const orbs = [orb1, orb2, orb3];
+    let index = 0;
+    const orbsMap = [orb1, orb2, orb3];
     const abilityNameArr = ['Quas', 'Wex', 'Exort']; // 切球事件
-    let currentIndex = 0;
     abilityNameArr.forEach(abilityName => {
         const abilityEvent = invokerAbilityEvents.get(abilityName);
         invokerEventPipe.addEventListener(abilityEvent.type, (e) => { // 监听切球事件
-            if (currentIndex + 1 > 2) { currentIndex = 0; }
-            else { currentIndex += 1; }
-
-            // 播放手部召唤法球的动画
-            playOrbSpawnAnimation();
+            if (index + 1 > 2) { index = 0; }
+            else { index += 1; }
 
             // 使用API调用 SingleOrbObject 更新球的显示状态过渡到另一个球
-            const currentOrbObject = orbs[currentIndex];
-            currentOrbObject.fadeToAnotherOrb(abilityName);
+            const currentSingleOrbObject = orbsMap[index]; // 根据缓存的index找到SingleOrbObject
+            currentSingleOrbObject.fadeToAnotherMesh(abilityName);
         });
 
     });
 
-    // const testplane1 = new THREE.Mesh(new THREE.PlaneGeometry(1.), new THREE.MeshBasicMaterial({ color: 0xFFFFFF, depthTest: false }));
-    // const testplane2 = new THREE.Mesh(new THREE.PlaneGeometry(1.), new THREE.MeshBasicMaterial({ color: 0xFFFFFF, depthTest: false }));
-    // scene.add(testplane1);
-    // scene.add(testplane2);
+    const testplane1 = new THREE.Mesh(new THREE.PlaneGeometry(1.), TurbShaderMaterial());
+    testplane1.visible = false;
+    scene.add(testplane1);
+
+    const testplane2 = new THREE.Mesh(new THREE.PlaneGeometry(1.), TurbShaderMaterial());
+    testplane2.visible = false;
+    scene.add(testplane2);
 
     /** 帧更新函数 */
     const frameLoop = (elapsedTime, deltaTime) => {
@@ -152,11 +168,10 @@ export const OrbAnimationMachine = () => {
         orb2.frameLoop(elapsedTime, deltaTime);
         orb3.frameLoop(elapsedTime, deltaTime);
 
-        // wristL.getWorldPosition(vec3Util);
-        // testplane1.position.lerp(vec3Util, 1.);
-
-        // wristR.getWorldPosition(vec3Util);
-        // testplane2.position.lerp(vec3Util, 1.);
+        wristL.getWorldPosition(vec3Util);
+        testplane1.position.lerp(vec3Util, 1.);
+        wristR.getWorldPosition(vec3Util);
+        testplane2.position.lerp(vec3Util, 1.);
     }
 
     return { frameLoop };

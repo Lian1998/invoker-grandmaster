@@ -3,16 +3,6 @@ varying vec3 vPosition;
 varying vec2 vCenter;
 varying float vAlpha;
 
-// ps: 此顶点着色器需传入的BufferGeometry配合使用 
-// position [ -0.5, 0.5, 0,  0.5, 0.5, 0,  -0.5, -0.5, 0,  0.5, -0.5, 0 ]
-// uv [ 0, 1,  1, 1,  0, 0,  1, 0 ]
-// index [ 0, 2, 1, 2, 3, 1 ]
-
-// 传入的几何体是一块长度, 宽度都为1的正方形平面
-// 其法线方向是z轴负方向
-// 中心点是 vec2(.5)
-// UV左上角为 vec2(0.), 右下角为 vec2(1.)
-
 uniform float uLifeTime;
 
 void main() {
@@ -20,7 +10,7 @@ void main() {
     vUv = uv;
     vPosition = position;
     vCenter = vec2(.5);
-    vAlpha = .2 + .8 * smoothstep(0., .3, uLifeTime);
+    vAlpha = .3 + .7 * smoothstep(0., .2, uLifeTime);
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
@@ -32,7 +22,7 @@ void main() {
     // 设置一个变量用于在顶点控制器控制平面的偏移
     vec2 vsOffset = vec2(0., 0.); 
     // 设置一个变量用于在顶点着色器控制平面的缩放 这个值最终控制在.6会比较合理
-    float vsScale = .2 + .4 * smoothstep(0., .3, uLifeTime); 
+    float vsScale = .25 + .35 * smoothstep(0., .2, uLifeTime); 
 
     // 计算偏移和缩放
     vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;
