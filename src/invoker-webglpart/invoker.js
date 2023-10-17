@@ -18,7 +18,7 @@ export let ambient_light, hemisphere_light, directional_light, spot_light;
 
 // HERO
 export let rockModel, heroModel, animationClips, animationMixer1, animationMixer2; // resources
-export let orbsSpawnActionL, orbsSpawnActionR; // animation actions
+export let orbsSpawnActionL, orbsSpawnActionR, orbsAction; // animation actions
 export let wristL, wristR;
 export let orbSlot1, orbSlot2, orbSlot3;
 export let orbAnimationMachine;
@@ -145,7 +145,7 @@ const addInvokerAnimations = () => {
     const orbsClip1Tracks = [];
     orbsClip.tracks.forEach(item => { if (item.name.indexOf('orb') !== -1) { orbsClip1Tracks.push(item); } });
     const orbsClip1 = new THREE.AnimationClip('orbs', -1, orbsClip1Tracks);
-    const orbsAction = animationMixer1.clipAction(orbsClip1, heroModel);
+    orbsAction = animationMixer1.clipAction(orbsClip1, heroModel);
     orbsAction.blendMode = THREE.NormalAnimationBlendMode;
     orbsAction.play();
 
@@ -228,6 +228,7 @@ const addHelpers = () => {
         scene.add(skeleton_helper);
     }
 }
+
 
 /**
  * 初始化三维画面, 绑定三维画面到浏览器DOM

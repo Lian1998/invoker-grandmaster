@@ -9,45 +9,48 @@ import { invokerAbilityEvents } from '@src/invoker-webglpart/events/invokerAbili
 import { TurbShaderMaterial } from '../TurbShaderMaterial.js';
 
 import {
-    orbsSpawnActionL, orbsSpawnActionR, // 动画
+    orbsSpawnActionL, orbsSpawnActionR, orbsAction, // 动画
     wristL, wristR, // 手腕骨骼
     orbSlot1, orbSlot2, orbSlot3, // 球骨骼
     scene, // 场景
 } from '../../invoker.js';
 
-const vec3Util = new THREE.Vector3();
+const vec3Util = new THREE.Vector3(); // 一个工具v3是线程不安全的
+const orbsActionDuration = 2.;  // 通过访问clip获取剪辑片段的时间 orbsAction._clip.duration
+const orbSpawnActionDuration = .35; // orbsSpawnActionL._clip.duration
 
 /**
- * 播放召唤法球的动画
- * @returns {boolean} isLeft? 是否左手位置发出
+ * 根据当前球轨道动画判断离哪个手更近, 以播放召唤法球的动画
+ * @returns {boolean} isLeft? 是否是从左手位置发出
  */
 const playOrbSpawnAnimation = () => {
     if (!orbsSpawnActionL || !orbsSpawnActionR) { return; }
 
-    const duration = orbsSpawnActionL._clip.duration; // 通过访问clip获取剪辑片段的时间
-    const isLeft = Math.random() < .5 ? true : false; // 计算一个随机值用于确定播放哪只手的动画
+    const isLeft = Math.random() <= .5 ? false : true; // 产出球的位置 
+    // if (orbsAction.time > 1. && orbsAction.time < 1.5) { console.log(1); } // right
+    // if (orbsAction.time > .8 && orbsAction.time < 1.3) { console.log(2); } // left
 
-    let orbAction = null;
-    if (isLeft) { orbAction = orbsSpawnActionL; }
-    else { orbAction = orbsSpawnActionR; }
+    let orbSpawnAction = null;
+    if (isLeft) { orbSpawnAction = orbsSpawnActionL; }
+    else { orbSpawnAction = orbsSpawnActionR; }
 
     // 如果这个动画还没有播放过, 无脑播放它
-    if (orbAction.time <= 0.) {
-        orbAction.play();
+    if (orbSpawnAction.time <= 0.) {
+        orbSpawnAction.play();
         return isLeft;
     }
 
     // 如果动画已经播放过且播放完毕, 无脑重置并重新播放
-    else if (orbAction.time >= duration) {
-        orbAction.reset();
-        orbAction.play();
+    else if (orbSpawnAction.time >= orbSpawnActionDuration) {
+        orbSpawnAction.reset();
+        orbSpawnAction.play();
         return isLeft;
     }
 
     // 如果当前动画其实正在进行中, 且动画当前处于手往下运动的阶段, 那么需要映射到同样位置其向上运动的time, 让手重新抬起
-    else if (orbAction.time >= duration / 2.) {
+    else if (orbSpawnAction.time >= orbSpawnActionDuration / 2.) {
         // clamp一下以免出现bug
-        orbAction.time = THREE.MathUtils.clamp(duration / 2. - (duration - orbAction.time), 0., 1.);
+        orbSpawnAction.time = THREE.MathUtils.clamp(orbSpawnActionDuration / 2. - (orbSpawnActionDuration - orbSpawnAction.time), 0., 1.);
         return isLeft;
     }
 }
@@ -80,47 +83,83 @@ export const SingleOrbObject = (orbSlot, scene) => {
     scene.add(exort);
 
     // 用于保存对象
-    const meshesMap = { 'Quas': quas, 'Wex': wex, 'Exort': exort, active: undefined };
+    const meshesMap = { 'Quas': quas, 'Wex': wex, 'Exort': exort, active: undefined, previous: undefined };
+
+    // 过渡动画曲线取值
+    let faddingPositionFactor = 0.;
+    const vec3Util1 = new THREE.Vector3();
 
     /** 此位点的球切换显示 */
     const fadeToAnotherMesh = (name) => {
-        if (name !== 'Quas' && name !== 'Wex' && name !== 'Exort') { return; }
-
-        // 不是当前切换球的话直接消失
-        quas.visible = false;
-        wex.visible = false;
-        exort.visible = false;
+        if (name !== 'Quas' && name !== 'Wex' && name !== 'Exort') { return; } // 判断参数
 
         // 播放手部召唤法球的动画
         const isLeft = playOrbSpawnAnimation();
+        let waitingTime = 0.;
+        if (orbsAction.time < .9) { waitingTime = orbSpawnActionDuration / 2. * 1000; }
 
-        const targetMesh = meshesMap[name]; // 目标球
-        meshesMap.active = targetMesh; // 设置指针
-        targetMesh.visible = true; // 设置可见性
-        targetMesh.material.uniforms.uLifeTime.value = 0.; // 设置uniform
+        // 如果这次切球就是上一次的球, 那么直接更新位置
+        if (meshesMap.active && meshesMap.active === meshesMap[name]) {
+            meshesMap.previous = undefined;
+            // 设置过渡动画
+            faddingPositionFactor = 0;
+            meshesMap.active.material.uniforms.uLifeTime.value = 0.;
+            // 从手部位置发出
+            if (isLeft) { wristL.getWorldPosition(vec3Util1); }
+            else { wristR.getWorldPosition(vec3Util1); }
+            vec3Util1.y += .15;
+            meshesMap.active.position.copy(vec3Util1);
+            return;
+        }
 
-        // 目标球的位置应该立刻修改到手腕位置
-        if (isLeft) { wristL.getWorldPosition(vec3Util); }
-        else { wristR.getWorldPosition(vec3Util); }
-        vec3Util.y += .15; // 比手腕位置稍微高一点
-        targetMesh.position.copy(vec3Util);
+        // 如果这次切球不是上一次的球
+        // 置换/设置指针
+        meshesMap.previous = meshesMap.active;
+        meshesMap.active = meshesMap[name];
+        const meshPrevious = meshesMap.previous; // 上一个球
+        const meshActive = meshesMap.active;  // 这一个球
+        if (meshPrevious) { meshPrevious.material.uniforms.uLifeTime.value = orbSpawnActionDuration / 2.; } // 设置过渡动画
+        setTimeout(() => {
+            if (meshPrevious) { meshPrevious.visible = false; } // 老球不显示
+            meshActive.visible = true; // 新球显示
+            // 设置过渡动画
+            faddingPositionFactor = 0;
+            meshActive.material.uniforms.uLifeTime.value = 0.;
+            // 从手部位置发出
+            if (isLeft) { wristL.getWorldPosition(vec3Util1); }
+            else { wristR.getWorldPosition(vec3Util1); }
+            vec3Util1.y += .15;
+            meshActive.position.copy(vec3Util1);
+        }, waitingTime);
+
     }
 
     /** 帧更新函数 */
     const frameLoop = (elapsedTime, deltaTime) => {
+
         if (!orbSlotPointer) { return; } // 球体插槽骨骼
-        const activeMesh = meshesMap.active; // 当前球体
-        if (!activeMesh) { return; }
 
-        activeMesh.material.uniforms.uTime.value = elapsedTime;
-        activeMesh.material.uniforms.uRandDinamic.value = Math.random();
-        activeMesh.material.uniforms.uLifeTime.value += deltaTime;
+        // 上一次切换球体
+        const meshPrevious = meshesMap.previous;
+        if (meshPrevious) {
+            meshPrevious.material.uniforms.uTime.value = elapsedTime;
+            meshPrevious.material.uniforms.uRandDinamic.value = Math.random();
+            meshPrevious.material.uniforms.uLifeTime.value -= deltaTime;
+        }
 
-        // 目标球的位置应该不断插值到Slot位置
-        orbSlotPointer.getWorldPosition(vec3Util);
-        const smoothstepFactor = THREE.MathUtils.smootherstep(activeMesh.material.uniforms.uLifeTime.value, 0., .8);
-        vec3Util.y += (1. - smoothstepFactor) * .3; // 向上方向加一个值, 召唤时有弹出的感觉
-        activeMesh.position.lerp(vec3Util, smoothstepFactor);
+        // 当前球体
+        const meshActive = meshesMap.active;
+        if (meshActive) {
+            meshActive.material.uniforms.uTime.value = elapsedTime;
+            meshActive.material.uniforms.uRandDinamic.value = Math.random();
+            meshActive.material.uniforms.uLifeTime.value += deltaTime;
+
+            // 目标球的位置应该不断插值到Slot位置
+            faddingPositionFactor += deltaTime;
+            orbSlotPointer.getWorldPosition(vec3Util);
+            const smoothstepFactor = THREE.MathUtils.smoothstep(faddingPositionFactor, 0., orbsActionDuration / 2.);
+            meshActive.position.lerp(vec3Util, smoothstepFactor);
+        }
     }
 
     return { meshesMap, fadeToAnotherMesh, frameLoop };
@@ -132,11 +171,11 @@ export const SingleOrbObject = (orbSlot, scene) => {
  */
 export const OrbAnimationMachine = () => {
 
+    let index = 0;
     const orb1 = SingleOrbObject(orbSlot1, scene);
     const orb2 = SingleOrbObject(orbSlot2, scene);
     const orb3 = SingleOrbObject(orbSlot3, scene);
 
-    let index = 0;
     const orbsMap = [orb1, orb2, orb3];
     const abilityNameArr = ['Quas', 'Wex', 'Exort']; // 切球事件
     abilityNameArr.forEach(abilityName => {

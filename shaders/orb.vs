@@ -20,7 +20,8 @@ void main() {
     vUv = uv;
     vPosition = position;
     vCenter = vec2(.5);
-    vAlpha = .2 + .8 * smoothstep(0., .3, uLifeTime);
+    vAlpha = smoothstep(0., .35 / 2., uLifeTime);
+    // vAlpha = 1.;
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
@@ -32,7 +33,7 @@ void main() {
     // 设置一个变量用于在顶点控制器控制平面的偏移
     vec2 vsOffset = vec2(0., 0.); 
     // 设置一个变量用于在顶点着色器控制平面的缩放 这个值最终控制在.6会比较合理
-    float vsScale = .2 + .4 * smoothstep(0., .3, uLifeTime); 
+    float vsScale = .3 + .28 * smoothstep(0., .35 / 2., uLifeTime);
 
     // 计算偏移和缩放
     vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;
