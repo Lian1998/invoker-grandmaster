@@ -1,6 +1,3 @@
-import { ability5el, ability6el } from '@src/invoker-dompart.js';
-import { viteBaseUrlJoined } from '@src/utils/viteBaseUrlJoined.js';
-
 // 事件管线
 // https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/EventTarget
 export const invokerEventPipe = new EventTarget();
@@ -58,34 +55,45 @@ export const initializeKeyBinding = (type = 'Dota2') => {
     }
 }
 
+
+import { ability1el, ability2el, ability3el, ability4el, ability5el, ability6el, toggleElementActiveClass } from '@src/invoker-dompart.js';
+import { viteBaseUrlJoined } from '@src/utils/viteBaseUrlJoined.js';
+
+const abilityels = [ability5el, ability6el];
+
 /**
  * 初始化卡尔的键盘事件
  * @param {*} type classic
  */
 export const invokerInitializeKeyListening = () => {
 
+    // 初始化按键配置
     initializeKeyBinding('Dota2');
 
     // "切球"
-
     invokerEventPipe.addEventListener('Quas', () => {
+        toggleElementActiveClass(ability1el);
         if (invokerOrbStatesStack.length >= 3) { invokerOrbStatesStack.pop(); }
         invokerOrbStatesStack.unshift('Quas');
     });
     invokerEventPipe.addEventListener('Wex', () => {
+        toggleElementActiveClass(ability2el);
         if (invokerOrbStatesStack.length >= 3) { invokerOrbStatesStack.pop(); }
         invokerOrbStatesStack.unshift('Wex');
     });
     invokerEventPipe.addEventListener('Exort', () => {
+        toggleElementActiveClass(ability3el);
         if (invokerOrbStatesStack.length >= 3) { invokerOrbStatesStack.pop(); }
         invokerOrbStatesStack.unshift('Exort');
     });
 
     // "元素祈唤"
-
     invokerEventPipe.addEventListener('Invoke', () => {
 
-        // 计算state字符串, 并在映射表中找到对应的技能名
+        // Invoke图标闪烁
+        toggleElementActiveClass(ability4el);
+
+        // 计算state字符串, 并在映射表中找到对应的技能名填塞入状态栏
         let quasNum = 0, wexNum = 0, exortNum = 0;
         quasNum = wexNum = exortNum = 0;
         invokerOrbStatesStack.forEach(item => {
@@ -100,30 +108,36 @@ export const invokerInitializeKeyListening = () => {
         invokerExtraAbility[1] = invokerExtraAbility[0];
         invokerExtraAbility[0] = abilityName;
 
-        // 通过技能事件获取里面记录的iconurl, 尝试更新UI
-        const event5 = invokerAbilityEvents.get(invokerExtraAbility[0]);
-        if (ability5el && event5) {
-            const url5 = viteBaseUrlJoined(event5.detail.icon);
-            ability5el.style.backgroundImage = `url(${url5})`;
-        }
-        const event6 = invokerAbilityEvents.get(invokerExtraAbility[1]);
-        if (ability6el && event6) {
-            const url6 = viteBaseUrlJoined(event6.detail.icon);
-            ability6el.style.backgroundImage = `url(${url6})`;
-        }
+        // 更新Invoke出来的技能图标, 并且图标闪烁
+        invokerExtraAbility.forEach((abilityName, index) => {
+            const event = invokerAbilityEvents.get(abilityName);
+            if (event) {
+                const url = viteBaseUrlJoined(event.detail.icon);
+                abilityels[index].style.backgroundImage = `url(${url})`;
+            }
+        });
     })
 
-    // // 打印测试
-    // invokerAbilityEvents.forEach((value, key, map) => {
-    //     invokerEventPipe.addEventListener(value.type, (e) => {
-    //         const abilityName = value.type;
-    //         // 如果是个召唤技能
-    //         if (invokerAbilityEvents.get(abilityName).detail.state) {
-    //             console.log(abilityName);
-    //         }
-    //         // 如果是切球
-    //         else { console.log(invokerOrbStatesStack, invokerExtraAbility[0], invokerExtraAbility[1]); }
-    //     });
-    // });
+    // 对所有的召唤技能进行事件监听 (存在state)
+    invokerAbilityEvents.forEach((event, key, map) => {
+        if (!event.detail.state) return;
+        invokerEventPipe.addEventListener(event.type, event1 => {
+            invokerExtraAbility.forEach((abilityName, index) => {
+                if (abilityName === event1.type) { toggleElementActiveClass(abilityels[index]) };
+            });
+        });
+    });
+
+    // 对dom按钮进行监控
+    ability1el.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerAbilityEvents.get('Quas')); });
+    ability2el.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerAbilityEvents.get('Wex')); });
+    ability3el.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerAbilityEvents.get('Exort')); });
+    ability4el.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerAbilityEvents.get('Invoke')); });
+    abilityels.forEach((abilityel, index) => {
+        abilityel.addEventListener('click', () => {
+            if (!invokerExtraAbility[index]) { return; }
+            invokerEventPipe.dispatchEvent(invokerAbilityEvents.get(invokerExtraAbility[index]));
+        });
+    });
 
 }

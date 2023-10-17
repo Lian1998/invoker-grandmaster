@@ -3,33 +3,39 @@ body {
 }
 
 .invoker-abilities {
-    position : absolute;
-    display  : flex;
-    left     : 50%;
+    position: absolute;
+    display: flex;
+    left: 50%;
     transform: translateX(-50%);
-    bottom   : 8px;
+    bottom: 8px;
 }
 
 .invoker-abilities .invoker-ability {
-    width                : 64px;
-    height               : 64px;
-    margin               : 8px;
-    background-color     : #333;
-    background-repeat    : no-repeat;
+    width: 64px;
+    height: 64px;
+    padding: 2px;
+    border-radius: 2px;
+    margin: 8px;
+    background-color: #222;
+    background-repeat: no-repeat;
     background-attachment: fixed;
-    background-position  : center;
-    background-size      : 64px 64px;
+    background-position: center;
+    background-size: 64px 64px;
 }
 
 .invoker-abilities .invoker-ability:hover {
     box-shadow: 0 0 8px 4px #999;
 }
 
+.invoker-abilities .invoker-ability.active {
+    box-shadow: 0 0 8px 4px #999;
+}
+
 @media screen and (max-width: 1024px) {
     .invoker-abilities .invoker-ability {
-        width          : 56px;
-        height         : 56px;
-        margin         : 6px;
+        width: 56px;
+        height: 56px;
+        margin: 6px;
         background-size: 56px 56px;
     }
 

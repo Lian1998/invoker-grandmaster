@@ -22,7 +22,7 @@ const vec3Util = new THREE.Vector3();
  * @returns {{ 
  *  containOrbsMap: { quas: THREE.Mesh, wex: THREE.Mesh, exort: THREE.Mesh, activeP: undefined | THREE.Mesh },
  *  fadeToAnotherOrb: (name: 'Quas'|'Wex'|'Exort') => void,
- *  frameLoop: (elapsedTime: number, deltaTime: number, deltaTimeRatio60: number) => void,
+ *  frameLoop: (elapsedTime: number, deltaTime: number) => void,
  * }} 球体更新机闭包
  */
 export const SingleOrbObject = (orbSlot, scene) => {
@@ -60,7 +60,7 @@ export const SingleOrbObject = (orbSlot, scene) => {
     }
 
     /** 帧更新函数 */
-    const frameLoop = (elapsedTime, deltaTime, deltaTimeRatio60) => {
+    const frameLoop = (elapsedTime, deltaTime) => {
         if (!orbSlotP) { return; } // 球体插槽骨骼
         const currentOrb = containOrbsMap.activeP; // 当前球体
         if (!currentOrb) { return; }
@@ -69,7 +69,7 @@ export const SingleOrbObject = (orbSlot, scene) => {
         currentOrb.position.lerp(vec3Util, 1.);
         currentOrb.material.uniforms.uTime.value = elapsedTime;
         currentOrb.material.uniforms.uRandDinamic.value = Math.random();
-        currentOrb.material.uniforms.uLifeTime.value += deltaTimeRatio60;
+        currentOrb.material.uniforms.uLifeTime.value += deltaTime;
     }
 
     return { containOrbsMap, fadeToAnotherOrb, frameLoop };
@@ -112,7 +112,7 @@ const playOrbSpawnAnimation = () => {
 
 /**
  * 球体状态更新机
- * @returns {{frameLoop: (elapsedTime: number, deltaTime: number, deltaTimeRatio60: number) => void}}
+ * @returns {{frameLoop: (elapsedTime: number, deltaTime: number) => void}}
  */
 export const OrbAnimationMachine = () => {
 
@@ -139,18 +139,18 @@ export const OrbAnimationMachine = () => {
 
     });
 
-    // const testplane1 = new THREE.Mesh(new THREE.PlaneGeometry(1.), new THREE.MeshBasicMaterial({ color: 0xFFF, depthTest: false }));
-    // const testplane2 = new THREE.Mesh(new THREE.PlaneGeometry(1.), new THREE.MeshBasicMaterial({ color: 0xFFF, depthTest: false }));
+    // const testplane1 = new THREE.Mesh(new THREE.PlaneGeometry(1.), new THREE.MeshBasicMaterial({ color: 0xFFFFFF, depthTest: false }));
+    // const testplane2 = new THREE.Mesh(new THREE.PlaneGeometry(1.), new THREE.MeshBasicMaterial({ color: 0xFFFFFF, depthTest: false }));
     // scene.add(testplane1);
     // scene.add(testplane2);
 
     /** 帧更新函数 */
-    const frameLoop = (elapsedTime, deltaTime, deltaTimeRatio60) => {
+    const frameLoop = (elapsedTime, deltaTime) => {
 
         // 更新 SingleOrbObject
-        orb1.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60);
-        orb2.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60);
-        orb3.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60);
+        orb1.frameLoop(elapsedTime, deltaTime);
+        orb2.frameLoop(elapsedTime, deltaTime);
+        orb3.frameLoop(elapsedTime, deltaTime);
 
         // wristL.getWorldPosition(vec3Util);
         // testplane1.position.lerp(vec3Util, 1.);

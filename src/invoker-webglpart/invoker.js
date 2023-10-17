@@ -250,7 +250,7 @@ export const invokerInitialize3D = (domElement) => {
         addHelpers();
 
         // 渲染循环机
-        frameloopMachine = FrameLoopMachine((elapsedTime, deltaTime, deltaTimeRatio60) => {
+        frameloopMachine = FrameLoopMachine((elapsedTime, deltaTime) => {
 
             // oribitControl damp
             if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(deltaTime); }
@@ -262,7 +262,7 @@ export const invokerInitialize3D = (domElement) => {
             if (animationMixer2) { animationMixer2.update(deltaTime); }
 
             // 卡尔的球
-            orbAnimationMachine.frameLoop(elapsedTime, deltaTime, deltaTimeRatio60);
+            orbAnimationMachine.frameLoop(elapsedTime, deltaTime);
 
             // 更新场景
             renderer.render(scene, camera);

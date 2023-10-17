@@ -29,7 +29,7 @@ scene.add(mesh);
 ///////////////////////////////
 
 
-const animate = (elapsedTime, deltaTime, deltaTimeRatio60) => {
+const animate = (elapsedTime, deltaTime) => {
 
     mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.01;

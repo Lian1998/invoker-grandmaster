@@ -16,11 +16,19 @@ void main() {
 
     vec4 tex = texture2D(uMap, uv);
 
-    gl_FragColor.rgb = tex.rgb;
-    gl_FragColor.a = vAlpha * 0.5;
+    gl_FragColor = vec4(tex.rgb, vAlpha * 0.5);
 
-    // gl_FragColor = vec4(vec3(1.), 1.);
-    // gl_FragColor = vec4(vec3(uv.x), 1.);
-    // gl_FragColor = vec4(vec3(uv.y), 1.);
-    // gl_FragColor = tex;
+    #include <encodings_fragment>
 }
+
+// Threejs 运行时替换指令 `#include <encodings_fragment>`:
+// vec4 LinearTosRGB(in vec4 value) {
+//     return vec4(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))), value.a);
+// }
+// vec4 linearToOutputTexel(vec4 value) { 
+//     return LinearToSRGB(value); 
+// }
+// void main() {
+//     ...
+//     gl_FragColor = linearToOutputTexel( gl_FragColor );
+// }

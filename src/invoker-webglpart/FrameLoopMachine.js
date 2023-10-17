@@ -2,7 +2,7 @@ const now = () => ((typeof performance === 'undefined' ? Date : performance).now
 
 /**
  * 用于管理渲染循环的闭包
- * @param {(elapsedTime?: number, deltaTime?: number, deltaTimeRatio60?: number) => void} LoopFunctionIn 输入的循环函数 
+ * @param {(elapsedTime?: number, deltaTime?: number) => void} LoopFunctionIn 输入的循环函数 
  * @returns {{startLoop: () => void, stopLoop: () => void, toggleLoop: () => boolean}} 闭包对象
  */
 export const FrameLoopMachine = (LoopFunctionIn) => {
@@ -15,18 +15,16 @@ export const FrameLoopMachine = (LoopFunctionIn) => {
     let previousStamp = 0.; // 上一帧的时间
     let elapsedTime = 0.; // 总时间
     let deltaTime = 0.; // 间隔时间
-    let deltaTimeRatio60 = 0.; // 间隔时间(缩放到60帧数)
 
     const startLoop = () => {
         frameLoopLongID = window.requestAnimationFrame(startLoop);
 
         const timeStamp = now();
         deltaTime = timeStamp - previousStamp;
-        deltaTimeRatio60 = 60 * Math.pow(deltaTime, 2);
         elapsedTime += deltaTime;
         previousStamp = timeStamp;
 
-        frameLoopFunction(elapsedTime, deltaTime, deltaTimeRatio60);
+        frameLoopFunction(elapsedTime, deltaTime);
     }
 
     const stopLoop = () => {

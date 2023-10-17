@@ -1,5 +1,4 @@
 import 'normalize.css'
-import './css/main.scss'
 
 import { invokerResourcesPretreat } from './invoker-webglpart/invokerResources.js';
 import { invokerInitialize3D, INFO, frameloopMachine } from './invoker-webglpart/invoker.js';

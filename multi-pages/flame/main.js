@@ -12,7 +12,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 (function () {
     const textureLoader = new THREE.TextureLoader();
 
-    let _renderer, _scene, _scene1, _camera, _controls, _rtt, _fire;
+    let _renderer, _scene, _camera, _controls, _rtt, _fire;
     let _width, _height;
     let fireLoop, emberLoop, hazeLoop;
 
@@ -37,7 +37,6 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
     function initWorld() {
         _renderer = new THREE.WebGLRenderer();
-        _renderer.outputColorSpace = THREE.SRGBColorSpace;
         _renderer.autoClear = false;
         _renderer.setPixelRatio(1);
         _renderer.setSize(window.innerWidth, window.innerHeight);
@@ -45,7 +44,6 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         document.body.appendChild(_renderer.domElement);
 
         _scene = new THREE.Scene();
-        _scene1 = new THREE.Scene();
 
         _camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         _camera.position.set(0, 0, 4);
@@ -74,11 +72,12 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
     function resetRT() {
         let dpr = _renderer.getPixelRatio();
         let _parameters = {
+            colorSpace: THREE.SRGBColorSpace,
+            format: THREE.RGBAFormat,
             minFilter: THREE.LinearFilter,
             magFilter: THREE.LinearFilter,
-            format: THREE.RGBAFormat,
-            colorSpace: THREE.SRGBColorSpace, // _rtt.texture.colorSpace = THREE.SRGBColorSpace;
-            stencilBuffer: false
+            stencilBuffer: false,
+            depthBuffer: false,
         };
         if (_rtt) { _rtt.dispose(); }
         _rtt = new THREE.WebGLRenderTarget(_width / dpr, _height / dpr, _parameters);
@@ -89,12 +88,11 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         if (timeStamp === undefined) { startStamp = timeStamp = startStamp = previousStamp = 0.; }
         const elapsedTime = (timeStamp - startStamp) / 1000.;
         const deltaTime = (timeStamp - previousStamp) / 1000.;
-        const deltaTimeRatio60 = 60 * Math.pow(deltaTime, 2);
         previousStamp = timeStamp;
 
-        if (fireLoop) { fireLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
-        if (emberLoop) { emberLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
-        if (hazeLoop) { hazeLoop(elapsedTime, deltaTime, deltaTimeRatio60); }
+        if (fireLoop) { fireLoop(elapsedTime, deltaTime); }
+        if (emberLoop) { emberLoop(elapsedTime, deltaTime); }
+        if (hazeLoop) { hazeLoop(elapsedTime, deltaTime); }
 
         _renderer.setRenderTarget(null);
         _renderer.clear();
@@ -115,9 +113,6 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
     function initBackground() {
 
-        // 不知道是什么bug
-        // 如果我手动作指定renderTarget进行render输出动作时, 传入的背景纹理不能是SRGB编码的, 如果是SRGB编码的, 那么会全黑
-
         let background = new THREE.Mesh(
             new THREE.BoxGeometry(4, 4, 4),
             new THREE.MeshBasicMaterial({
@@ -126,23 +121,9 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         );
         _scene.add(background);
 
-        let background1 = new THREE.Mesh(
-            new THREE.BoxGeometry(4, 4, 4),
-            new THREE.MeshBasicMaterial({
-                side: THREE.BackSide,
-            })
-        );
-        _scene1.add(background1);
-
-
         const texture = textureLoader.load('/fortest/flame/resources/rock.jpg');
         texture.colorSpace = THREE.SRGBColorSpace;
         background.material.map = texture;
-        // console.log(texture.colorSpace); // 'srgb'
-
-        const texture1 = textureLoader.load('/fortest/flame/resources/rock.jpg');
-        background1.material.map = texture1;
-        // console.log(texture1.colorSpace); // ''
     }
 
     // Fire    
@@ -230,7 +211,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _fire = _group;
         }
 
-        function loop(elapsedTime, deltaTime, deltaTimeRatio60) {
+        function loop(elapsedTime, deltaTime) {
             _shader.uniforms.uTime.value = elapsedTime * 0.1;
 
             let life = _geometry.attributes.life;
@@ -240,7 +221,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.04 * deltaTimeRatio60 * 60.;
+                value += 0.04 * deltaTime * 60.;
 
                 if (value > 1) {
                     value = value - Math.floor(value);
@@ -329,14 +310,14 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _scene.add(_points);
         }
 
-        function loop(elapsedTime, deltaTime, deltaTimeRatio60) {
+        function loop(elapsedTime, deltaTime) {
             let life = _geometry.attributes.life;
             let position = _geometry.attributes.position;
             let size = _geometry.attributes.size;
             let offset = _geometry.attributes.offset;
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.02 * deltaTimeRatio60 * 60.;
+                value += 0.02 * deltaTime * 60.;
 
                 if (value > 1) {
                     value = value - Math.floor(value);
@@ -420,6 +401,8 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
                 uMask: { value: textureLoader.load('/fortest/flame/resources/haze.png'), },
                 uResolution: { value: new THREE.Vector2(_width * dpr, _height * dpr), },
             };
+            console.log('_rtt.texture.colorSpace', _rtt.texture.colorSpace)
+            console.log('_renderer.outputColorSpace', _renderer.outputColorSpace);
 
             _shader = new THREE.ShaderMaterial({
                 uniforms: uniforms,
@@ -442,11 +425,11 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             _shader.uniforms.uResolution.value.set(_width * dpr, _height * dpr);
         }
 
-        function loop(elapsedTime, deltaTime, deltaTimeRatio60) {
+        function loop(elapsedTime, deltaTime) {
             _mesh.visible = false;
             _renderer.setRenderTarget(_rtt);
             _renderer.clear();
-            _renderer.render(_scene1, _camera);
+            _renderer.render(_scene, _camera);
 
             _mesh.visible = true;
             _rtt.texture.needsUpdate = true;
@@ -461,7 +444,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             let rotation = _geometry.attributes.rotation;
             for (let i = 0; i < _num; i++) {
                 let value = life.array[i];
-                value += 0.008 * deltaTimeRatio60 * 60.;
+                value += 0.008 * deltaTime * 60.;
 
                 if (value > 1) {
                     value = value - Math.floor(value);

@@ -1,19 +1,31 @@
 
+import './main.scss'
+
 import { viteBaseUrlJoined } from '@src/utils/viteBaseUrlJoined.js';
 
 document.body.style.cursor = `url(${viteBaseUrlJoined('/vrfcracked/cursor/cursor_default.png')}), default`;
 
 // 技能图标
-const ability1 = document.querySelector('.invoker-abilities .invoker-ability#a1');
-const ability2 = document.querySelector('.invoker-abilities .invoker-ability#a2');
-const ability3 = document.querySelector('.invoker-abilities .invoker-ability#a3');
-const ability4 = document.querySelector('.invoker-abilities .invoker-ability#a4');
+export const ability1el = document.querySelector('.invoker-abilities .invoker-ability#a1');
+export const ability2el = document.querySelector('.invoker-abilities .invoker-ability#a2');
+export const ability3el = document.querySelector('.invoker-abilities .invoker-ability#a3');
+export const ability4el = document.querySelector('.invoker-abilities .invoker-ability#a4');
 
-ability1.style.backgroundImage = `url(${viteBaseUrlJoined('/invoker-textures/icons/invoker_quas.png')})`;
-ability2.style.backgroundImage = `url(${viteBaseUrlJoined('/invoker-textures/icons/invoker_wex.png')})`;
-ability3.style.backgroundImage = `url(${viteBaseUrlJoined('/invoker-textures/icons/invoker_exort.png')})`;
-ability4.style.backgroundImage = `url(${viteBaseUrlJoined('/invoker-textures/icons/invoker_invoke.png')})`;
+ability1el.style.backgroundImage = `url(${viteBaseUrlJoined('/invoker-textures/icons/invoker_quas.png')})`;
+ability2el.style.backgroundImage = `url(${viteBaseUrlJoined('/invoker-textures/icons/invoker_wex.png')})`;
+ability3el.style.backgroundImage = `url(${viteBaseUrlJoined('/invoker-textures/icons/invoker_exort.png')})`;
+ability4el.style.backgroundImage = `url(${viteBaseUrlJoined('/invoker-textures/icons/invoker_invoke.png')})`;
 
 
 export const ability5el = document.querySelector('.invoker-abilities .invoker-ability#a5');
 export const ability6el = document.querySelector('.invoker-abilities .invoker-ability#a6');
+
+/**
+ * 短暂的给某个元素添加activeClass
+ * @param {Element} element 
+ */
+export const toggleElementActiveClass = (element) => {
+    if (!element | !element.classList) { return; }
+    element.classList.add('active');
+    setTimeout(() => { element.classList.remove('active'); }, 120);
+}
