@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import turbv from '@shaders/turb.vs';
 import turbf from '@shaders/turb.fs';
-import { viteBaseUrlJoined } from '@src/utils/viteBaseUrlJoined.js';
-import { rtt } from '../invoker';
+import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { rtt } from '../invoker3d';
 
 const textureLoader = new THREE.TextureLoader();
-const turbT = textureLoader.load(viteBaseUrlJoined('/invoker-textures/orbs/orb_spawn.png'));
+const turbT = textureLoader.load(getJoinedBaseUrl('/invoker-textures/orbs/orb_spawn_turb.png'));
 
 export const TurbShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {
@@ -20,5 +20,7 @@ export const TurbShaderMaterial = () => new THREE.ShaderMaterial({
     blending: THREE.NormalBlending,
     vertexShader: turbv,
     fragmentShader: turbf,
+    depthWrite: false,
+    depthTest: false,
     transparent: true,
 })

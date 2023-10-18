@@ -22,6 +22,7 @@ export let rtt;
 
 // SCENE
 export let scene;
+export let sceneOrb;
 export let sceneEffect;
 export let ambient_light, hemisphere_light, directional_light, spot_light;
 
@@ -75,6 +76,7 @@ const initScene = () => {
 
     // scene
     scene = new THREE.Scene();
+    sceneOrb = new THREE.Scene();
     sceneEffect = new THREE.Scene();
 
     // lights
@@ -166,7 +168,7 @@ const addInvokerAnimations = () => {
     orbsAction.blendMode = THREE.NormalAnimationBlendMode;
     orbsAction.play();
 
-    // 从 `@orb_spawn_lf` 片段分出左/右手切球动画
+    // 从 "@orb_spawn_lf" 片段分出左/右手切球动画
     const orbsSpawnClip = animationClips.find(item => item.name === '@orb_spawn_lf');
     const orbsSpawnClipL_Tracks = [];
     const orbsSpawnClipR_Tracks = [];
@@ -260,24 +262,23 @@ const addHelpers = () => {
 }
 
 export const resizeViewport = (event) => {
-    const { pixcelRatio, width, height } = getViewportQuality(containerElement);
-    logger.info(`pixcelRatio: ${pixcelRatio}, width: ${width}, height: ${height}`);
+    const { pixelRatio, width, height } = getViewportQuality(containerElement);
+    logger.info(`pixelRatio: ${pixelRatio}, width: ${width}, height: ${height}`);
 
-    if (renderer) { renderer.setPixelRatio(pixcelRatio); }
-    if (renderer) { renderer.setSize(width, height); }
+    const _width = width * pixelRatio;
+    const _height = height * pixelRatio;
+
+    if (renderer) {
+        renderer.setPixelRatio(pixelRatio);
+        renderer.setSize(width, height);
+    }
     if (camera) {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
     }
     if (rtt) { rtt.setSize(width, height); }
-    if (orbSpawnEffectPlaneL) {
-        orbSpawnEffectPlaneL.material.uniforms.uResolution.value.x = width;
-        orbSpawnEffectPlaneL.material.uniforms.uResolution.value.y = height;
-    }
-    if (orbSpawnEffectPlaneR) {
-        orbSpawnEffectPlaneR.material.uniforms.uResolution.value.x = width;
-        orbSpawnEffectPlaneR.material.uniforms.uResolution.value.y = height;
-    }
+    if (orbSpawnEffectPlaneL) { orbSpawnEffectPlaneL.material.uniforms.uResolution.value.set(_width, _height); }
+    if (orbSpawnEffectPlaneR) { orbSpawnEffectPlaneR.material.uniforms.uResolution.value.set(_width, _height); }
 }
 
 /**
@@ -285,7 +286,7 @@ export const resizeViewport = (event) => {
  * @param {*} domElement 挂载到的dom元素
  * @returns 
  */
-export const invokerInitialize3D = (viewportContainer, viewport) => {
+export const invokerInitialize3d = (viewportContainer, viewport) => {
 
     containerElement = viewportContainer;
     canvasElement = viewport;
@@ -310,8 +311,6 @@ export const invokerInitialize3D = (viewportContainer, viewport) => {
         // 渲染循环机
         frameloopMachine = FrameLoopMachine((elapsedTime, deltaTime) => {
 
-            renderer.clear();
-
             // oribitControl damp
             if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(deltaTime); }
 
@@ -327,31 +326,31 @@ export const invokerInitialize3D = (viewportContainer, viewport) => {
             // 渲染图像到离屏BufferTexture
             if (orbSpawnEffectPlaneL) { orbSpawnEffectPlaneL.visible = false; }
             if (orbSpawnEffectPlaneR) { orbSpawnEffectPlaneR.visible = false; }
-            renderer.setRenderTarget(rtt);
+
+            renderer.setRenderTarget(rtt); // 设置rtt为输出目标
             renderer.clear();
             renderer.render(scene, camera);
+            renderer.render(sceneOrb, camera);
 
-            renderer.setRenderTarget(null);
+            renderer.setRenderTarget(null); // 设置画布为输出目标
+            renderer.clear();
             renderer.render(scene, camera);
+            renderer.render(sceneOrb, camera);
 
             // 卡尔切球特效平面
-            if (orbSpawnEffectPlaneL) {
+            if (wristL && orbSpawnEffectPlaneL) {
                 orbSpawnEffectPlaneL.visible = true;
                 orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value += deltaTime;
-                if (wristL) {
-                    wristL.getWorldPosition(orbSpawnEffectPlaneL.position);
-                    orbSpawnEffectPlaneL.position.z += 0.1;
-                    orbSpawnEffectPlaneL.position.y += 0.25;
-                }
+                wristL.getWorldPosition(orbSpawnEffectPlaneL.position);
+                orbSpawnEffectPlaneL.position.z += 0.1;
+                orbSpawnEffectPlaneL.position.y += 0.25;
             }
-            if (orbSpawnEffectPlaneR) {
+            if (wristR && orbSpawnEffectPlaneR) {
                 orbSpawnEffectPlaneR.visible = true;
                 orbSpawnEffectPlaneR.material.uniforms.uLifeTime.value += deltaTime;
-                if (wristR) {
-                    wristR.getWorldPosition(orbSpawnEffectPlaneR.position);
-                    orbSpawnEffectPlaneR.position.z += 0.1;
-                    orbSpawnEffectPlaneR.position.y += 0.25;
-                }
+                wristR.getWorldPosition(orbSpawnEffectPlaneR.position);
+                orbSpawnEffectPlaneR.position.z += 0.1;
+                orbSpawnEffectPlaneR.position.y += 0.25;
             }
 
             // 渲染到canvas

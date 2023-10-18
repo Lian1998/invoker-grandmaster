@@ -4,7 +4,7 @@ import { logger } from './logger';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
-import { viteBaseUrlJoined } from '@src/utils/viteBaseUrlJoined.js';
+import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
 
 const invokerLoadingManager = new THREE.LoadingManager();
 const gltfLoader = new GLTFLoader(invokerLoadingManager);
@@ -17,11 +17,11 @@ export const invokerGLTFResources = (() => {
     // gltf资源映射, 这个项目的模型资源我应该都会用gltf进行操作
     const gltfMap = {
         rock: {
-            url: viteBaseUrlJoined('/badside_rocks006_b/badside_rocks006_b.gltf'),
+            url: getJoinedBaseUrl('/badside_rocks006_b/badside_rocks006_b.gltf'),
             resolved: undefined,
         },
         invoker: {
-            url: viteBaseUrlJoined('/vrfcracked/invoker/invoker.gltf'),
+            url: getJoinedBaseUrl('/vrfcracked/invoker/invoker.gltf'),
             resolved: undefined,
         },
     }

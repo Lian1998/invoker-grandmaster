@@ -2,7 +2,7 @@ import {
     grid_helper, axes_helper,
     directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1,
     skeleton_helper
-} from './invoker'
+} from './invoker3d'
 
 
 /**

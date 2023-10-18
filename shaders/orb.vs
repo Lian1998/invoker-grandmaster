@@ -8,20 +8,23 @@ varying float vAlpha;
 // uv [ 0, 1,  1, 1,  0, 0,  1, 0 ]
 // index [ 0, 2, 1, 2, 3, 1 ]
 
-// 传入的几何体是一块长度, 宽度都为1的正方形平面
-// 其法线方向是z轴负方向
-// 中心点是 vec2(0.5)
-// UV左上角为 vec2(0.0), 右下角为 vec2(1.0)
+// 传入的几何体是一块长/宽都为1.0的正方形平面; 法线方向是z轴负方向; 中心点是vec2(0.5); UV左上角为vec2(0.0), 右下角为vec2(1.0);
 
 uniform float uLifeTime;
 
 void main() {
 
+    float timeFactor = smoothstep(0.0, 0.2, uLifeTime);
+
+    // 顶点着色器内置变量 vetex_shader_param
+    vec2 vsp_Offset = vec2(0.0, 0.0);
+    float vsp_Scale = 0.25 + 0.3 * timeFactor; // float vsp_Scale = 0.55;
+
+    // Varying
     vUv = uv;
     vPosition = position;
     vCenter = vec2(0.5);
-    vAlpha = smoothstep(0.0, 0.35, uLifeTime);
-    // vAlpha = 1.0;
+    vAlpha = timeFactor; // vAlpha = 1.0;
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
@@ -30,14 +33,8 @@ void main() {
     scaleVertex.x = length(vec3(modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z));
     scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
 
-    // 设置一个变量用于在顶点控制器控制平面的偏移
-    vec2 vsOffset = vec2(0.0, 0.0); 
-    // 设置一个变量用于在顶点着色器控制平面的缩放 这个值最终控制在.6会比较合理
-    float vsScale = 0.15 + 0.4 * smoothstep(0.0, 0.35, uLifeTime);
-    // float vsScale = 0.6;
-
     // 计算偏移和缩放
-    vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;
+    vec2 alignedPosition = (position.xy + vsp_Offset) * scaleVertex * vsp_Scale;
     mvPosition.xy += alignedPosition.xy;
 
     gl_Position = projectionMatrix * mvPosition;

@@ -44,7 +44,7 @@ const rttscene = new THREE.Scene();
 const domel = document.querySelector('#preview');
 const ctx2d = domel.getContext('2d');
 const buffer = new Uint8Array(4 * RT_SIZE * RT_SIZE); // 装buffer
-const pixcelArr = new Uint8ClampedArray(buffer.buffer);
+const pixelArr = new Uint8ClampedArray(buffer.buffer);
 
 ////////////////////////////////
 {
@@ -83,7 +83,7 @@ const animate = () => {
     renderer.clear(); // 清除rtt上一帧残留的像素
     renderer.render(rttscene, camera);
     renderer.readRenderTargetPixels(rtt, 0, 0, RT_SIZE, RT_SIZE, buffer);
-    ctx2d.putImageData(new ImageData(pixcelArr, RT_SIZE, RT_SIZE), 0, 0);
+    ctx2d.putImageData(new ImageData(pixelArr, RT_SIZE, RT_SIZE), 0, 0);
 
     renderer.setRenderTarget(null); // 切换回来
     renderer.render(scene, camera);

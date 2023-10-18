@@ -73,6 +73,6 @@ function urlJoin(input) {
  * @param {*} publicResourceUrl 资源在public目录下的位置
  * @returns 
  */
-export const viteBaseUrlJoined = (publicResourceUrl) => {
+export const getJoinedBaseUrl = (publicResourceUrl) => {
     return urlJoin(import.meta.env.BASE_URL, publicResourceUrl);
 }

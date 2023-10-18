@@ -57,7 +57,7 @@ export const initializeKeyBinding = (type = 'Dota2') => {
 
 
 import { ability1el, ability2el, ability3el, ability4el, ability5el, ability6el, toggleElementActiveClass } from '@src/invoker-dompart.js';
-import { viteBaseUrlJoined } from '@src/utils/viteBaseUrlJoined.js';
+import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
 
 const abilityels = [ability5el, ability6el];
 
@@ -112,7 +112,7 @@ export const invokerInitializeKeyListening = () => {
         invokerExtraAbility.forEach((abilityName, index) => {
             const event = invokerAbilityEvents.get(abilityName);
             if (event) {
-                const url = viteBaseUrlJoined(event.detail.icon);
+                const url = getJoinedBaseUrl(event.detail.icon);
                 abilityels[index].style.backgroundImage = `url(${url})`;
             }
         });

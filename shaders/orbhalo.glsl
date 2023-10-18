@@ -11,8 +11,8 @@ float orbhalo(vec2 st, vec2 center, float e1, float e2, float fstrength) {
 
     float outerBoundary = step(_distance, e1); // 0 ~ e1
     float innerBoundary = step(_distance, e2); // 0 ~ e2
-    float isPixcel = outerBoundary - innerBoundary; // 1. 或者 0.
-    float gradianted = smoothstep(e2, e1, _distance) * isPixcel;
+    float isPixel = outerBoundary - innerBoundary; // 1. 或者 0.
+    float gradianted = smoothstep(e2, e1, _distance) * isPixel;
 
     float factor = gradianted * fstrength; // 最终球状描边(逐片元值)
 
@@ -25,8 +25,8 @@ float orbhalo_fuzzy(vec2 st, vec2 center, float e1, float e2, float e3, float fs
 
     float outerBoundary = step(_distance, e1); // 0 ~ outLineLength为1
     float innerBoundary = step(_distance, e2); // 0 ~ innerLineLength为1
-    float isPixcel = outerBoundary - innerBoundary; // 1. 或者 0.
-    float gradianted = smoothstep(e2, e1, _distance) * isPixcel;
+    float isPixel = outerBoundary - innerBoundary; // 1. 或者 0.
+    float gradianted = smoothstep(e2, e1, _distance) * isPixel;
 
     gradianted += smoothstep(e1 + e3, e1, _distance) - step(_distance, e1);
     gradianted = clamp(gradianted, 0., 1.);
