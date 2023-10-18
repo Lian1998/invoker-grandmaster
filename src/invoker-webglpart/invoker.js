@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import { getViewportQuality } from '@src/utils/getViewportQuality.js'
 import { invokerGLTFResources } from './invokerResources.js';
 import { FrameLoopMachine } from './FrameLoopMachine.js';
 
@@ -42,6 +43,7 @@ export let skeleton_helper; // hero skeleton
 
 const initContext = (canvas) => {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); // render
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000);
     renderer.shadowMap.enabled = true;
@@ -107,7 +109,6 @@ const initScene = () => {
     spot_light.shadow.camera.fov = 50.0;
     scene.add(spot_light);
 }
-
 
 const addInvokerModels = () => {
     const rockGLTF = invokerGLTFResources.get('rock');
@@ -258,20 +259,8 @@ const addHelpers = () => {
     }
 }
 
-
-const getViewportQuality = () => {
-    const pixcelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
-    let rect = undefined;
-    let width, height;
-    if (containerElement) { rect = containerElement.getBoundingClientRect(); }
-    if (rect) { width = rect.width; height = rect.height; }
-    if (!width) { width = window.innerWidth; }
-    if (!height) { height = window.innerHeight; }
-    return { pixcelRatio, width, height };
-}
-
 export const resizeViewport = (event) => {
-    const { pixcelRatio, width, height } = getViewportQuality();
+    const { pixcelRatio, width, height } = getViewportQuality(containerElement);
     logger.info(`pixcelRatio: ${pixcelRatio}, width: ${width}, height: ${height}`);
 
     if (renderer) { renderer.setPixelRatio(pixcelRatio); }
@@ -290,7 +279,6 @@ export const resizeViewport = (event) => {
         orbSpawnEffectPlaneR.material.uniforms.uResolution.value.y = height;
     }
 }
-
 
 /**
  * 初始化三维画面, 绑定三维画面到浏览器DOM
@@ -352,7 +340,8 @@ export const invokerInitialize3D = (viewportContainer, viewport) => {
                 orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value += deltaTime;
                 if (wristL) {
                     wristL.getWorldPosition(orbSpawnEffectPlaneL.position);
-                    orbSpawnEffectPlaneL.position.y += 0.2;
+                    orbSpawnEffectPlaneL.position.z += 0.1;
+                    orbSpawnEffectPlaneL.position.y += 0.25;
                 }
             }
             if (orbSpawnEffectPlaneR) {
@@ -360,7 +349,8 @@ export const invokerInitialize3D = (viewportContainer, viewport) => {
                 orbSpawnEffectPlaneR.material.uniforms.uLifeTime.value += deltaTime;
                 if (wristR) {
                     wristR.getWorldPosition(orbSpawnEffectPlaneR.position);
-                    orbSpawnEffectPlaneR.position.y += 0.2;
+                    orbSpawnEffectPlaneR.position.z += 0.1;
+                    orbSpawnEffectPlaneR.position.y += 0.25;
                 }
             }
 

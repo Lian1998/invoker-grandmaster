@@ -23,8 +23,8 @@ void main() {
     // 设置一个变量用于在顶点控制器控制平面的偏移
     vec2 vsOffset = vec2(0.0, 0.0); 
     // 设置一个变量用于在顶点着色器控制平面的缩放 这个值最终控制在.6会比较合理
-    float timeFactor = smoothstep(0.0, 0.3, uLifeTime);
-    float vsScale = timeFactor * step(uLifeTime, 0.375) * 0.6; 
+    float timeFactor = smoothstep(0.0, 0.375, uLifeTime);
+    float vsScale = timeFactor * step(uLifeTime, 0.5) * 0.6; 
 
     // 计算偏移和缩放
     vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;

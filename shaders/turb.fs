@@ -13,9 +13,9 @@ void main() {
 
     // haze贴图是一个球状图形, 球状的四个角最白, 为v3(0.78)
     vec2 maskUV = vUv;
-    float maskFactor = smoothstep(0.45, 0.0, distance(maskUV, vCenter));
+    float maskFactor = smoothstep(0.48, 0.0, distance(maskUV, vCenter));
     vec2 mask = texture2D(uMask, maskUV).ra - vec2(0.5);
-    uv -= mask * maskFactor * 0.1;
+    uv -= mask * maskFactor * 0.08;
 
     vec4 tex = texture2D(uMap, uv);
 

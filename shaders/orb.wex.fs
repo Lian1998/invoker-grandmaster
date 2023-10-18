@@ -23,11 +23,11 @@ void main() {
     float outerFactor = 0.3; // 要比贴图稍微大一点, 这样会在外圈生成一层颜色稍淡的黑边, 有点立体效果
     float innerFactor = 0.0;
     vec2 uvShake = vec2(0.05 * (valuenoise_smoothed1d(uTime) - 0.5), 0.05 * (valuenoise_smoothed1d(uTime) - 0.5)); // 随便来点抖动
-    float orbhaloFactor = orbhalo_fuzzy(vUv + uvShake, vCenter, outerFactor, innerFactor, 0.12, 0.7); // 注意扩散边缘的长度
+    float orbhaloFactor = orbhalo_fuzzy(vUv + uvShake, vCenter, outerFactor, innerFactor, 0.12, 0.6); // 注意扩散边缘的长度
     float orbhaloStrength = 1.5;
-    float wave = glslnoise_simplex2d(vec2(distance(vCenter, vUv) * 10.0 - uTime * 5.0)); // 中心点向内推波
+    float wave = glslnoise_simplex2d(vec2(distance(vCenter, vUv) * 5.0 - uTime * 5.0)); // 中心点向内推波
     if (orbhaloFactor > 0.0) {
-        orbhaloFactor += wave * 0.25;
+        orbhaloFactor += wave * 0.2;
     }
     vec3 orbHaloColor = uColor1 * orbhaloStrength * orbhaloFactor; // 描边
 
