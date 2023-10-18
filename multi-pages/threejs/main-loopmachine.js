@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
+import { FrameLoopMachine } from '@src/invoker-webglpart/FrameLoopMachine.js';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -8,8 +9,8 @@ const el = document.getElementById('viewport');
 
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
-const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000.);
-camera.position.set(0, 0, 5);
+const camera = new THREE.PerspectiveCamera(75.0, width / height, 0.1, 1000.0);
+camera.position.set(0.0, 0.0, 5.0);
 
 const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -28,10 +29,7 @@ scene.add(mesh);
 ///////////////////////////////
 
 
-const animate = () => {
-    requestAnimationFrame(animate);
-    const deltaTime = clock.getDelta();
-    const elapsedTime = clock.getElapsedTime();
+const animate = (elapsedTime, deltaTime) => {
 
     mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.01;
@@ -41,4 +39,17 @@ const animate = () => {
     orbitcontrols.update();
 }
 
-animate();
+const frameloopMachine = FrameLoopMachine(animate);
+
+frameloopMachine.startLoop();
+
+window.addEventListener('keydown', (e) => {
+
+    if (e.code === 'F9') {
+
+        let stopped = frameloopMachine.stopLoop();
+        orbitcontrols.enabled = stopped;
+
+    }
+
+});

@@ -9,8 +9,8 @@ const el2 = document.getElementById('viewport2');
 
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
-const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000.);
-camera.position.set(0., 0., 1.);
+const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000.0);
+camera.position.set(0.0, 0.0, 1.0);
 
 const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true, stencil: false });
 const renderer1 = new THREE.WebGLRenderer({ canvas: el1, antialias: true, stencil: false });
@@ -44,7 +44,7 @@ const graynoiseT = textureLoader.load('/invoker-textures/orbs/graynoise_by_shade
 graynoiseT.wrapS = THREE.RepeatWrapping;
 graynoiseT.wrapT = THREE.RepeatWrapping;
 
-const planeGeom = new THREE.PlaneGeometry(1., 1.);
+const planeGeom = new THREE.PlaneGeometry(1.0, 1.0);
 const quasSM = new THREE.ShaderMaterial({
     uniforms: {
         uRand: { value: Math.random() }, // 静态随机值
@@ -62,10 +62,10 @@ const quasSM = new THREE.ShaderMaterial({
     fragmentShader: quasf,
     transparent: true,
     blending: THREE.NormalBlending,
-    opacity: 1.,
+    opacity: 1.0,
 });
 const sprite = new THREE.Mesh(planeGeom, quasSM);
-sprite.position.set(0, 0, 0);
+sprite.position.set(0.0, 0.0, 0.0);
 scene.add(sprite);
 
 const wexSM = new THREE.ShaderMaterial({
@@ -85,10 +85,10 @@ const wexSM = new THREE.ShaderMaterial({
     fragmentShader: wexf,
     transparent: true,
     blending: THREE.NormalBlending,
-    opacity: 1.,
+    opacity: 1.0,
 });
 const sprite1 = new THREE.Mesh(planeGeom, wexSM);
-sprite1.position.set(0, 0, 0);
+sprite1.position.set(0.0, 0.0, 0.0);
 scene.add(sprite1);
 
 const exortSM = new THREE.ShaderMaterial({
@@ -108,10 +108,10 @@ const exortSM = new THREE.ShaderMaterial({
     fragmentShader: exortf,
     transparent: true,
     blending: THREE.NormalBlending,
-    opacity: 1.,
+    opacity: 1.0,
 });
 const sprite2 = new THREE.Mesh(planeGeom, exortSM);
-sprite2.position.set(0, 0, 0);
+sprite2.position.set(0.0, 0.0, 0.0);
 scene.add(sprite2);
 
 const animate = () => {

@@ -11,10 +11,10 @@ export const FrameLoopMachine = (LoopFunctionIn) => {
 
     let frameLoopLongID = undefined; // 此次启动的id
 
-    let lastStopStamp = 0.; // 上一次结束的时间
-    let previousStamp = 0.; // 上一帧的时间
-    let elapsedTime = 0.; // 总时间
-    let deltaTime = 0.; // 间隔时间
+    let lastStopStamp = 0.0; // 上一次结束的时间
+    let previousStamp = 0.0; // 上一帧的时间
+    let elapsedTime = 0.0; // 总时间
+    let deltaTime = 0.0; // 间隔时间
 
     const startLoop = () => {
         frameLoopLongID = window.requestAnimationFrame(startLoop);

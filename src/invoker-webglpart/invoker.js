@@ -6,14 +6,22 @@ import { FrameLoopMachine } from './FrameLoopMachine.js';
 import { OrbAnimationMachine } from './effects/orbs/OrbAnimationMachine.js'
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
-export const INFO = 'dota2 hero invoker - render use threejs(https://threejs.org/) By Lian1998(https://gitee.com/lian_1998)';
+import { TurbShaderMaterial } from './effects/TurbShaderMaterial.js';
+import { logger } from './logger.js';
+
+const INFO = 'Dota2 Hero Invoker - By Lian1998(https://gitee.com/lian_1998) Using ThreeJS(https://threejs.org/)';
+logger.error(INFO);
 
 // CONTEXT
+export let containerElement;
+export let canvasElement;
 export let renderer, camera, orbitcontrols;
 export let frameloopMachine;
+export let rtt;
 
 // SCENE
 export let scene;
+export let sceneEffect;
 export let ambient_light, hemisphere_light, directional_light, spot_light;
 
 // HERO
@@ -23,72 +31,80 @@ export let wristL, wristR;
 export let orbSlot1, orbSlot2, orbSlot3;
 export let orbAnimationMachine;
 
+// EFFECTS
+export let orbSpawnEffectPlaneL, orbSpawnEffectPlaneR;
+
 // HELPERS
 export let grid_helper, axes_helper; // scene
 export let directional_light_helper, directional_light_helper1, spot_light_helper, spot_light_helper1; // lights
 export let skeleton_helper; // hero skeleton
 
-const initContext = (domElement) => {
 
-    // render
-    renderer = new THREE.WebGLRenderer({ canvas: domElement, antialias: true });
-    renderer.setClearColor(0x000000);
+const initContext = (canvas) => {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); // render
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.autoClear = false;
+    rtt = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+        colorSpace: THREE.SRGBColorSpace,
+        format: THREE.RGBAFormat,
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        stencilBuffer: false,
+    });
 
-    // camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000.);
-    const v = new THREE.Vector3(-2, 2, 3);
-    v.normalize().multiplyScalar(6);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 20.0); // camera
+    const v = new THREE.Vector3(-2.0, 2.0, 3.0);
+    v.normalize().multiplyScalar(6.0);
     camera.position.copy(v);
-
-    // controls
-    orbitcontrols = new OrbitControls(camera, renderer.domElement);
-    orbitcontrols.minDistance = 3.;
-    orbitcontrols.maxDistance = 7.;
-    orbitcontrols.maxPolarAngle = Math.PI / 2.;
+    orbitcontrols = new OrbitControls(camera, canvas); // controls
+    orbitcontrols.minDistance = 3.0;
+    orbitcontrols.maxDistance = 7.0;
+    orbitcontrols.maxPolarAngle = Math.PI / 2.0;
     orbitcontrols.enablePan = false; // 禁止平移
     orbitcontrols.enableDamping = true;
-    orbitcontrols.dampingFactor = .05;
-    orbitcontrols.target.set(0., 1., 0.);
+    orbitcontrols.dampingFactor = 0.05;
+    orbitcontrols.target.set(0.0, 1.0, 0.0);
 }
 
 const initScene = () => {
 
     // scene
     scene = new THREE.Scene();
+    sceneEffect = new THREE.Scene();
 
     // lights
-    ambient_light = new THREE.AmbientLight(0xFFFFFF, 1.); // soft white light
+    ambient_light = new THREE.AmbientLight(0xFFFFFF, 1.0); // soft white light
     scene.add(ambient_light);
 
-    hemisphere_light = new THREE.HemisphereLight(0xF99221, 0x79440A, .5);
+    hemisphere_light = new THREE.HemisphereLight(0xF99221, 0x79440A, 0.5);
     scene.add(hemisphere_light);
 
-    directional_light = new THREE.DirectionalLight(0xFFDEDE, 5.);
-    directional_light.position.set(2., 4., 8.);
+    directional_light = new THREE.DirectionalLight(0xFFDEDE, 5.0);
+    directional_light.position.set(2.0, 4.0, 8.0);
     directional_light.shadow.camera.position.copy(directional_light.position);
     scene.add(directional_light);
     directional_light.castShadow = true;
     directional_light.shadow.mapSize.width = 4096;
     directional_light.shadow.mapSize.height = 4096;
-    directional_light.shadow.focus = 10.;
-    directional_light.shadow.camera.near = .5;
-    directional_light.shadow.camera.far = 30.;
-    directional_light.shadow.camera.fov = 50.;
+    directional_light.shadow.focus = 10.0;
+    directional_light.shadow.camera.near = 0.5;
+    directional_light.shadow.camera.far = 30.0;
+    directional_light.shadow.camera.fov = 50.0;
 
-    spot_light = new THREE.SpotLight(0xffffff, 80., 15., Math.PI / 6.);
-    spot_light.position.set(0., 8., -2.);
+    spot_light = new THREE.SpotLight(0xffffff, 80.0, 15.0, Math.PI / 6.0);
+    spot_light.position.set(0.0, 8.0, -2.0);
     spot_light.shadow.camera.position.copy(spot_light.position);
     spot_light.castShadow = true;
-    spot_light.shadow.bias = .0008; // 0.0001
+    spot_light.shadow.bias = 0.0008; // 0.0001
     spot_light.shadow.mapSize.width = 4096;
     spot_light.shadow.mapSize.height = 4096;
-    spot_light.shadow.focus = 10.;
-    spot_light.shadow.camera.near = .5;
-    spot_light.shadow.camera.far = 30.;
-    spot_light.shadow.camera.fov = 50.;
+    spot_light.shadow.focus = 10.0;
+    spot_light.shadow.camera.near = 0.5;
+    spot_light.shadow.camera.far = 30.0;
+    spot_light.shadow.camera.fov = 50.0;
     scene.add(spot_light);
 }
 
@@ -102,8 +118,8 @@ const addInvokerModels = () => {
             child.receiveShadow = true;
         }
     });
-    rockModel.rotateY(Math.PI / 2.);
-    rockModel.scale.set(.8, 1., .8);
+    rockModel.rotateY(Math.PI / 2.0);
+    rockModel.scale.set(0.8, 1.0, 0.8);
     scene.add(rockModel);
 
     const invokerGLTF = invokerGLTFResources.get('invoker');
@@ -122,8 +138,8 @@ const addInvokerModels = () => {
             child.receiveShadow = true;
         }
     });
-    heroModel.scale.set(.5, .5, .5);
-    heroModel.position.set(0., .5, 0.);
+    heroModel.scale.set(0.5, 0.5, 0.5);
+    heroModel.position.set(0.0, 0.5, 0.0);
     scene.add(heroModel);
 }
 
@@ -132,7 +148,7 @@ const addInvokerAnimations = () => {
     animationMixer1 = new THREE.AnimationMixer(heroModel);
     animationMixer2 = new THREE.AnimationMixer(heroModel);
 
-    // 去除idle切片中的球运动
+    // 去除idle切片中的元素法球运动
     const idleClip = animationClips.find(item => item.name === 'idle');
     const idleClip1Tracks = [];
     idleClip.tracks.forEach(item => { if (item.name.indexOf('orb') === -1) { idleClip1Tracks.push(item); } });
@@ -140,7 +156,7 @@ const addInvokerAnimations = () => {
     const idleAction = animationMixer1.clipAction(idleClip1, heroModel);
     idleAction.play();
 
-    // 添加球运动动画
+    // 添加元素法球运动动画
     const orbsClip = animationClips.find(item => item.name === '@orbs');
     const orbsClip1Tracks = [];
     orbsClip.tracks.forEach(item => { if (item.name.indexOf('orb') !== -1) { orbsClip1Tracks.push(item); } });
@@ -186,29 +202,42 @@ const addInvokerAnimations = () => {
 
 const addInvokerOrbs = () => {
     // 使用白模查看动画是否加载完成
-    // const sphere1 = new THREE.Mesh(new THREE.SphereGeometry(.1, 20, 20), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    // const sphere1 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20.0, 20.0), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     // orbSlot1.attach(sphere1);
 
     // 使用平面精灵以及自制的ShaderMaterial
     orbAnimationMachine = OrbAnimationMachine();
 }
 
+const addInvokerOrbSpawnEffect = () => {
+
+    orbSpawnEffectPlaneL = new THREE.Mesh(new THREE.PlaneGeometry(1.0), TurbShaderMaterial());
+    orbSpawnEffectPlaneL.visible = false;
+    orbSpawnEffectPlaneL.renderOrder = 1;
+    sceneEffect.add(orbSpawnEffectPlaneL);
+
+    orbSpawnEffectPlaneR = new THREE.Mesh(new THREE.PlaneGeometry(1.0), TurbShaderMaterial());
+    orbSpawnEffectPlaneR.visible = false;
+    orbSpawnEffectPlaneR.renderOrder = 1;
+    sceneEffect.add(orbSpawnEffectPlaneR);
+}
+
 const addHelpers = () => {
     // 网格
-    grid_helper = new THREE.GridHelper(100., 100., 0xffffff, 0xffffff);
-    grid_helper.material.opacity = .2;
+    grid_helper = new THREE.GridHelper(100.0, 100.0, 0xffffff, 0xffffff);
+    grid_helper.material.opacity = 0.2;
     grid_helper.material.transparent = true;
     grid_helper.name = 'GridHelper';
     scene.add(grid_helper);
 
     // 轴向
-    axes_helper = new THREE.AxesHelper(500.);
+    axes_helper = new THREE.AxesHelper(500.0);
     axes_helper.name = 'AxesHelper';
     scene.add(axes_helper);
 
     // 直射光
     if (directional_light) {
-        directional_light_helper = new THREE.DirectionalLightHelper(directional_light, 5.);
+        directional_light_helper = new THREE.DirectionalLightHelper(directional_light, 5.0);
         scene.add(directional_light_helper);
         directional_light_helper1 = new THREE.CameraHelper(directional_light.shadow.camera);
         scene.add(directional_light_helper1);
@@ -230,28 +259,70 @@ const addHelpers = () => {
 }
 
 
+const getViewportQuality = () => {
+    const pixcelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
+    let rect = undefined;
+    let width, height;
+    if (containerElement) { rect = containerElement.getBoundingClientRect(); }
+    if (rect) { width = rect.width; height = rect.height; }
+    if (!width) { width = window.innerWidth; }
+    if (!height) { height = window.innerHeight; }
+    return { pixcelRatio, width, height };
+}
+
+export const resizeViewport = (event) => {
+    const { pixcelRatio, width, height } = getViewportQuality();
+    logger.info(`pixcelRatio: ${pixcelRatio}, width: ${width}, height: ${height}`);
+
+    if (renderer) { renderer.setPixelRatio(pixcelRatio); }
+    if (renderer) { renderer.setSize(width, height); }
+    if (camera) {
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    }
+    if (rtt) { rtt.setSize(width, height); }
+    if (orbSpawnEffectPlaneL) {
+        orbSpawnEffectPlaneL.material.uniforms.uResolution.value.x = width;
+        orbSpawnEffectPlaneL.material.uniforms.uResolution.value.y = height;
+    }
+    if (orbSpawnEffectPlaneR) {
+        orbSpawnEffectPlaneR.material.uniforms.uResolution.value.x = width;
+        orbSpawnEffectPlaneR.material.uniforms.uResolution.value.y = height;
+    }
+}
+
+
 /**
  * 初始化三维画面, 绑定三维画面到浏览器DOM
  * @param {*} domElement 挂载到的dom元素
  * @returns 
  */
-export const invokerInitialize3D = (domElement) => {
+export const invokerInitialize3D = (viewportContainer, viewport) => {
+
+    containerElement = viewportContainer;
+    canvasElement = viewport;
 
     return new Promise((resolve, reject) => {
 
-        initContext(domElement);
+        initContext(canvasElement);
         initScene();
 
         // Add Features
         addInvokerModels(); // 模型
         addInvokerAnimations(); // 动画处理
-        addInvokerOrbs(); // 卡尔法球特效
+        addInvokerOrbs(); // 卡尔元素法球
+        addInvokerOrbSpawnEffect(); // 卡尔元素法球召唤特效
 
         // Add Helpers
         addHelpers();
 
+        // Initial Resize
+        resizeViewport();
+
         // 渲染循环机
         frameloopMachine = FrameLoopMachine((elapsedTime, deltaTime) => {
+
+            renderer.clear();
 
             // oribitControl damp
             if (orbitcontrols && orbitcontrols.enabled) { orbitcontrols.update(deltaTime); }
@@ -262,15 +333,45 @@ export const invokerInitialize3D = (domElement) => {
             // 动画Layer2 手部动画覆盖
             if (animationMixer2) { animationMixer2.update(deltaTime); }
 
-            // 卡尔的球
+            // 卡尔的元素法球位置更新
             orbAnimationMachine.frameLoop(elapsedTime, deltaTime);
 
-            // 更新场景
+            // 渲染图像到离屏BufferTexture
+            if (orbSpawnEffectPlaneL) { orbSpawnEffectPlaneL.visible = false; }
+            if (orbSpawnEffectPlaneR) { orbSpawnEffectPlaneR.visible = false; }
+            renderer.setRenderTarget(rtt);
+            renderer.clear();
             renderer.render(scene, camera);
+
+            renderer.setRenderTarget(null);
+            renderer.render(scene, camera);
+
+            // 卡尔切球特效平面
+            if (orbSpawnEffectPlaneL) {
+                orbSpawnEffectPlaneL.visible = true;
+                orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value += deltaTime;
+                if (wristL) {
+                    wristL.getWorldPosition(orbSpawnEffectPlaneL.position);
+                    orbSpawnEffectPlaneL.position.y += 0.2;
+                }
+            }
+            if (orbSpawnEffectPlaneR) {
+                orbSpawnEffectPlaneR.visible = true;
+                orbSpawnEffectPlaneR.material.uniforms.uLifeTime.value += deltaTime;
+                if (wristR) {
+                    wristR.getWorldPosition(orbSpawnEffectPlaneR.position);
+                    orbSpawnEffectPlaneR.position.y += 0.2;
+                }
+            }
+
+            // 渲染到canvas
+            renderer.setRenderTarget(null);
+            renderer.render(sceneEffect, camera);
+
         });
 
         resolve(true);
-    })
+    });
 }
 
 

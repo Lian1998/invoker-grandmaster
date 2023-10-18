@@ -8,8 +8,8 @@ const el = document.getElementById('viewport');
 
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
-const camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-camera.position.set(2, 2, 2);
+const camera = new THREE.PerspectiveCamera(45.0, width / height, 1.0, 1000.0);
+camera.position.set(2.0, 2.0, 2.0);
 
 const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -29,11 +29,11 @@ const rtt = new THREE.WebGLRenderTarget(RT_SIZE, RT_SIZE);
 const rttscene = new THREE.Scene();
 {
     const light = new THREE.DirectionalLight(0xffffff, 1.5);
-    light.position.set(0, 1, 1).normalize();
+    light.position.set(0.0, 1.0, 1.0).normalize();
     rttscene.add(light);
 }
 {
-    const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
+    const geometry = new THREE.TorusGeometry(10.0, 3.0, 16.0, 100.0);
     const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.scale.set(0.05, 0.05, 0.05);
@@ -53,17 +53,17 @@ const pixcelArr = new Uint8ClampedArray(buffer.buffer);
 }
 {
     const light = new THREE.DirectionalLight(0xffffff, 1.5);
-    light.position.set(0, 1, 1).normalize();
+    light.position.set(0.0, 1.0, 1.0).normalize();
     scene.add(light);
 }
 {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const geometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
     const material = new THREE.MeshStandardMaterial({ color: 0xffffff, map: rtt.texture });
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 }
 
-scene.add(new THREE.AxesHelper(3));
+scene.add(new THREE.AxesHelper(3.0));
 
 ///////////////////////////////
 

@@ -1,16 +1,13 @@
 import 'normalize.css'
 
 import { invokerResourcesPretreat } from './invoker-webglpart/invokerResources.js';
-import { invokerInitialize3D, INFO, frameloopMachine } from './invoker-webglpart/invoker.js';
+import { invokerInitialize3D, resizeViewport, frameloopMachine } from './invoker-webglpart/invoker.js';
 
 import { toggleHelper } from './invoker-webglpart/toggleHelper.js';
 import { toggleLoopState } from './invoker-webglpart/toggleLoopState.js';
 import { invokerInitializeKeyListening } from './invoker-webglpart/events/invokerEventPipe.js';
 
 import './invoker-dompart.js';
-
-
-console.log(INFO);
 
 window.addEventListener('load', () => {
 
@@ -21,8 +18,9 @@ window.addEventListener('load', () => {
         invokerInitializeKeyListening();
 
         // 挂载3D资源
-        const viewport1el = document.querySelector('#viewport1');
-        invokerInitialize3D(viewport1el).then(() => {
+        const viewportContainer = document.querySelector('#viewport-container')
+        const viewport1 = document.querySelector('#viewport1');
+        invokerInitialize3D(viewportContainer, viewport1).then(() => {
 
             // 显示/关闭 帮助对象
             if (import.meta.env.MODE === 'development') { toggleHelper(false); }
@@ -33,9 +31,11 @@ window.addEventListener('load', () => {
 
             // 注册事件
             window.addEventListener('keydown', (e) => {
-                if (e.code === 'F9') { toggleLoopState(); }
-                else if (e.code === 'KeyH') { toggleHelper(); }
+                if (e.code === 'F9') { toggleLoopState(); } // 暂停/启动
+                else if (e.code === 'KeyH') { toggleHelper(); } // 开启/关闭可视助手
             });
+
+            window.addEventListener('resize', resizeViewport);
         });
     })
 

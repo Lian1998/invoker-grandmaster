@@ -10,8 +10,8 @@ varying float vAlpha;
 
 // 传入的几何体是一块长度, 宽度都为1的正方形平面
 // 其法线方向是z轴负方向
-// 中心点是 vec2(.5)
-// UV左上角为 vec2(0.), 右下角为 vec2(1.)
+// 中心点是 vec2(0.5)
+// UV左上角为 vec2(0.0), 右下角为 vec2(1.0)
 
 uniform float uLifeTime;
 
@@ -19,21 +19,22 @@ void main() {
 
     vUv = uv;
     vPosition = position;
-    vCenter = vec2(.5);
-    vAlpha = smoothstep(0., .35 / 2., uLifeTime);
-    // vAlpha = 1.;
+    vCenter = vec2(0.5);
+    vAlpha = smoothstep(0.0, 0.35, uLifeTime);
+    // vAlpha = 1.0;
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
     // 通过(被Object3D.scale影响后的)BufferGeometry传入的第一个第二个顶点间隔确定计算平面长宽
-    vec2 scaleVertex = vec2(1., 1.); // 默认长宽
+    vec2 scaleVertex = vec2(1.0, 1.0); // 默认长宽
     scaleVertex.x = length(vec3(modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z));
     scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
 
     // 设置一个变量用于在顶点控制器控制平面的偏移
-    vec2 vsOffset = vec2(0., 0.); 
+    vec2 vsOffset = vec2(0.0, 0.0); 
     // 设置一个变量用于在顶点着色器控制平面的缩放 这个值最终控制在.6会比较合理
-    float vsScale = .3 + .28 * smoothstep(0., .35 / 2., uLifeTime);
+    float vsScale = 0.15 + 0.4 * smoothstep(0.0, 0.35, uLifeTime);
+    // float vsScale = 0.6;
 
     // 计算偏移和缩放
     vec2 alignedPosition = (position.xy + vsOffset) * scaleVertex * vsScale;

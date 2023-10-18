@@ -8,8 +8,8 @@ const el = document.getElementById('viewport');
 
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
-const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000.);
-camera.position.set(0, 0, 5);
+const camera = new THREE.PerspectiveCamera(75.0, width / height, 0.1, 1000.0);
+camera.position.set(0.0, 0.0, 5.0);
 
 const renderer = new THREE.WebGLRenderer({ canvas: el, antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -27,20 +27,20 @@ spriteT.colorSpace = THREE.SRGBColorSpace;
 const sprite = new THREE.Sprite(
     new THREE.SpriteMaterial({ map: spriteT, blending: THREE.NormalBlending })
 );
-sprite.position.set(-3, 0, 0);
+sprite.position.set(-3.0, 0.0, 0.0);
 scene.add(sprite);
 
 // MyShader Sprite
 import mySpriteVert from './mySpriteVert.glsl?raw';
 import mySpriteFrag from './mySpriteFrag.glsl?raw';
 const spriteT1 = textureLoader.load('/fortest/sprite.png');
-const planeGeom = new THREE.PlaneGeometry(1., 1.);
+const planeGeom = new THREE.PlaneGeometry(1.0, 1.0);
 const mySpriteMaterial = new THREE.ShaderMaterial({
     uniforms: {
         map: { value: spriteT1 },
-        uScale: { value: 1. },
-        uRotation: { value: THREE.MathUtils.degToRad(90.) },
-        uOffset: { value: new THREE.Vector2(0.) },
+        uScale: { value: 1.0 },
+        uRotation: { value: THREE.MathUtils.degToRad(90.0) },
+        uOffset: { value: new THREE.Vector2(0.0) },
     },
     vertexShader: mySpriteVert,
     fragmentShader: mySpriteFrag,
@@ -48,7 +48,7 @@ const mySpriteMaterial = new THREE.ShaderMaterial({
     transparent: true
 });
 const sprite1 = new THREE.Mesh(planeGeom, mySpriteMaterial);
-sprite1.position.set(3, 0, 0);
+sprite1.position.set(3.0, 0.0, 0.0);
 scene.add(sprite1);
 
 // 如果指定加载的贴图为 SRGBColorSpace 并且使用了MeshBasicMaterial 
@@ -64,7 +64,7 @@ const animate = () => {
 
     renderer.render(scene, camera);
 
-    mySpriteMaterial.uniforms.uRotation.value = THREE.MathUtils.degToRad(Math.sin(elapsedTime) * 90.)
+    mySpriteMaterial.uniforms.uRotation.value = THREE.MathUtils.degToRad(Math.sin(elapsedTime) * 90.0)
 
     orbitcontrols.update();
 }

@@ -58,15 +58,15 @@ invoker 官网英雄介绍: https://www.dota2.com/hero/invoker
 自制英雄模型以addon形式加入dota2启动(其中有一部分对于dota2材质的认识) https://www.youtube.com/watch?v=RjSPY81cLmQ  
 invoker 官网英雄介绍里的视频文件: https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/invoker.webm  
 游戏内 invoker 出镜很多的视频片段: https://www.bilibili.com/video/BV1PA4y1R7bU/  
-photoshop怎么用噪声制作闪电球 https://jingyan.baidu.com/article/90895e0fb4b45464ec6b0bd3.html
+photoshop怎么用噪声制作电元素法球 https://jingyan.baidu.com/article/90895e0fb4b45464ec6b0bd3.html
 photoshop怎么制作闪电帧动画 https://www.bilibili.com/video/BV1Sh4y1U78v
 vite的glsl打包工具 https://gitee.com/lian_1998/vitejs_plugins
 查询战队相关物品id https://www.dota2.com/majorsregistration/rosters
 
 # 记录
 在 2023年8月31日 (上线TI12敌法宝瓶)的非游戏性更新中其中一条 `游戏特效优化, 粒子光照优化`, 对卡尔的特效有以下优化(我的肉眼观察):
-1. 去除卡尔冰球中的高光点特效, 现在冰球更白了, 并且边框有一点云层冷气的效果
-2. 电球不再是透明的了, 现在当改变视点与Y轴夹角时, 电球球内的颜色会从透明色到白色之间过渡插值
-3. 球的运动会有拖尾的轨迹
+1. 去除卡尔冰元素法球中的高光点特效, 现在冰元素法球更白了, 并且边框有一点云层冷气的效果
+2. 电元素法球不再是透明的了, 现在当改变视点与Y轴夹角时, 电元素法球内的颜色会从透明色到白色之间过渡插值
+3. 元素法球的运动会有拖尾的轨迹
 4. 切技能会在脚下生成法阵, 并且会有一个后处理的震荡效果
-5. 切球的时候手部会有一个震荡效果, 并且球是从手的骨骼节点出现插值到对应骨骼位置的, 如果快速的切3次以上, 会放弃插值
+5. 切元素法球的时候手部会有一个震荡效果, 并且元素法球是从手的骨骼节点出现插值到对应骨骼位置的, 如果快速的切3次以上, 会放弃插值

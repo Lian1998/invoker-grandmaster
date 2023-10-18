@@ -31,7 +31,7 @@ const OrbQuasShaderMaterial = () => new THREE.ShaderMaterial({
     depthWrite: false,
     depthTest: true,
     transparent: true,
-    opacity: 1.,
+    opacity: 1.0,
 });
 
 const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
@@ -53,7 +53,7 @@ const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
     depthWrite: false,
     depthTest: true,
     transparent: true,
-    opacity: 1.,
+    opacity: 1.0,
 });
 
 const OrbExortShaderMaterial = () => new THREE.ShaderMaterial({
@@ -75,7 +75,7 @@ const OrbExortShaderMaterial = () => new THREE.ShaderMaterial({
     depthWrite: false,
     depthTest: true,
     transparent: true,
-    opacity: 1.,
+    opacity: 1.0,
 });
 
 export { OrbQuasShaderMaterial, OrbWexShaderMaterial, OrbExortShaderMaterial };

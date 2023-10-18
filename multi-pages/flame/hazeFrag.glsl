@@ -18,10 +18,10 @@ void main() {
 
     gl_FragColor = vec4(tex.rgb, vAlpha * 0.5);
 
-    #include <encodings_fragment>
+    #include <colorspace_fragment>
 }
 
-// Threejs 运行时替换指令 `#include <encodings_fragment>`:
+// Threejs 运行时替换指令 `#include <encodings_fragment|colorspace_fragment>`:
 // vec4 LinearTosRGB(in vec4 value) {
 //     return vec4(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))), value.a);
 // }

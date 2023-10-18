@@ -12,25 +12,25 @@ export class DevLogger {
 
     debug(...str: any[]) {
         if (DevLogger.loglevelsMap[this.loglevel] >= DevLogger.loglevelsMap['debug']) {
-            console.log(this.namespace + ':\n', ...str);
+            console.log(`%c ${this.namespace}:\n`, 'color: #909399', ...str);
         }
     }
 
     info(...str: any[]) {
         if (DevLogger.loglevelsMap[this.loglevel] >= DevLogger.loglevelsMap['info']) {
-            console.log(this.namespace + ':\n', ...str);
+            console.log(`%c ${this.namespace}:\n`, 'color: #409EFF', ...str);
         }
     }
 
     warn(...str: any[]) {
         if (DevLogger.loglevelsMap[this.loglevel] >= DevLogger.loglevelsMap['warn']) {
-            console.warn(this.namespace + ':\n', ...str);
+            console.log(`%c ${this.namespace}:\n`, 'color: #E6A23C', ...str);
         }
     }
 
     error(...str: any[]) {
         if (DevLogger.loglevelsMap[this.loglevel] >= DevLogger.loglevelsMap['error']) {
-            console.error(this.namespace + ':\n', ...str);
+            console.log(`%c ${this.namespace}:\n`, 'color: #F56C6C', ...str);
         }
     }
 }

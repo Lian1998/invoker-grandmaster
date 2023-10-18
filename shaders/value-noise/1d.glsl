@@ -12,7 +12,7 @@ float valuenoise_smoothedrand(float x) {
 
     // 这里可以使用自己的三次曲线 cubic curve
     float u = f * f * (3.0 - 2.0 * f); // custom cubic curve
-    // float u = smoothstep(0., 1., f);
+    // float u = smoothstep(0.0, 1.0, f);
 
     // using it in the interpolation
     return mix(
