@@ -11,7 +11,7 @@ void main() {
 
     // 顶点着色器内置变量 vetex_shader_param
     vec2 vsp_Offset = vec2(0.0, 0.0);
-    float vsp_Scale = 2.0 * (1.0 - timeFactor); // float vsp_Scale = 2.0;
+    float vsp_Scale = 5.0 - timeFactor; // float vsp_Scale = 2.0;
 
     // Varying
     vUv = uv;

@@ -17,7 +17,7 @@ void main() {
     vUv = uv;
     vPosition = position;
     vCenter = vec2(0.5);
-    vAlpha = 0.3 + 0.8 * timeFactor; // vAlpha = 1.0;
+    vAlpha = 0.5 + 0.5 * timeFactor; // vAlpha = 1.0;
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 

@@ -1,13 +1,16 @@
 import * as THREE from 'three';
-
-import { getViewportQuality } from '@src/utils/getViewportQuality.js'
-import { invokerGLTFResources } from './invokerResources.js';
-import { FrameLoopMachine } from './FrameLoopMachine.js';
-
-import { OrbAnimationMachine } from './effects/orbs/OrbAnimationMachine.js'
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
+import { getViewportQuality } from '@src/utils/getViewportQuality.js'
+
+import { invokerGLTFResources } from './invokerResources.js';
+import { FrameLoopMachine } from './FrameLoopMachine.js';
+import { SpritePlaneBufferGeometry } from './effects/SpritePlaneBufferGeometry.js';
+import { OrbAnimationMachine } from './effects/orbs/OrbAnimationMachine.js'
 import { TurbShaderMaterial } from './effects/turb/TurbShaderMaterial.js';
+import { InvokeHaloShaderMaterial } from './effects/invoke-halo/InvokeHaloShaderMaterial.js';
+import { InvokeTurbShaderMaterial } from './effects/invoke-turb/InvokeTurbShaderMaterial.js';
+
 import { logger } from './logger.js';
 
 const INFO = 'Dota2 Hero Invoker - By Lian1998(https://gitee.com/lian_1998) Using ThreeJS(https://threejs.org/)';
@@ -23,7 +26,8 @@ export let rtt;
 // SCENE
 export let scene;
 export let sceneOrb;
-export let sceneEffect;
+export let sceneOrbEffect;
+export let sceneInvokeEffect;
 export let ambient_light, hemisphere_light, directional_light, spot_light;
 
 // HERO
@@ -35,6 +39,7 @@ export let orbAnimationMachine;
 
 // EFFECTS
 export let orbSpawnEffectPlaneL, orbSpawnEffectPlaneR;
+export let invokeHalo, invokeTurb;
 
 // HELPERS
 export let grid_helper, axes_helper; // scene
@@ -77,7 +82,8 @@ const initScene = () => {
     // scene
     scene = new THREE.Scene();
     sceneOrb = new THREE.Scene();
-    sceneEffect = new THREE.Scene();
+    sceneOrbEffect = new THREE.Scene();
+    sceneInvokeEffect = new THREE.Scene();
 
     // lights
     ambient_light = new THREE.AmbientLight(0xFFFFFF, 1.0); // soft white light
@@ -215,15 +221,26 @@ const addInvokerOrbs = () => {
 
 const addInvokerOrbSpawnEffect = () => {
 
-    orbSpawnEffectPlaneL = new THREE.Mesh(new THREE.PlaneGeometry(1.0), TurbShaderMaterial());
-    orbSpawnEffectPlaneL.visible = false;
+    orbSpawnEffectPlaneL = new THREE.Mesh(SpritePlaneBufferGeometry(), TurbShaderMaterial());
     orbSpawnEffectPlaneL.renderOrder = 1;
-    sceneEffect.add(orbSpawnEffectPlaneL);
+    sceneOrbEffect.add(orbSpawnEffectPlaneL);
 
-    orbSpawnEffectPlaneR = new THREE.Mesh(new THREE.PlaneGeometry(1.0), TurbShaderMaterial());
-    orbSpawnEffectPlaneR.visible = false;
+    orbSpawnEffectPlaneR = new THREE.Mesh(SpritePlaneBufferGeometry(), TurbShaderMaterial());
     orbSpawnEffectPlaneR.renderOrder = 1;
-    sceneEffect.add(orbSpawnEffectPlaneR);
+    sceneOrbEffect.add(orbSpawnEffectPlaneR);
+}
+
+const addInvokeEffect = () => {
+    // invokeHalo = new THREE.Mesh(SpritePlaneBufferGeometry(), InvokeHaloShaderMaterial());
+    // invokeHalo.rotateX(- Math.PI / 2.0);
+    // invokeHalo.scale.set(5.0, 5.0, 5.0);
+    // invokeHalo.position.y += 0.5;
+    // sceneInvokeEffect.add(invokeHalo);
+
+    invokeTurb = new THREE.Mesh(SpritePlaneBufferGeometry(), InvokeTurbShaderMaterial());
+    invokeTurb.position.set(0, 1.5, 0);
+    sceneInvokeEffect.add(invokeTurb);
+
 }
 
 const addHelpers = () => {
@@ -302,6 +319,7 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
         addInvokerAnimations(); // 动画处理
         addInvokerOrbs(); // 卡尔元素法球
         addInvokerOrbSpawnEffect(); // 卡尔元素法球召唤特效
+        addInvokeEffect(); // 卡尔invoke技能特效
 
         // Add Helpers
         addHelpers();
@@ -325,10 +343,6 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
             // 卡尔的元素法球位置更新
             orbAnimationMachine.frameLoop(elapsedTime, deltaTime);
 
-            // 渲染图像到离屏BufferTexture
-            if (orbSpawnEffectPlaneL) { orbSpawnEffectPlaneL.visible = false; }
-            if (orbSpawnEffectPlaneR) { orbSpawnEffectPlaneR.visible = false; }
-
             // 设置rtt为输出目标
             renderer.setRenderTarget(rtt);
             renderer.clear();
@@ -343,14 +357,12 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
 
             // 卡尔切球特效平面
             if (wristL && orbSpawnEffectPlaneL) {
-                orbSpawnEffectPlaneL.visible = true;
                 orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value += deltaTime;
                 wristL.getWorldPosition(orbSpawnEffectPlaneL.position);
                 orbSpawnEffectPlaneL.position.z += 0.1;
                 orbSpawnEffectPlaneL.position.y += 0.25;
             }
             if (wristR && orbSpawnEffectPlaneR) {
-                orbSpawnEffectPlaneR.visible = true;
                 orbSpawnEffectPlaneR.material.uniforms.uLifeTime.value += deltaTime;
                 wristR.getWorldPosition(orbSpawnEffectPlaneR.position);
                 orbSpawnEffectPlaneR.position.z += 0.1;
@@ -358,7 +370,8 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
             }
 
             // 渲染到canvas
-            renderer.render(sceneEffect, camera);
+            renderer.render(sceneOrbEffect, camera);
+            // renderer.render(sceneInvokeEffect, camera);
 
         });
 

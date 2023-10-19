@@ -19,7 +19,7 @@ void main() {
 
     // 计算rtt的uv偏移
     vec2 maskUv = vUv;
-    float maskFactor = smoothstep(0.3, 0.0, distance(maskUv, vCenter));
+    float maskFactor = smoothstep(0.35, 0.0, distance(maskUv, vCenter));
     vec2 mask = texture2D(uMask, maskUv).ra - vec2(0.5);
     pixelUv -= mask * maskFactor * 0.08; // 每个像素点的偏移的幅度
 
