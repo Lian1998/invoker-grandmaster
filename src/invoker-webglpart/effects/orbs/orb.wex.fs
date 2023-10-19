@@ -13,8 +13,9 @@ varying vec3 vPosition; // uv
 varying vec2 vCenter;
 varying float vAlpha;
 
-#montage import('./glsl-noise/simplex2d.glsl');
-#montage import('./value-noise/1d.glsl');
+#montage import('@shaders/glsl-noise/simplex2d.glsl');
+#montage import('@shaders/value-noise/1d.glsl');
+#montage import('@shaders/threejs/colorspace/sRGBToLinear.glsl');
 #montage import('./orbhalo.glsl');
 
 void main() {
@@ -73,4 +74,9 @@ void main() {
 
     float alpha = (max(uMap2ColorStrength, orbhaloFactor)) * vAlpha;
     gl_FragColor = vec4(orbHaloColor.rgb + uMap2ColorMixed.rgb + orbHighlightColor.rgb, alpha);
+
+    gl_FragColor = sRGBToLinear(gl_FragColor);
+
+    #include <colorspace_fragment>
+
 }

@@ -3,28 +3,21 @@ varying vec3 vPosition;
 varying vec2 vCenter;
 varying float vAlpha;
 
-// ps: 此顶点着色器需传入的BufferGeometry配合使用 
-// position [ -0.5, 0.5, 0,  0.5, 0.5, 0,  -0.5, -0.5, 0,  0.5, -0.5, 0 ]
-// uv [ 0, 1,  1, 1,  0, 0,  1, 0 ]
-// index [ 0, 2, 1, 2, 3, 1 ]
-
-// 传入的几何体是一块长/宽都为1.0的正方形平面; 法线方向是z轴负方向; 中心点是vec2(0.5); UV左上角为vec2(0.0), 右下角为vec2(1.0);
-
 uniform float uLifeTime;
 
 void main() {
 
-    float timeFactor = smoothstep(0.0, 0.2, uLifeTime);
+    float timeFactor = smoothstep(0.0, 0.5, uLifeTime);
 
     // 顶点着色器内置变量 vetex_shader_param
     vec2 vsp_Offset = vec2(0.0, 0.0);
-    float vsp_Scale = 0.25 + 0.3 * timeFactor; // float vsp_Scale = 0.55;
+    float vsp_Scale = 2.0 * (1.0 - timeFactor); // float vsp_Scale = 2.0;
 
     // Varying
     vUv = uv;
     vPosition = position;
     vCenter = vec2(0.5);
-    vAlpha = timeFactor; // vAlpha = 1.0;
+    vAlpha = 0.3 + 0.8 * timeFactor; // vAlpha = 1.0;
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
@@ -33,7 +26,7 @@ void main() {
     scaleVertex.x = length(vec3(modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z));
     scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
 
-    // 计算偏移和缩放
+    // 计算最终偏移和缩放
     vec2 alignedPosition = (position.xy + vsp_Offset) * scaleVertex * vsp_Scale;
     mvPosition.xy += alignedPosition.xy;
 

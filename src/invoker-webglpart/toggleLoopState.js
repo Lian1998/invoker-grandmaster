@@ -1,4 +1,4 @@
-import { orbitcontrols, frameloopMachine } from './invoker3d'
+import { orbitcontrols, frameloopMachine } from './index.js'
 
 /**
  * 切换当前的渲染循环状态

@@ -14,10 +14,11 @@ varying float vAlpha;
 
 #define PI 3.14159265358979323844
 
-#montage import('./glsl-noise/simplex2d.glsl');
-#montage import('./glsl-noise/simplex3d.glsl');
-#montage import('./value-noise/1d.glsl');
-#montage import('./value-noise/2d.glsl');
+#montage import('@shaders/glsl-noise/simplex2d.glsl');
+#montage import('@shaders/glsl-noise/simplex3d.glsl');
+#montage import('@shaders/value-noise/1d.glsl');
+#montage import('@shaders/value-noise/2d.glsl');
+#montage import('@shaders/threejs/colorspace/sRGBToLinear.glsl');
 #montage import('./orbhalo.glsl');
 
 // 从 graynoise 中获取颜色
@@ -80,4 +81,9 @@ void main() {
     float flameStep = step(0.0, flameColor4.r + flameColor4.g + flameColor4.b);
     float alpha = (max(orbhaloFactor * orbhaloStrength, flameColor4.a)) * vAlpha;
     gl_FragColor = vec4(flameStep * orbHaloColor.rgb + flameStep * flameColor4.rgb, alpha);
+
+    gl_FragColor = sRGBToLinear(gl_FragColor);
+
+    #include <colorspace_fragment>
+
 }

@@ -12,7 +12,7 @@ import {
     orbSlot1, orbSlot2, orbSlot3, // 元素法球位置插槽骨骼
     sceneOrb, // 场景
     orbSpawnEffectPlaneL, orbSpawnEffectPlaneR, // 特效Effector
-} from '../../invoker3d.js';
+} from '../../index.js';
 
 const vec3Util = new THREE.Vector3(); // 一个工具v3是线程不安全的
 const orbsActionDuration = 2.0;  // 通过访问clip获取剪辑片段的时间 orbsAction._clip.duration
@@ -113,7 +113,7 @@ export const SingleOrbObject = (orbSlot, scene) => {
             if (isLeft) { wristL.getWorldPosition(vec3Util1); } // 射出位置
             else { wristR.getWorldPosition(vec3Util1); }
             meshesMap[name].mesh.position.copy(vec3Util1);
-            if (orbSpawnEffectPlaneL && orbSpawnEffectPlaneR) { // 扰动效果
+            if (orbSpawnEffectPlaneL && orbSpawnEffectPlaneR) { // 涡轮扰动效果
                 if (isLeft) { orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value = 0.0; }
                 else { orbSpawnEffectPlaneR.material.uniforms.uLifeTime.value = 0.0; }
             }

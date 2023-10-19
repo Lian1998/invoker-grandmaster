@@ -11,13 +11,13 @@ void main() {
 
     // 顶点着色器内置变量 vetex_shader_param
     vec2 vsp_Offset = vec2(0.0, 0.0);
-    float vsp_Scale = 2.0 * (1.0 - timeFactor); // float vsp_Scale = 0.6;
+    float vsp_Scale = 2.0 * (1.0 - timeFactor); // float vsp_Scale = 2.0;
 
     // Varying
     vUv = uv;
     vPosition = position;
     vCenter = vec2(0.5);
-    vAlpha = 1.0 + (1.0 - timeFactor); // vAlpha = 1.0;
+    vAlpha = 0.3 + 0.8 * timeFactor; // vAlpha = 1.0;
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 

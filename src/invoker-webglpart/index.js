@@ -7,7 +7,7 @@ import { FrameLoopMachine } from './FrameLoopMachine.js';
 import { OrbAnimationMachine } from './effects/orbs/OrbAnimationMachine.js'
 import { OrbitControls } from 'three_addons/controls/OrbitControls.js';
 
-import { TurbShaderMaterial } from './effects/TurbShaderMaterial.js';
+import { TurbShaderMaterial } from './effects/turb/TurbShaderMaterial.js';
 import { logger } from './logger.js';
 
 const INFO = 'Dota2 Hero Invoker - By Lian1998(https://gitee.com/lian_1998) Using ThreeJS(https://threejs.org/)';
@@ -51,7 +51,7 @@ const initContext = (canvas) => {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.autoClear = false;
     rtt = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-        colorSpace: THREE.SRGBColorSpace,
+        colorSpace: THREE.NoColorSpace,
         format: THREE.RGBAFormat,
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
@@ -204,6 +204,7 @@ const addInvokerAnimations = () => {
 }
 
 const addInvokerOrbs = () => {
+
     // 使用白模查看动画是否加载完成
     // const sphere1 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20.0, 20.0), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     // orbSlot1.attach(sphere1);
@@ -308,7 +309,8 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
         // Initial Resize
         resizeViewport();
 
-        // 渲染循环机
+        // 渲染循环机  
+        // ps: ThreeJs 现在都有缓存的, 所以可以直接这么用
         frameloopMachine = FrameLoopMachine((elapsedTime, deltaTime) => {
 
             // oribitControl damp
@@ -327,12 +329,14 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
             if (orbSpawnEffectPlaneL) { orbSpawnEffectPlaneL.visible = false; }
             if (orbSpawnEffectPlaneR) { orbSpawnEffectPlaneR.visible = false; }
 
-            renderer.setRenderTarget(rtt); // 设置rtt为输出目标
+            // 设置rtt为输出目标
+            renderer.setRenderTarget(rtt);
             renderer.clear();
             renderer.render(scene, camera);
             renderer.render(sceneOrb, camera);
 
-            renderer.setRenderTarget(null); // 设置画布为输出目标
+            // 设置画布为输出目标
+            renderer.setRenderTarget(null);
             renderer.clear();
             renderer.render(scene, camera);
             renderer.render(sceneOrb, camera);
@@ -354,7 +358,6 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
             }
 
             // 渲染到canvas
-            renderer.setRenderTarget(null);
             renderer.render(sceneEffect, camera);
 
         });

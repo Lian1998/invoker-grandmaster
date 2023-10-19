@@ -56,7 +56,7 @@ export const initializeKeyBinding = (type = 'Dota2') => {
 }
 
 
-import { ability1el, ability2el, ability3el, ability4el, ability5el, ability6el, toggleElementActiveClass } from '@src/invoker-dompart.js';
+import { ability1el, ability2el, ability3el, ability4el, ability5el, ability6el, toggleElementActiveClass } from '@src/dompart/index.js';
 import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
 
 const abilityels = [ability5el, ability6el];

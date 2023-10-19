@@ -33,9 +33,9 @@ import quasf from '@shaders/orb.quas.fs';
 import wexf from '@shaders/orb.wex.fs';
 import exortf from '@shaders/orb.exort.fs';
 
-// console.log(quasf);
-// console.log(wexf);
-// console.log(exortf);
+console.log(quasf);
+console.log(wexf);
+console.log(exortf);
 
 const textureLoader = new THREE.TextureLoader();
 const orbTintableT = textureLoader.load('/invoker-textures/orbs/orb_framemap_scale2.png');

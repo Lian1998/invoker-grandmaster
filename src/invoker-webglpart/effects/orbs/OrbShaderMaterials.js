@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import orbv from '@shaders/orb.vs';
-import quasf from '@shaders/orb.quas.fs';
-import wexf from '@shaders/orb.wex.fs';
-import exortf from '@shaders/orb.exort.fs';
+import orbV from './orb.vs';
+import quasF from './orb.quas.fs';
+import wexF from './orb.wex.fs';
+import exortF from './orb.exort.fs';
 import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
 
 const textureLoader = new THREE.TextureLoader();
@@ -25,8 +25,8 @@ const OrbQuasShaderMaterial = () => new THREE.ShaderMaterial({
         uColor2: { value: new THREE.Color(0x3688E3) },
         uColor3: { value: new THREE.Color(0x4A76D3) },
     },
-    vertexShader: orbv,
-    fragmentShader: quasf,
+    vertexShader: orbV,
+    fragmentShader: quasF,
     blending: THREE.NormalBlending,
     depthWrite: false,
     depthTest: true,
@@ -47,8 +47,8 @@ const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
         uColor2: { value: new THREE.Color(0xDCC8E1) },
         uColor3: { value: new THREE.Color(0xAA63AF) },
     },
-    vertexShader: orbv,
-    fragmentShader: wexf,
+    vertexShader: orbV,
+    fragmentShader: wexF,
     blending: THREE.NormalBlending,
     depthWrite: false,
     depthTest: true,
@@ -70,8 +70,8 @@ const OrbExortShaderMaterial = () => new THREE.ShaderMaterial({
         uColor2: { value: new THREE.Color(0xEA8B44) },
     },
     blending: THREE.NormalBlending,
-    vertexShader: orbv,
-    fragmentShader: exortf,
+    vertexShader: orbV,
+    fragmentShader: exortF,
     depthWrite: false,
     depthTest: true,
     transparent: true,

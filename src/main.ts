@@ -1,13 +1,13 @@
 import 'normalize.css'
 
 import { invokerResourcesPretreat } from './invoker-webglpart/invokerResources.js';
-import { invokerInitialize3d, resizeViewport, frameloopMachine } from './invoker-webglpart/invoker3d.js';
+import { invokerInitialize3d, resizeViewport, frameloopMachine } from './invoker-webglpart/index.js';
 
 import { toggleHelper } from './invoker-webglpart/toggleHelper.js';
 import { toggleLoopState } from './invoker-webglpart/toggleLoopState.js';
 import { invokerInitializeKeyListening } from './invoker-webglpart/events/invokerEventPipe.js';
 
-import './invoker-dompart.js';
+import './dompart/index.js';
 
 window.addEventListener('load', () => {
 

@@ -16,43 +16,43 @@ const AbilityMap = {
     },
     'Cold Snap': {
         state: 'Quas3Wex0Exort0',
-        icon: '/invoker-textures/icons/skills/invoker_cold_snap.png',
+        icon: '/invoker-textures/icons/invoker_cold_snap.png',
     },
     'Ghost Walk': {
         state: 'Quas2Wex1Exort0',
-        icon: '/invoker-textures/icons/skills/invoker_ghost_walk.png',
+        icon: '/invoker-textures/icons/invoker_ghost_walk.png',
     },
     'Ice Wall': {
         state: 'Quas2Wex0Exort1',
-        icon: '/invoker-textures/icons/skills/invoker_ice_wall.png',
+        icon: '/invoker-textures/icons/invoker_ice_wall.png',
     },
     'Tornado': {
         state: 'Quas1Wex2Exort0',
-        icon: '/invoker-textures/icons/skills/invoker_tornado.png',
+        icon: '/invoker-textures/icons/invoker_tornado.png',
     },
     'Deafening Blast': {
         state: 'Quas1Wex1Exort1',
-        icon: '/invoker-textures/icons/skills/invoker_deafening_blast.png',
+        icon: '/invoker-textures/icons/invoker_deafening_blast.png',
     },
     'Forge Spirit': {
         state: 'Quas1Wex0Exort2',
-        icon: '/invoker-textures/icons/skills/invoker_forge_spirit.png',
+        icon: '/invoker-textures/icons/invoker_forge_spirit.png',
     },
     'E.M.P': {
         state: 'Quas0Wex3Exort0',
-        icon: '/invoker-textures/icons/skills/invoker_emp.png',
+        icon: '/invoker-textures/icons/invoker_emp.png',
     },
     'Alacrity': {
         state: 'Quas0Wex2Exort1',
-        icon: '/invoker-textures/icons/skills/invoker_alacrity.png',
+        icon: '/invoker-textures/icons/invoker_alacrity.png',
     },
     'Chaos Meteor': {
         state: 'Quas0Wex1Exort2',
-        icon: '/invoker-textures/icons/skills/invoker_chaos_meteor.png',
+        icon: '/invoker-textures/icons/invoker_chaos_meteor.png',
     },
     'Sun Strike': {
         state: 'Quas0Wex0Exort3',
-        icon: '/invoker-textures/icons/skills/invoker_sun_strike.png',
+        icon: '/invoker-textures/icons/invoker_sun_strike.png',
     },
 }
 

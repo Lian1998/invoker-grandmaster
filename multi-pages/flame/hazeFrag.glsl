@@ -14,6 +14,7 @@ void main() {
     vec2 mask = texture2D(uMask, vUv).ra - vec2(0.5);
     uv -= mask * 0.1;
 
+
     vec4 tex = texture2D(uMap, uv);
 
     gl_FragColor = vec4(tex.rgb, vAlpha * 0.5);
@@ -22,13 +23,13 @@ void main() {
 }
 
 // Threejs 运行时替换指令 `#include <encodings_fragment|colorspace_fragment>`:
-// vec4 LinearTosRGB(in vec4 value) {
-//     return vec4(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))), value.a);
-// }
-// vec4 linearToOutputTexel(vec4 value) { 
-//     return LinearToSRGB(value); 
-// }
 // void main() {
 //     ...
 //     gl_FragColor = linearToOutputTexel( gl_FragColor );
+// } =>
+// vec4 linearToOutputTexel(vec4 value) { 
+//     return LinearToSRGB(value); 
+// } =>
+// vec4 LinearTosRGB(in vec4 value) {
+//     return vec4(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))), value.a);
 // }
