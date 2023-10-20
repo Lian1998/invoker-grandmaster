@@ -91,7 +91,9 @@ const compileFileToGLSLString = (src, id, config, server, glslmodulePath) => {
                 }
             }
             // 添加文件监听
-            server.watcher.add(glslfile_path);
+            if (server && server.watcher) {
+                server.watcher.add(glslfile_path);
+            }
         }
     }
     // 拼接文件内容并输出
@@ -144,24 +146,26 @@ export default function VitePluginMontageGLSL(options) {
          */
         configureServer(server) {
             configServerPointer = server;
-            server.watcher.on('change', (file) => {
-                schedule(() => {
-                    // 查看当前moduleGraph中是否包含了glslmodule
-                    // const glslRootModulePath = Array.from(server.moduleGraph.safeModulesPath).find(item => item.indexOf('test.glsl') !== -1);
-                    // 'D:/Repos/www.gitee.com/Lian1998/vitejs_plugins/test-example/shader/test.glsl'
-                    // const module = server.moduleGraph.getModuleById(glslRootModulePath);
-                    const modules = file2Module.get(normalizePath(file));
-                    if (!modules || !modules.length)
-                        return; // 如果没有找到这个module, 直接return掉
-                    for (let i = 0; i < modules.length; i++) {
-                        const glslRootModulePath = modules[i];
-                        server.moduleGraph.onFileChange(glslRootModulePath); // 打标记证明这个文件被更新过
-                    }
-                    server.ws.send({ type: 'full-reload' });
-                    // 页面已经强制刷新了, 清除glsl文件的依赖关系
-                    file2Module.clear();
+            if (server && server.watcher) {
+                server.watcher.on('change', (file) => {
+                    schedule(() => {
+                        // 查看当前moduleGraph中是否包含了glslmodule
+                        // const glslRootModulePath = Array.from(server.moduleGraph.safeModulesPath).find(item => item.indexOf('test.glsl') !== -1);
+                        // 'D:/Repos/www.gitee.com/Lian1998/vitejs_plugins/test-example/shader/test.glsl'
+                        // const module = server.moduleGraph.getModuleById(glslRootModulePath);
+                        const modules = file2Module.get(normalizePath(file));
+                        if (!modules || !modules.length)
+                            return; // 如果没有找到这个module, 直接return掉
+                        for (let i = 0; i < modules.length; i++) {
+                            const glslRootModulePath = modules[i];
+                            server.moduleGraph.onFileChange(glslRootModulePath); // 打标记证明这个文件被更新过
+                        }
+                        server.ws.send({ type: 'full-reload' });
+                        // 页面已经强制刷新了, 清除glsl文件的依赖关系
+                        file2Module.clear();
+                    });
                 });
-            });
+            }
         },
         /**
          * rollup文件解析钩子

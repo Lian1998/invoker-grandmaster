@@ -121,7 +121,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
         );
         _scene.add(background);
 
-        const texture = textureLoader.load('/fortest/flame/resources/rock.jpg');
+        const texture = textureLoader.load('/fortest/flame/rock.jpg');
         texture.colorSpace = THREE.SRGBColorSpace;
         background.material.map = texture;
     }
@@ -185,7 +185,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
         function initShader() {
             let uniforms = {
-                uMap: { value: textureLoader.load('/fortest/flame/resources/flame.png'), },
+                uMap: { value: textureLoader.load('/fortest/flame/flame.png'), },
                 uColor1: { value: new THREE.Color(0x961800), }, // red
                 uColor2: { value: new THREE.Color(0x4b5828), }, // yellow
                 uTime: { value: 0, },
@@ -290,7 +290,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
 
         function initShader() {
             let uniforms = {
-                uMap: { value: textureLoader.load('/fortest/flame/resources/ember.png'), },
+                uMap: { value: textureLoader.load('/fortest/flame/ember.png'), },
                 uColor: { value: new THREE.Color(0xffe61e), },
             };
 
@@ -398,7 +398,7 @@ import hazeFragmentShader from './hazeFrag.glsl?raw'
             let dpr = _renderer.getPixelRatio();
             let uniforms = {
                 uMap: { value: _rtt.texture, },
-                uMask: { value: textureLoader.load('/fortest/flame/resources/haze.png'), },
+                uMask: { value: textureLoader.load('/fortest/flame/haze.png'), },
                 uResolution: { value: new THREE.Vector2(_width * dpr, _height * dpr), },
             };
             console.log('_rtt.texture.colorSpace', _rtt.texture.colorSpace)

@@ -8,8 +8,8 @@ import { FrameLoopMachine } from './FrameLoopMachine.js';
 import { SpritePlaneBufferGeometry } from './effects/SpritePlaneBufferGeometry.js';
 import { OrbAnimationMachine } from './effects/orbs/OrbAnimationMachine.js'
 import { TurbShaderMaterial } from './effects/turb/TurbShaderMaterial.js';
-import { InvokeHaloShaderMaterial } from './effects/invoke-halo/InvokeHaloShaderMaterial.js';
-import { InvokeTurbShaderMaterial } from './effects/invoke-turb/InvokeTurbShaderMaterial.js';
+// import { InvokeHaloShaderMaterial } from './effects/invoke-halo/InvokeHaloShaderMaterial.js';
+// import { InvokeTurbShaderMaterial } from './effects/invoke-turb/InvokeTurbShaderMaterial.js';
 
 import { logger } from './logger.js';
 

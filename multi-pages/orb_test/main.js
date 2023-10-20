@@ -28,10 +28,10 @@ renderer2.setSize(width, height);
 renderer2.setPixelRatio(pixelRatio);
 renderer2.setClearColor(0x000000);
 
-import orbv from '@shaders/orb.vs';
-import quasf from '@shaders/orb.quas.fs';
-import wexf from '@shaders/orb.wex.fs';
-import exortf from '@shaders/orb.exort.fs';
+import orbv from '@src/invoker-webglpart/effects/orbs/orb.vs';
+import quasf from '@src/invoker-webglpart/effects/orbs/orb.quas.fs';
+import wexf from '@src/invoker-webglpart/effects/orbs/orb.wex.fs';
+import exortf from '@src/invoker-webglpart/effects/orbs/orb.exort.fs';
 
 console.log(quasf);
 console.log(wexf);
