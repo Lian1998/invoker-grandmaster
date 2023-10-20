@@ -13,9 +13,10 @@ body {
     left: 50%;
     transform: translateX(-50%);
     bottom: 8px;
+    margin-bottom: 1vh;
 }
 
-.invoker-abilities .invoker-ability {
+.invoker-ability {
     width: 64px;
     height: 64px;
     padding: 2px;
@@ -28,27 +29,27 @@ body {
     background-size: 64px 64px;
 }
 
-.invoker-abilities .invoker-ability:hover,
-.invoker-abilities .invoker-ability.active {
+.invoker-ability:hover,
+.invoker-ability.active {
     box-shadow: 0 0 8px 8px #999;
 }
 
 @media screen and (max-width: 1400px) {
-    .invoker-abilities .invoker-ability {
+    .invoker-ability {
         width: 54px;
         height: 54px;
-        margin: 4px;
+        margin: 6px;
         background-size: 54px 54px;
     }
 
-    .invoker-abilities .invoker-ability:hover,
-    .invoker-abilities .invoker-ability.active {
+    .invoker-ability:hover,
+    .invoker-ability.active {
         box-shadow: 0 0 4px 4px #999;
     }
 }
 
 @media screen and (max-width: 1024px) {
-    .invoker-abilities .invoker-ability {
+    .invoker-ability {
         width: 52px;
         height: 52px;
         background-size: 52px 52px;
@@ -56,21 +57,21 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-    .invoker-abilities .invoker-ability {
+    .invoker-ability {
         width: 48px;
         height: 48px;
-        margin: 2px;
+        margin: 4px;
         background-size: 48px 48px;
     }
 
-    .invoker-abilities .invoker-ability:hover,
-    .invoker-abilities .invoker-ability.active {
+    .invoker-ability:hover,
+    .invoker-ability.active {
         box-shadow: 0 0 2px 2px #999;
     }
 }
 
 @media screen and (max-width: 512px) {
-    .invoker-abilities .invoker-ability {
+    .invoker-ability {
         width: 42px;
         height: 42px;
         background-size: 42px 42px;

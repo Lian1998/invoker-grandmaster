@@ -21,25 +21,25 @@ export let containerElement;
 export let canvasElement;
 export let renderer, camera, orbitcontrols;
 export let frameloopMachine;
+export let shadow_rtt;
 export let rtt;
 
 // SCENE
 export let scene;
 export let sceneOrb;
-export let sceneOrbEffect;
-export let sceneInvokeEffect;
+export let sceneEffect;
 export let ambient_light, hemisphere_light, directional_light, spot_light;
 
 // HERO
 export let rockModel, heroModel, animationClips, animationMixer1, animationMixer2; // resources
 export let orbsSpawnActionL, orbsSpawnActionR, orbsAction; // animation actions
-export let wristL, wristR;
+export let wristLSlot, wristRSlot;
 export let orbSlot1, orbSlot2, orbSlot3;
 export let orbAnimationMachine;
 
 // EFFECTS
 export let orbSpawnEffectPlaneL, orbSpawnEffectPlaneR;
-export let invokeHalo, invokeTurb;
+export let invokerAbility5HaloPlane, invokerAbility5TurbPlane;
 
 // HELPERS
 export let grid_helper, axes_helper; // scene
@@ -55,6 +55,7 @@ const initContext = (canvas) => {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.autoClear = false;
+
     rtt = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
         colorSpace: THREE.NoColorSpace,
         format: THREE.RGBAFormat,
@@ -67,6 +68,7 @@ const initContext = (canvas) => {
     const v = new THREE.Vector3(-2.0, 2.0, 3.0);
     v.normalize().multiplyScalar(6.0);
     camera.position.copy(v);
+
     orbitcontrols = new OrbitControls(camera, canvas); // controls
     orbitcontrols.minDistance = 3.0;
     orbitcontrols.maxDistance = 7.0;
@@ -82,8 +84,7 @@ const initScene = () => {
     // scene
     scene = new THREE.Scene();
     sceneOrb = new THREE.Scene();
-    sceneOrbEffect = new THREE.Scene();
-    sceneInvokeEffect = new THREE.Scene();
+    sceneEffect = new THREE.Scene();
 
     // lights
     ambient_light = new THREE.AmbientLight(0xFFFFFF, 1.0); // soft white light
@@ -97,8 +98,8 @@ const initScene = () => {
     directional_light.shadow.camera.position.copy(directional_light.position);
     scene.add(directional_light);
     directional_light.castShadow = true;
-    directional_light.shadow.mapSize.width = 4096;
-    directional_light.shadow.mapSize.height = 4096;
+    directional_light.shadow.mapSize.width = 2048;
+    directional_light.shadow.mapSize.height = 2048;
     directional_light.shadow.focus = 10.0;
     directional_light.shadow.camera.near = 0.5;
     directional_light.shadow.camera.far = 30.0;
@@ -109,8 +110,8 @@ const initScene = () => {
     spot_light.shadow.camera.position.copy(spot_light.position);
     spot_light.castShadow = true;
     spot_light.shadow.bias = 0.0008; // 0.0001
-    spot_light.shadow.mapSize.width = 4096;
-    spot_light.shadow.mapSize.height = 4096;
+    spot_light.shadow.mapSize.width = 2048;
+    spot_light.shadow.mapSize.height = 2048;
     spot_light.shadow.focus = 10.0;
     spot_light.shadow.camera.near = 0.5;
     spot_light.shadow.camera.far = 30.0;
@@ -118,7 +119,7 @@ const initScene = () => {
     scene.add(spot_light);
 }
 
-const addInvokerModels = () => {
+const addInvokerStage = (scene) => {
     const rockGLTF = invokerGLTFResources.get('rock');
     rockModel = rockGLTF.scene;
     rockModel.traverse(child => {
@@ -130,18 +131,18 @@ const addInvokerModels = () => {
     rockModel.rotateY(Math.PI / 2.0);
     rockModel.scale.set(0.8, 1.0, 0.8);
     scene.add(rockModel);
+}
 
+const addInvokerModels = (scene) => {
     const invokerGLTF = invokerGLTFResources.get('invoker');
-    animationClips = invokerGLTF.animations; // 动画资源
     heroModel = invokerGLTF.scene;
     heroModel.traverse(child => {
         // 绑定orbSloter指针
         if (child.name === 'orb1') { orbSlot1 = child; }
         else if (child.name === 'orb2') { orbSlot2 = child; }
         else if (child.name === 'orb3') { orbSlot3 = child; }
-        else if (child.name === 'wrist_L') { wristL = child; }
-        else if (child.name === 'wrist_R') { wristR = child; }
-
+        else if (child.name === 'wrist_L') { wristLSlot = child; }
+        else if (child.name === 'wrist_R') { wristRSlot = child; }
         if (child.isSkinnedMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
@@ -152,12 +153,15 @@ const addInvokerModels = () => {
     scene.add(heroModel);
 }
 
-const addInvokerAnimations = () => {
+const handleInvokerAnimations = () => {
+
+    const invokerGLTF = invokerGLTFResources.get('invoker');
+    animationClips = invokerGLTF.animations; // 动画资源
 
     animationMixer1 = new THREE.AnimationMixer(heroModel);
     animationMixer2 = new THREE.AnimationMixer(heroModel);
 
-    // 去除idle切片中的元素法球运动
+    // 去除 idle 中的 orbs 轨道
     const idleClip = animationClips.find(item => item.name === 'idle');
     const idleClip1Tracks = [];
     idleClip.tracks.forEach(item => { if (item.name.indexOf('orb') === -1) { idleClip1Tracks.push(item); } });
@@ -165,7 +169,7 @@ const addInvokerAnimations = () => {
     const idleAction = animationMixer1.clipAction(idleClip1, heroModel);
     idleAction.play();
 
-    // 添加元素法球运动动画
+    // 元素法球动画
     const orbsClip = animationClips.find(item => item.name === '@orbs');
     const orbsClip1Tracks = [];
     orbsClip.tracks.forEach(item => { if (item.name.indexOf('orb') !== -1) { orbsClip1Tracks.push(item); } });
@@ -174,7 +178,7 @@ const addInvokerAnimations = () => {
     orbsAction.blendMode = THREE.NormalAnimationBlendMode;
     orbsAction.play();
 
-    // 从 "@orb_spawn_lf" 片段分出左/右手切球动画
+    // 左/右手切球动画
     const orbsSpawnClip = animationClips.find(item => item.name === '@orb_spawn_lf');
     const orbsSpawnClipL_Tracks = [];
     const orbsSpawnClipR_Tracks = [];
@@ -209,37 +213,37 @@ const addInvokerAnimations = () => {
     orbsSpawnActionR.loop = THREE.LoopOnce;
 }
 
-const addInvokerOrbs = () => {
+const addInvokerOrbs = (scene) => {
 
     // 使用白模查看动画是否加载完成
     // const sphere1 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20.0, 20.0), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     // orbSlot1.attach(sphere1);
 
     // 使用平面精灵以及自制的ShaderMaterial
-    orbAnimationMachine = OrbAnimationMachine();
+    orbAnimationMachine = OrbAnimationMachine(scene);
 }
 
-const addInvokerOrbSpawnEffect = () => {
+const addInvokerOrbSpawnEffect = (scene) => {
 
     orbSpawnEffectPlaneL = new THREE.Mesh(SpritePlaneBufferGeometry(), TurbShaderMaterial());
     orbSpawnEffectPlaneL.renderOrder = 1;
-    sceneOrbEffect.add(orbSpawnEffectPlaneL);
+    scene.add(orbSpawnEffectPlaneL);
 
     orbSpawnEffectPlaneR = new THREE.Mesh(SpritePlaneBufferGeometry(), TurbShaderMaterial());
     orbSpawnEffectPlaneR.renderOrder = 1;
-    sceneOrbEffect.add(orbSpawnEffectPlaneR);
+    scene.add(orbSpawnEffectPlaneR);
 }
 
-const addInvokeEffect = () => {
+const addInvokerAbility5Effect = (scene) => {
     // invokeHalo = new THREE.Mesh(SpritePlaneBufferGeometry(), InvokeHaloShaderMaterial());
     // invokeHalo.rotateX(- Math.PI / 2.0);
     // invokeHalo.scale.set(5.0, 5.0, 5.0);
     // invokeHalo.position.y += 0.5;
-    // sceneInvokeEffect.add(invokeHalo);
+    // scene.add(invokeHalo);
 
-    invokeTurb = new THREE.Mesh(SpritePlaneBufferGeometry(), InvokeTurbShaderMaterial());
-    invokeTurb.position.set(0, 1.5, 0);
-    sceneInvokeEffect.add(invokeTurb);
+    // invokerAbility5TurbPlane = new THREE.Mesh(SpritePlaneBufferGeometry(), InvokeTurbShaderMaterial());
+    // invokerAbility5TurbPlane.position.set(0, 1.5, 0);
+    // scene.add(invokerAbility5TurbPlane);
 
 }
 
@@ -279,7 +283,7 @@ const addHelpers = () => {
     }
 }
 
-export const resizeViewport = (event) => {
+const resizeViewport = (event) => {
     const { pixelRatio, width, height } = getViewportQuality(containerElement);
     logger.info(`pixelRatio: ${pixelRatio}, width: ${width}, height: ${height}`);
 
@@ -313,19 +317,17 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
 
         initContext(canvasElement);
         initScene();
+        resizeViewport();
 
         // Add Features
-        addInvokerModels(); // 模型
-        addInvokerAnimations(); // 动画处理
-        addInvokerOrbs(); // 卡尔元素法球
-        addInvokerOrbSpawnEffect(); // 卡尔元素法球召唤特效
-        addInvokeEffect(); // 卡尔invoke技能特效
-
-        // Add Helpers
+        addInvokerStage(scene)
+        addInvokerModels(scene);
+        addInvokerOrbs(sceneOrb);
+        addInvokerOrbSpawnEffect(sceneEffect);
+        addInvokerAbility5Effect(sceneEffect);
         addHelpers();
 
-        // Initial Resize
-        resizeViewport();
+        handleInvokerAnimations();
 
         // 渲染循环机  
         // ps: ThreeJs 现在都有缓存的, 所以可以直接这么用
@@ -355,27 +357,25 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
             renderer.render(scene, camera);
             renderer.render(sceneOrb, camera);
 
-            // 卡尔切球特效平面
-            if (wristL && orbSpawnEffectPlaneL) {
+            // 卡尔切球特效
+            if (wristLSlot && orbSpawnEffectPlaneL) {
                 orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value += deltaTime;
-                wristL.getWorldPosition(orbSpawnEffectPlaneL.position);
-                orbSpawnEffectPlaneL.position.z += 0.1;
-                orbSpawnEffectPlaneL.position.y += 0.25;
+                wristLSlot.getWorldPosition(orbSpawnEffectPlaneL.position);
+                orbSpawnEffectPlaneL.position.y += 0.15;
             }
-            if (wristR && orbSpawnEffectPlaneR) {
+            if (wristRSlot && orbSpawnEffectPlaneR) {
                 orbSpawnEffectPlaneR.material.uniforms.uLifeTime.value += deltaTime;
-                wristR.getWorldPosition(orbSpawnEffectPlaneR.position);
-                orbSpawnEffectPlaneR.position.z += 0.1;
-                orbSpawnEffectPlaneR.position.y += 0.25;
+                wristRSlot.getWorldPosition(orbSpawnEffectPlaneR.position);
+                orbSpawnEffectPlaneR.position.y += 0.15;
             }
+
+            // 元素祈唤技能特效
 
             // 渲染到canvas
-            renderer.render(sceneOrbEffect, camera);
-            // renderer.render(sceneInvokeEffect, camera);
-
+            renderer.render(sceneEffect, camera);
         });
 
-        resolve(true);
+        resolve({ resizeViewport, frameloopMachine });
     });
 }
 

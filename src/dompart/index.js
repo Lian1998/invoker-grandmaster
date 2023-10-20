@@ -19,13 +19,3 @@ ability4el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/ic
 
 export const ability5el = document.querySelector('.invoker-abilities .invoker-ability#a5');
 export const ability6el = document.querySelector('.invoker-abilities .invoker-ability#a6');
-
-/**
- * 短暂的给某个元素添加activeClass
- * @param {Element} element 
- */
-export const toggleElementActiveClass = (element) => {
-    if (!element | !element.classList) { return; }
-    element.classList.add('active');
-    setTimeout(() => { element.classList.remove('active'); }, 120);
-}

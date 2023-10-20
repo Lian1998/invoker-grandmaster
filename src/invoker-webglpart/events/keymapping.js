@@ -1,6 +1,6 @@
 
 
-export const classic_keymapping = {
+export const classicKeymapping = {
     'Quas': { keycode: 'KeyQ' },
     'Wex': { keycode: 'KeyW' },
     'Exort': { keycode: 'KeyE' },
@@ -17,7 +17,7 @@ export const classic_keymapping = {
     'Deafening Blast': { keycode: 'KeyB' },
 }
 
-export const dota2_keymapping = {
+export const dota2Keymapping = {
     'Quas': { keycode: 'KeyQ' },
     'Wex': { keycode: 'KeyW' },
     'Exort': { keycode: 'KeyE' },

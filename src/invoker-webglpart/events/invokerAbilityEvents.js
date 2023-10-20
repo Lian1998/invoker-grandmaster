@@ -1,7 +1,6 @@
 // 资源处理
 
 const AbilityMap = {
-
     'Quas': {
         icon: '/invoker-textures/icons/invoker_quas.png',
     },

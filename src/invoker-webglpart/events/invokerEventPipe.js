@@ -6,13 +6,13 @@ export const invokerOrbStatesStack = new Array(); // Orbs状态栈
 export const invokerExtraAbility = ['', '']; // 当前召唤的技能槽5/6
 
 // 通过遍历按键绑定设置, 发出invoker事件
-import { invokerState2AbilityName, invokerAbilityEvents } from './invokerAbilityEvents'
-import { classic_keymapping, dota2_keymapping } from '@src/assets/keymapping';
+import { invokerState2AbilityName, invokerAbilityEvents } from './invokerAbilityEvents';
+import { classicKeymapping, dota2Keymapping } from './keymapping.js';
 
 /** Dota2键盘模式, QWERDF */
 const dota2EventEmitter = (e) => {
-    Object.keys(dota2_keymapping).forEach(key => {
-        const keycode = dota2_keymapping[key].keycode;
+    Object.keys(dota2Keymapping).forEach(key => {
+        const keycode = dota2Keymapping[key].keycode;
         let abilityName = key;
         if (keycode && keycode === e.code) {
             if (key === 'ability5' && invokerExtraAbility[0]) { abilityName = invokerExtraAbility[0]; }
@@ -26,8 +26,8 @@ const dota2EventEmitter = (e) => {
 
 /** 经典键盘模式, 每个技能都对应一个快捷键 */
 const classicEventEmitter = (e) => {
-    Object.keys(classic_keymapping).forEach(key => {
-        const keycode = classic_keymapping[key].keycode;
+    Object.keys(classicKeymapping).forEach(key => {
+        const keycode = classicKeymapping[key].keycode;
         // 通过快捷键找到按下的是哪一个技能名
         if (keycode && keycode === e.code) {
             let abilityName = key; // 找到技能事件
@@ -56,7 +56,8 @@ export const initializeKeyBinding = (type = 'Dota2') => {
 }
 
 
-import { ability1el, ability2el, ability3el, ability4el, ability5el, ability6el, toggleElementActiveClass } from '@src/dompart/index.js';
+import { ability1el, ability2el, ability3el, ability4el, ability5el, ability6el } from '@src/dompart/index.js';
+import { toggleElementActiveClass } from '@src/utils/toggleElementActiveClass.js';
 import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
 
 const abilityels = [ability5el, ability6el];

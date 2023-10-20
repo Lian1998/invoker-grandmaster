@@ -7,7 +7,7 @@ const now = () => ((typeof performance === 'undefined' ? Date : performance).now
  */
 export const FrameLoopMachine = (LoopFunctionIn) => {
 
-    let frameLoopFunction = LoopFunctionIn;
+    let frameLoopFunctionP = LoopFunctionIn;
 
     let frameLoopLongID = undefined; // 此次启动的id
 
@@ -24,7 +24,7 @@ export const FrameLoopMachine = (LoopFunctionIn) => {
         elapsedTime += deltaTime;
         previousStamp = timeStamp;
 
-        frameLoopFunction(elapsedTime, deltaTime);
+        frameLoopFunctionP(elapsedTime, deltaTime);
     }
 
     const stopLoop = () => {

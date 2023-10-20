@@ -8,9 +8,8 @@ import { invokerAbilityEvents } from '@src/invoker-webglpart/events/invokerAbili
 
 import {
     orbsSpawnActionL, orbsSpawnActionR, orbsAction, // 动画
-    wristL, wristR, // 手腕骨骼
+    wristLSlot, wristRSlot, // 手腕骨骼
     orbSlot1, orbSlot2, orbSlot3, // 元素法球位置插槽骨骼
-    sceneOrb, // 场景
     orbSpawnEffectPlaneL, orbSpawnEffectPlaneR, // 特效Effector
 } from '../../index.js';
 
@@ -110,8 +109,8 @@ export const SingleOrbObject = (orbSlot, scene) => {
             meshesMap[name].status = true;
             meshesMap[name].mesh.visible = true; // 设置可见性
             meshesMap[name].mesh.material.uniforms.uLifeTime.value = 0.0;
-            if (isLeft) { wristL.getWorldPosition(vec3Util1); } // 射出位置
-            else { wristR.getWorldPosition(vec3Util1); }
+            if (isLeft) { wristLSlot.getWorldPosition(vec3Util1); } // 射出位置
+            else { wristRSlot.getWorldPosition(vec3Util1); }
             meshesMap[name].mesh.position.copy(vec3Util1);
             if (orbSpawnEffectPlaneL && orbSpawnEffectPlaneR) { // 涡轮扰动效果
                 if (isLeft) { orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value = 0.0; }
@@ -137,7 +136,7 @@ export const SingleOrbObject = (orbSlot, scene) => {
                 // 更新到插槽位置
                 singleOrbSlotP.getWorldPosition(vec3Util);
                 const factor = THREE.MathUtils.smoothstep(singleOrbFaddingFactor, 0.0, orbLerpingDuration);
-                meshesMap[name].mesh.position.y += (1.0 - factor) * deltaTime * 3.0; // 向上提供一些射出去的感觉
+                meshesMap[name].mesh.position.y += (1.0 - factor) * deltaTime * 4.5; // 向上提供一些射出去的感觉
                 meshesMap[name].mesh.position.lerp(vec3Util, factor);
                 return;
             }
@@ -159,12 +158,12 @@ export const SingleOrbObject = (orbSlot, scene) => {
  * 球体状态更新机
  * @returns {{frameLoop: (elapsedTime: number, deltaTime: number) => void}}
  */
-export const OrbAnimationMachine = () => {
+export const OrbAnimationMachine = (scene) => {
 
     let index = 0;
-    const orb1 = SingleOrbObject(orbSlot1, sceneOrb);
-    const orb2 = SingleOrbObject(orbSlot2, sceneOrb);
-    const orb3 = SingleOrbObject(orbSlot3, sceneOrb);
+    const orb1 = SingleOrbObject(orbSlot1, scene);
+    const orb2 = SingleOrbObject(orbSlot2, scene);
+    const orb3 = SingleOrbObject(orbSlot3, scene);
 
     const orbsMap = [orb1, orb2, orb3];
     const abilityNameArr = ['Quas', 'Wex', 'Exort']; // 切球事件

@@ -1,7 +1,7 @@
 import 'normalize.css'
 
 import { invokerResourcesPretreat } from './invoker-webglpart/invokerResources.js';
-import { invokerInitialize3d, resizeViewport, frameloopMachine } from './invoker-webglpart/index.js';
+import { invokerInitialize3d } from './invoker-webglpart/index.js';
 
 import { toggleHelper } from './invoker-webglpart/toggleHelper.js';
 import { toggleLoopState } from './invoker-webglpart/toggleLoopState.js';
@@ -20,7 +20,7 @@ window.addEventListener('load', () => {
         // 挂载3D资源
         const viewportContainer = document.querySelector('#viewport-container')
         const viewport1 = document.querySelector('#viewport1');
-        invokerInitialize3d(viewportContainer, viewport1).then(() => {
+        invokerInitialize3d(viewportContainer, viewport1).then(({ resizeViewport, frameloopMachine }) => {
 
             // 显示/关闭 帮助对象
             if (import.meta.env.MODE === 'development') { toggleHelper(false); }
