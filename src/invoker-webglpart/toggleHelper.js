@@ -12,16 +12,16 @@ import {
  */
 export const toggleHelper = (active = undefined) => {
     if (!grid_helper) return;
-    let targetVisiable = active;
-    if (active === undefined) { targetVisiable = !grid_helper.visible; }
+    let targetVisible = active;
+    if (active === undefined) { targetVisible = !grid_helper.visible; }
 
-    if (grid_helper) grid_helper.visible = targetVisiable;
-    if (axes_helper) axes_helper.visible = targetVisiable;
+    if (grid_helper) grid_helper.visible = targetVisible;
+    if (axes_helper) axes_helper.visible = targetVisible;
 
-    if (directional_light_helper) directional_light_helper.visible = targetVisiable;
-    if (directional_light_helper1) directional_light_helper1.visible = targetVisiable;
-    if (spot_light_helper) spot_light_helper.visible = targetVisiable;
-    if (spot_light_helper1) spot_light_helper1.visible = targetVisiable;
+    if (directional_light_helper) directional_light_helper.visible = targetVisible;
+    if (directional_light_helper1) directional_light_helper1.visible = targetVisible;
+    if (spot_light_helper) spot_light_helper.visible = targetVisible;
+    if (spot_light_helper1) spot_light_helper1.visible = targetVisible;
 
-    if (skeleton_helper) skeleton_helper.visible = targetVisiable;
+    if (skeleton_helper) skeleton_helper.visible = targetVisible;
 }

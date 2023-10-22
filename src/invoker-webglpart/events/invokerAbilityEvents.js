@@ -2,13 +2,13 @@
 
 const AbilityMap = {
     'Quas': {
-        icon: '/invoker-textures/icons/invoker_quas.png',
+        icon: '/invoker-textures/icons/invoker_quas_lian1998.png',
     },
     'Wex': {
-        icon: '/invoker-textures/icons/invoker_wex.png',
+        icon: '/invoker-textures/icons/invoker_wex_lian1998.png',
     },
     'Exort': {
-        icon: '/invoker-textures/icons/invoker_exort.png',
+        icon: '/invoker-textures/icons/invoker_exort_lian1998.png',
     },
     'Invoke': {
         icon: '/invoker-textures/icons/invoker_invoke.png',

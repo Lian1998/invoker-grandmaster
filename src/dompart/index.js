@@ -11,9 +11,9 @@ export const ability2el = document.querySelector('.invoker-abilities .invoker-ab
 export const ability3el = document.querySelector('.invoker-abilities .invoker-ability#a3');
 export const ability4el = document.querySelector('.invoker-abilities .invoker-ability#a4');
 
-ability1el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_quas.png')})`;
-ability2el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_wex.png')})`;
-ability3el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_exort.png')})`;
+ability1el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_quas_lian1998.png')})`;
+ability2el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_wex_lian1998.png')})`;
+ability3el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_exort_lian1998.png')})`;
 ability4el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_invoke.png')})`;
 
 

@@ -18,6 +18,7 @@ export const TurbShaderMaterial = () => new THREE.ShaderMaterial({
     vertexShader: turbv,
     fragmentShader: turbf,
     depthWrite: false,
-    depthTest: false,
+    depthTest: true,
     transparent: true,
-})
+    opacity: 1.0
+});

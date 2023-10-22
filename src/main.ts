@@ -22,6 +22,8 @@ window.addEventListener('load', () => {
         const viewport1 = document.querySelector('#viewport1');
         invokerInitialize3d(viewportContainer, viewport1).then(({ resizeViewport, frameloopMachine }) => {
 
+            resizeViewport();
+
             // 显示/关闭 帮助对象
             if (import.meta.env.MODE === 'development') { toggleHelper(false); }
             else { toggleHelper(false); }

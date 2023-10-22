@@ -19,14 +19,20 @@ void main() {
 
     // 计算rtt的uv偏移
     vec2 maskUv = vUv;
-    float maskFactor = step(distance(maskUv, vCenter), 0.5) + smoothstep(0.6, 0.5, distance(maskUv, vCenter));
-    vec2 mask = texture2D(uMask, maskUv).ra - vec2(0.5);
-    pixelUv -= mask * maskFactor * 0.05; // 每个像素点的偏移的幅度
+    vec4 maskTexcolor = texture2D(uMask, maskUv);
+    vec2 mask1 = vec2(maskTexcolor.r, maskTexcolor.r) * 0.5;
+    vec2 mask2 = vec2(-maskTexcolor.r, maskTexcolor.r) * 0.5;
+
+    vec2 pixelUv1 = pixelUv + (mask1 * 0.1);
+    vec2 pixelUv2 = pixelUv + (mask2 * 0.1);
 
     // 重采样
-    vec4 tex = texture2D(uMap, pixelUv);
+    vec4 color1 = texture2D(uMap, pixelUv1);
+    vec4 color2 = texture2D(uMap, pixelUv2);
 
-    gl_FragColor = vec4(tex.rgb, vAlpha); // gl_FragColor = vec4(vec3(1.0), vAlpha);
+    // vec4 color = (color1 + color2 + color3 + color4) / 4.0;
+    vec4 color = (color1 + color2) / 2.0;
+    gl_FragColor = vec4(color.rgb, vAlpha); // gl_FragColor = vec4(vec3(1.0), vAlpha);
     // gl_FragColor = vec4(1.0);
 
     #include <colorspace_fragment>

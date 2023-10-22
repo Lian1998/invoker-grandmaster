@@ -6,20 +6,23 @@ varying float vAlpha;
 uniform float uLifeTime;
 
 void main() {
-
     float timeFactor = smoothstep(0.0, 0.1, uLifeTime);
+    vec3 worldUp = vec3(0.0, 1.0, 0.0);
 
     // 顶点着色器内置变量 vetex_shader_param
     vec2 vsp_Offset = vec2(0.0, 0.0);
     // float vsp_Scale = 5.0 - timeFactor; // float vsp_Scale = 2.0;
-    float vsp_Scale = 5.0; // float vsp_Scale = 2.0;
+    // float vsp_Scale = 3.0 + 2.0 * sin(uLifeTime * 10.);
+    float watchFactor = dot(worldUp, normalize(cameraPosition - position)); // 角度越小越接近1
+    vec2 vsp_Scalev2 = vec2(2.0 + 10.0 * abs(sin(uLifeTime * 5.)), 2.0 + 5.0 * abs(sin(uLifeTime * 5.)) + 2.0 * watchFactor);
 
     // Varying
     vUv = uv;
     vPosition = position;
     vCenter = vec2(0.5);
     // vAlpha = 0.3 + 0.8 * timeFactor; // vAlpha = 1.0;
-    vAlpha = 0.3 * sin(uLifeTime * 10.); // vAlpha = 1.0;
+    // vAlpha = 0.5 * sin(uLifeTime * 10.); // vAlpha = 1.0;
+    vAlpha = 0.5;
 
     vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
 
@@ -29,7 +32,7 @@ void main() {
     scaleVertex.y = length(vec3(modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z));
 
     // 计算最终偏移和缩放
-    vec2 alignedPosition = (position.xy + vsp_Offset) * scaleVertex * vsp_Scale;
+    vec2 alignedPosition = (position.xy + vsp_Offset) * scaleVertex * vsp_Scalev2;
     mvPosition.xy += alignedPosition.xy;
 
     gl_Position = projectionMatrix * mvPosition;
