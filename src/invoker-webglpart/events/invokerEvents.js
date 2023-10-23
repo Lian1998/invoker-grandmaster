@@ -1,4 +1,5 @@
 // 资源处理
+// abilityName, abilityEvent, abilityState
 
 const AbilityMap = {
     'Quas': {
@@ -14,60 +15,65 @@ const AbilityMap = {
         icon: '/invoker-textures/icons/invoker_invoke.png',
     },
     'Cold Snap': {
-        state: 'Quas3Wex0Exort0',
+        abilityState: 'Quas3Wex0Exort0',
         icon: '/invoker-textures/icons/invoker_cold_snap.png',
     },
     'Ghost Walk': {
-        state: 'Quas2Wex1Exort0',
+        abilityState: 'Quas2Wex1Exort0',
         icon: '/invoker-textures/icons/invoker_ghost_walk.png',
     },
     'Ice Wall': {
-        state: 'Quas2Wex0Exort1',
+        abilityState: 'Quas2Wex0Exort1',
         icon: '/invoker-textures/icons/invoker_ice_wall.png',
     },
     'Tornado': {
-        state: 'Quas1Wex2Exort0',
+        abilityState: 'Quas1Wex2Exort0',
         icon: '/invoker-textures/icons/invoker_tornado.png',
     },
     'Deafening Blast': {
-        state: 'Quas1Wex1Exort1',
+        abilityState: 'Quas1Wex1Exort1',
         icon: '/invoker-textures/icons/invoker_deafening_blast.png',
     },
     'Forge Spirit': {
-        state: 'Quas1Wex0Exort2',
+        abilityState: 'Quas1Wex0Exort2',
         icon: '/invoker-textures/icons/invoker_forge_spirit.png',
     },
     'E.M.P': {
-        state: 'Quas0Wex3Exort0',
+        abilityState: 'Quas0Wex3Exort0',
         icon: '/invoker-textures/icons/invoker_emp.png',
     },
     'Alacrity': {
-        state: 'Quas0Wex2Exort1',
+        abilityState: 'Quas0Wex2Exort1',
         icon: '/invoker-textures/icons/invoker_alacrity.png',
     },
     'Chaos Meteor': {
-        state: 'Quas0Wex1Exort2',
+        abilityState: 'Quas0Wex1Exort2',
         icon: '/invoker-textures/icons/invoker_chaos_meteor.png',
     },
     'Sun Strike': {
-        state: 'Quas0Wex0Exort3',
+        abilityState: 'Quas0Wex0Exort3',
         icon: '/invoker-textures/icons/invoker_sun_strike.png',
     },
 }
 
-export const invokerState2AbilityName = new Map(); // 三球状态映射技能名
-export const invokerAbilityEvents = new Map(); // 技能事件列表及事件携带信息
+export const invokerEvents = new Map(); // 所有事件
+export const invokeAbilityState2Event = new Map(); // 所有Invoke事件 state => abilityEvent
+export const invokeAbilityNames = [];
 
-Object.keys(AbilityMap).forEach((key) => {
-
-    if (AbilityMap[key].state) { invokerState2AbilityName.set(AbilityMap[key].state, key); }
+Object.keys(AbilityMap).forEach((abilityName) => {
 
     // Example Code
+    // https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/EventTarget
     // https://developer.mozilla.org/zh-CN/docs/Web/API/CustomEvent/CustomEvent
     // const customEvent = new CustomEvent('cat', { detail: {} });
     // eventPipe.addEventListener(customEvent.type, (e) => { console.log(e.detail); });
 
-    // https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget/EventTarget
+    const abilityEvent = new CustomEvent(abilityName, { detail: AbilityMap[abilityName] });
+    invokerEvents.set(abilityName, abilityEvent);
 
-    invokerAbilityEvents.set(key, new CustomEvent(key, { detail: AbilityMap[key] }));
+    const abilityState = AbilityMap[abilityName].abilityState
+    if (abilityState) {
+        invokeAbilityNames.push(abilityName);
+        invokeAbilityState2Event.set(abilityState, abilityEvent);
+    }
 });

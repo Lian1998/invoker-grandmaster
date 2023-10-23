@@ -238,7 +238,7 @@ const addInvokerOrbSpawnEffect = (scene) => {
 const addInvokerAbility5Effect = (sceneEffect) => {
     invokerAbility4HaloPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.), Ability4HaloShaderMaterial());
     invokerAbility4HaloPlane.rotateX(- Math.PI / 2.0);
-    invokerAbility4HaloPlane.scale.set(8.0, 8.0, 8.0);
+    invokerAbility4HaloPlane.scale.set(7.5, 7.5, 7.5);
     heroModel.add(invokerAbility4HaloPlane);
 
     invokerAbility4TurbPlane = new THREE.Mesh(SpritePlaneBufferGeometry(), Ability4TurbShaderMaterial());
@@ -343,24 +343,7 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
 
             // 卡尔的元素法球位置更新
             orbAnimationMachine.frameLoop(elapsedTime, deltaTime);
-
-            // 设置rtt为输出目标
-            renderer.setRenderTarget(rtt);
-            renderer.clear();
-            if (invokerAbility4HaloPlane) { invokerAbility4HaloPlane.visible = false; }
-            renderer.render(scene, camera);
-            renderer.render(sceneOrb, camera);
-
-            // 设置画布为输出目标
-            renderer.setRenderTarget(null);
-            renderer.clear();
-            if (invokerAbility4HaloPlane) { invokerAbility4HaloPlane.visible = true; }
-            renderer.render(scene, camera);
-            renderer.render(sceneOrb, camera);
-            // 元素祈唤技能特效 sceneEffect
-            if (invokerAbility4TurbPlane) { invokerAbility4TurbPlane.material.uniforms.uLifeTime.value += deltaTime; }
-            renderer.render(sceneEffect, camera);
-            // 卡尔切球特效 sceneEffect1
+            // 切球特效
             if (wristLSlot && orbSpawnEffectPlaneL) {
                 orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value += deltaTime;
                 wristLSlot.getWorldPosition(orbSpawnEffectPlaneL.position);
@@ -371,6 +354,24 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
                 wristRSlot.getWorldPosition(orbSpawnEffectPlaneR.position);
                 orbSpawnEffectPlaneR.position.y += 0.15;
             }
+            // invoke技能特效
+            if (invokerAbility4HaloPlane) { invokerAbility4HaloPlane.material.uniforms.uLifeTime.value += deltaTime; }
+            if (invokerAbility4TurbPlane) { invokerAbility4TurbPlane.material.uniforms.uLifeTime.value += deltaTime; }
+
+            // 设置rtt为输出目标
+            renderer.setRenderTarget(rtt);
+            renderer.clear();
+            if (invokerAbility4HaloPlane) { invokerAbility4HaloPlane.visible = false; }
+            renderer.render(scene, camera);
+
+            // 设置画布为输出目标
+            renderer.setRenderTarget(null);
+            renderer.clear();
+            if (invokerAbility4HaloPlane) { invokerAbility4HaloPlane.visible = true; }
+            renderer.render(scene, camera);
+            renderer.render(sceneOrb, camera);
+            // 元素祈唤技能特效 sceneEffect
+            renderer.render(sceneEffect, camera);
             // 渲染到canvas
             renderer.render(sceneEffect1, camera);
         });

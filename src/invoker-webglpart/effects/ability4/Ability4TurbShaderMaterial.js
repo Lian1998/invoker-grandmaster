@@ -6,12 +6,15 @@ import { rtt } from '@src/invoker-webglpart/index.js';
 
 const textureLoader = new THREE.TextureLoader();
 const turbT = textureLoader.load(getJoinedBaseUrl('/invoker-textures/invoke/spark_cone.png'));
+const turbT1 = textureLoader.load(getJoinedBaseUrl('/invoker-textures/invoke/spark_cone_inverse.png'));
+
 
 export const Ability4TurbShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {
         uLifeTime: { value: 0.0 }, // 切球时间
         uMap: { value: rtt.texture },
         uMask: { value: turbT },
+        uMask1: { value: turbT1 },
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
     },
     blending: THREE.NormalBlending,

@@ -77,3 +77,22 @@ body {
         background-size: 42px 42px;
     }
 }
+
+.target-abilities {
+    position: absolute;
+    display: flex;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 8px;
+    margin-top: 1vh;
+
+    .invoker-ability {
+        filter: saturate(0) brightness(0.6);
+    }
+
+    .invoker-ability:hover,
+    .invoker-ability.active {
+        box-shadow: none;
+        filter: none;
+    }
+}
