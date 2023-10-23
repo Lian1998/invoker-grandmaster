@@ -70,7 +70,7 @@ export const invokerResourcesPretreat = () => {
                 LOADED += 1;
                 if (LOADED >= ALL) { // 这里代表资源完全加载完毕了
                     logger.warn('Loading complete!', invokerGLTFResources.gltfMap);
-                    // maskel.classList.add('fadeout'); // 去除loadingMask
+                    maskel.classList.add('fadeout'); // 去除loadingMask
                     resolve(true);
                 }
             };
