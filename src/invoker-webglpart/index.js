@@ -298,9 +298,10 @@ const resizeViewport = (event) => {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
     }
-    if (rtt) { rtt.setSize(width, height); }
+    if (rtt) { rtt.setSize(_width, _height); }
     if (orbSpawnEffectPlaneL) { orbSpawnEffectPlaneL.material.uniforms.uResolution.value.set(_width, _height); }
     if (orbSpawnEffectPlaneR) { orbSpawnEffectPlaneR.material.uniforms.uResolution.value.set(_width, _height); }
+    if (invokerAbility4TurbPlane) { invokerAbility4TurbPlane.material.uniforms.uResolution.value.set(_width, _height); }
 }
 
 /**

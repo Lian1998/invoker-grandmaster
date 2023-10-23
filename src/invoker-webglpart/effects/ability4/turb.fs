@@ -43,7 +43,7 @@ void main() {
     vec4 color3 = texture2D(uMap, pixelUv3);
     vec4 color4 = texture2D(uMap, pixelUv4);
 
-    vec4 avgColor = 0.5 * color + 0.5 * (color1 + color2 + color3 + color4) / 4.0;
+    vec4 avgColor = 0.7 * color + 0.3 * (color1 + color2 + color3 + color4) / 4.0;
     gl_FragColor = vec4(avgColor.rgb, vAlpha);
     // gl_FragColor = vec4(1.0);
 
