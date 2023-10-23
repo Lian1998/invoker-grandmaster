@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite --mode development",
-        "build": "tsc && vite build",
+        "build": "tsc && vite build --mode production",
         "build-giteepage": "tsc && vite build --base https://lian_1998.gitee.io/invoker-grandmaster/ --mode production",
         "preview": "vite preview"
     },
