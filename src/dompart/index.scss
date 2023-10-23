@@ -31,7 +31,7 @@ body {
 
 .invoker-ability:hover,
 .invoker-ability.active {
-    box-shadow: 0 0 8px 8px #999;
+    box-shadow: 0 0 4px 4px #999;
 }
 
 @media screen and (max-width: 1400px) {
@@ -44,7 +44,7 @@ body {
 
     .invoker-ability:hover,
     .invoker-ability.active {
-        box-shadow: 0 0 4px 4px #999;
+        box-shadow: 0 0 2px 2px #999;
     }
 }
 
@@ -66,7 +66,7 @@ body {
 
     .invoker-ability:hover,
     .invoker-ability.active {
-        box-shadow: 0 0 2px 2px #999;
+        box-shadow: 0 0 1px 1px #999;
     }
 }
 
@@ -75,5 +75,24 @@ body {
         width: 42px;
         height: 42px;
         background-size: 42px 42px;
+    }
+}
+
+.target-abilities {
+    position: absolute;
+    display: flex;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 8px;
+    margin-top: 1vh;
+
+    .invoker-ability {
+        filter: saturate(0) brightness(0.6);
+    }
+
+    .invoker-ability:hover,
+    .invoker-ability.active {
+        box-shadow: none;
+        filter: none;
     }
 }

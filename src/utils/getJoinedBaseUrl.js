@@ -71,7 +71,7 @@ function urlJoin(input) {
 /**
  * 根据import.meta.env.BASE_URL 即 ResolvedConfig 下的 Base 对资源路径进行拼接
  * @param {*} publicResourceUrl 资源在public目录下的位置
- * @returns 
+ * @returns
  */
 export const getJoinedBaseUrl = (publicResourceUrl) => {
     return urlJoin(import.meta.env.BASE_URL, publicResourceUrl);

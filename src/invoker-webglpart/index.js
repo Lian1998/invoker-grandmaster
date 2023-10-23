@@ -8,8 +8,8 @@ import { FrameLoopMachine } from './FrameLoopMachine.js';
 import { SpritePlaneBufferGeometry } from './effects/SpritePlaneBufferGeometry.js';
 import { OrbAnimationMachine } from './effects/orbs/OrbAnimationMachine.js'
 import { TurbShaderMaterial } from './effects/turb/TurbShaderMaterial.js';
-// import { InvokeHaloShaderMaterial } from './effects/invoke-halo/InvokeHaloShaderMaterial.js';
-// import { InvokeTurbShaderMaterial } from './effects/invoke-turb/InvokeTurbShaderMaterial.js';
+import { Ability4HaloShaderMaterial } from './effects/ability4/Ability4HaloShaderMaterial.js';
+import { Ability4TurbShaderMaterial } from './effects/ability4/Ability4TurbShaderMaterial.js';
 
 import { logger } from './logger.js';
 
@@ -21,13 +21,13 @@ export let containerElement;
 export let canvasElement;
 export let renderer, camera, orbitcontrols;
 export let frameloopMachine;
-export let shadow_rtt;
 export let rtt;
 
 // SCENE
 export let scene;
 export let sceneOrb;
 export let sceneEffect;
+export let sceneEffect1;
 export let ambient_light, hemisphere_light, directional_light, spot_light;
 
 // HERO
@@ -39,7 +39,7 @@ export let orbAnimationMachine;
 
 // EFFECTS
 export let orbSpawnEffectPlaneL, orbSpawnEffectPlaneR;
-export let invokerAbility5HaloPlane, invokerAbility5TurbPlane;
+export let invokerAbility4HaloPlane, invokerAbility4TurbPlane;
 
 // HELPERS
 export let grid_helper, axes_helper; // scene
@@ -64,14 +64,14 @@ const initContext = (canvas) => {
         stencilBuffer: false,
     });
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 20.0); // camera
-    const v = new THREE.Vector3(-2.0, 2.0, 3.0);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.015625, 128.0); // camera
+    const v = new THREE.Vector3(-2.0, 2.0, 4.0);
     v.normalize().multiplyScalar(6.0);
     camera.position.copy(v);
 
     orbitcontrols = new OrbitControls(camera, canvas); // controls
-    orbitcontrols.minDistance = 3.0;
-    orbitcontrols.maxDistance = 7.0;
+    orbitcontrols.minDistance = 4.0;
+    orbitcontrols.maxDistance = 8.0;
     orbitcontrols.maxPolarAngle = Math.PI / 2.0;
     orbitcontrols.enablePan = false; // 禁止平移
     orbitcontrols.enableDamping = true;
@@ -85,6 +85,7 @@ const initScene = () => {
     scene = new THREE.Scene();
     sceneOrb = new THREE.Scene();
     sceneEffect = new THREE.Scene();
+    sceneEffect1 = new THREE.Scene();
 
     // lights
     ambient_light = new THREE.AmbientLight(0xFFFFFF, 1.0); // soft white light
@@ -234,16 +235,15 @@ const addInvokerOrbSpawnEffect = (scene) => {
     scene.add(orbSpawnEffectPlaneR);
 }
 
-const addInvokerAbility5Effect = (scene) => {
-    // invokeHalo = new THREE.Mesh(SpritePlaneBufferGeometry(), InvokeHaloShaderMaterial());
-    // invokeHalo.rotateX(- Math.PI / 2.0);
-    // invokeHalo.scale.set(5.0, 5.0, 5.0);
-    // invokeHalo.position.y += 0.5;
-    // scene.add(invokeHalo);
+const addInvokerAbility5Effect = (sceneEffect) => {
+    invokerAbility4HaloPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.), Ability4HaloShaderMaterial());
+    invokerAbility4HaloPlane.rotateX(- Math.PI / 2.0);
+    invokerAbility4HaloPlane.scale.set(7.5, 7.5, 7.5);
+    heroModel.add(invokerAbility4HaloPlane);
 
-    // invokerAbility5TurbPlane = new THREE.Mesh(SpritePlaneBufferGeometry(), InvokeTurbShaderMaterial());
-    // invokerAbility5TurbPlane.position.set(0, 1.5, 0);
-    // scene.add(invokerAbility5TurbPlane);
+    invokerAbility4TurbPlane = new THREE.Mesh(SpritePlaneBufferGeometry(), Ability4TurbShaderMaterial());
+    invokerAbility4TurbPlane.position.set(0, 1.0, 0);
+    sceneEffect.add(invokerAbility4TurbPlane);
 
 }
 
@@ -317,13 +317,12 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
 
         initContext(canvasElement);
         initScene();
-        resizeViewport();
 
         // Add Features
         addInvokerStage(scene)
         addInvokerModels(scene);
         addInvokerOrbs(sceneOrb);
-        addInvokerOrbSpawnEffect(sceneEffect);
+        addInvokerOrbSpawnEffect(sceneEffect1);
         addInvokerAbility5Effect(sceneEffect);
         addHelpers();
 
@@ -344,20 +343,7 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
 
             // 卡尔的元素法球位置更新
             orbAnimationMachine.frameLoop(elapsedTime, deltaTime);
-
-            // 设置rtt为输出目标
-            renderer.setRenderTarget(rtt);
-            renderer.clear();
-            renderer.render(scene, camera);
-            renderer.render(sceneOrb, camera);
-
-            // 设置画布为输出目标
-            renderer.setRenderTarget(null);
-            renderer.clear();
-            renderer.render(scene, camera);
-            renderer.render(sceneOrb, camera);
-
-            // 卡尔切球特效
+            // 切球特效
             if (wristLSlot && orbSpawnEffectPlaneL) {
                 orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value += deltaTime;
                 wristLSlot.getWorldPosition(orbSpawnEffectPlaneL.position);
@@ -368,11 +354,26 @@ export const invokerInitialize3d = (viewportContainer, viewport) => {
                 wristRSlot.getWorldPosition(orbSpawnEffectPlaneR.position);
                 orbSpawnEffectPlaneR.position.y += 0.15;
             }
+            // invoke技能特效
+            if (invokerAbility4HaloPlane) { invokerAbility4HaloPlane.material.uniforms.uLifeTime.value += deltaTime; }
+            if (invokerAbility4TurbPlane) { invokerAbility4TurbPlane.material.uniforms.uLifeTime.value += deltaTime; }
 
-            // 元素祈唤技能特效
+            // 设置rtt为输出目标
+            renderer.setRenderTarget(rtt);
+            renderer.clear();
+            if (invokerAbility4HaloPlane) { invokerAbility4HaloPlane.visible = false; }
+            renderer.render(scene, camera);
 
-            // 渲染到canvas
+            // 设置画布为输出目标
+            renderer.setRenderTarget(null);
+            renderer.clear();
+            if (invokerAbility4HaloPlane) { invokerAbility4HaloPlane.visible = true; }
+            renderer.render(scene, camera);
+            renderer.render(sceneOrb, camera);
+            // 元素祈唤技能特效 sceneEffect
             renderer.render(sceneEffect, camera);
+            // 渲染到canvas
+            renderer.render(sceneEffect1, camera);
         });
 
         resolve({ resizeViewport, frameloopMachine });

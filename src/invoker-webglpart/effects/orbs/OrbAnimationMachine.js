@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { OrbQuasShaderMaterial, OrbWexShaderMaterial, OrbExortShaderMaterial } from './OrbShaderMaterials.js';
 import { SpritePlaneBufferGeometry } from '../SpritePlaneBufferGeometry.js';
 import { invokerEventPipe } from '@src/invoker-webglpart/events/invokerEventPipe.js';
-import { invokerAbilityEvents } from '@src/invoker-webglpart/events/invokerAbilityEvents.js';
+import { invokerEvents } from '@src/invoker-webglpart/events/invokerEvents.js';
 
 import {
     orbsSpawnActionL, orbsSpawnActionR, orbsAction, // 动画
@@ -98,26 +98,17 @@ export const SingleOrbObject = (orbSlot, scene) => {
         });
 
         // 把这个球显示出来
-        // total      : 2.0
-        // right Spawn: 1.0 < orbsAction.time < 1.5
-        // left  Spawn: 0.8 < orbsAction.time < 1.3
-        let animationtick_duration = 0.0;
-        if (orbsAction.time < 0.4) { animationtick_duration = (0.4 - orbsAction.time) * 1000; }
-        if (orbsAction.time > 1.8) { animationtick_duration = (((2.0 - 1.8) + 0.4) - orbsAction.time) * 1000; }
-        setTimeout(() => {
-            singleOrbFaddingFactor = 0.0; // 设置过渡动画
-            meshesMap[name].status = true;
-            meshesMap[name].mesh.visible = true; // 设置可见性
-            meshesMap[name].mesh.material.uniforms.uLifeTime.value = 0.0;
-            if (isLeft) { wristLSlot.getWorldPosition(vec3Util1); } // 射出位置
-            else { wristRSlot.getWorldPosition(vec3Util1); }
-            meshesMap[name].mesh.position.copy(vec3Util1);
-            if (orbSpawnEffectPlaneL && orbSpawnEffectPlaneR) { // 涡轮扰动效果
-                if (isLeft) { orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value = 0.0; }
-                else { orbSpawnEffectPlaneR.material.uniforms.uLifeTime.value = 0.0; }
-            }
-        }, animationtick_duration);
-
+        singleOrbFaddingFactor = 0.0; // 设置过渡动画
+        meshesMap[name].status = true;
+        meshesMap[name].mesh.visible = true; // 设置可见性
+        meshesMap[name].mesh.material.uniforms.uLifeTime.value = 0.0;
+        if (isLeft) { wristLSlot.getWorldPosition(vec3Util1); } // 射出位置
+        else { wristRSlot.getWorldPosition(vec3Util1); }
+        meshesMap[name].mesh.position.copy(vec3Util1);
+        if (orbSpawnEffectPlaneL && orbSpawnEffectPlaneR) { // 涡轮扰动效果
+            if (isLeft) { orbSpawnEffectPlaneL.material.uniforms.uLifeTime.value = 0.0; }
+            else { orbSpawnEffectPlaneR.material.uniforms.uLifeTime.value = 0.0; }
+        }
     }
 
     /** 帧更新函数 */
@@ -168,7 +159,7 @@ export const OrbAnimationMachine = (scene) => {
     const orbsMap = [orb1, orb2, orb3];
     const abilityNameArr = ['Quas', 'Wex', 'Exort']; // 切球事件
     abilityNameArr.forEach(abilityName => {
-        const abilityEvent = invokerAbilityEvents.get(abilityName);
+        const abilityEvent = invokerEvents.get(abilityName);
         invokerEventPipe.addEventListener(abilityEvent.type, (e) => { // 监听切球事件
             if (index + 1 > 2) { index = 0; }
             else { index += 1; }
