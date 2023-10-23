@@ -1,13 +1,10 @@
 // 用于控制卡尔大资源的加载, 需要给出一个加载函数和一个回调函数, 回调函数中需要放出
-
+import { maskel, loadedel, requiredel } from '@src/dompart/index.js';
 import { logger } from './logger';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
 import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
-
-const invokerLoadingManager = new THREE.LoadingManager();
-const gltfLoader = new GLTFLoader(invokerLoadingManager);
 
 /**
  * 抛出给外部用于获取GLTF模型
@@ -16,14 +13,8 @@ export const invokerGLTFResources = (() => {
 
     // gltf资源映射, 这个项目的模型资源我应该都会用gltf进行操作
     const gltfMap = {
-        rock: {
-            url: getJoinedBaseUrl('/badside_rocks006_b/badside_rocks006_b.gltf'),
-            resolved: undefined,
-        },
-        invoker: {
-            url: getJoinedBaseUrl('/vrfcracked/invoker/invoker.gltf'),
-            resolved: undefined,
-        },
+        rock: { url: getJoinedBaseUrl('/badside_rocks006_b/badside_rocks006_b.gltf'), resolved: undefined, },
+        invoker: { url: getJoinedBaseUrl('/vrfcracked/invoker/invoker.gltf'), resolved: undefined, },
     }
 
     const get = (keyInput) => {
@@ -48,11 +39,7 @@ export const invokerGLTFResources = (() => {
         }
     }
 
-    const hasResource = () => {
-        return Object.keys(gltfMap).length;
-    }
-
-    return { gltfMap, set, get, hasResource }
+    return { gltfMap, set, get };
 })();
 
 /**
@@ -61,60 +48,61 @@ export const invokerGLTFResources = (() => {
  */
 export const invokerResourcesPretreat = () => {
 
-    let loadedResouces = 0; // 当前已经加载的资源
-    let totalResouces = 0; // 所有需要加载的资源
-    let loadFinished = false;
+    let ALL = 0;
+    let LOADED = 0;
+    let ALL_loaded = 0; // 当前已经加载的资源
+    let ALL_required = 0; // 所有需要加载的资源
 
     return new Promise((resolve, reject) => {
 
-        // 定义loadingManager的回调处理方法
+        const resouceskeys = Object.keys(invokerGLTFResources.gltfMap); // keys
+        ALL = resouceskeys.length;
+        for (let i = 0; i < resouceskeys.length; i++) { // key
+            const key = resouceskeys[i];
+            const resourceObj = invokerGLTFResources.gltfMap[key];
+            const invokerLoadingManager = new THREE.LoadingManager();
 
-        invokerLoadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
-            logger.debug('Started loading file: ' + url, 'Loaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+            invokerLoadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
+                logger.debug('Started loading file: ' + url, 'Loaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+            };
+            
+            invokerLoadingManager.onLoad = function () {
+                LOADED += 1;
+                if (LOADED >= ALL) { // 这里代表资源完全加载完毕了
+                    logger.warn('Loading complete!', invokerGLTFResources.gltfMap);
+                    maskel.classList.add('fadeout'); // 去除loadingMask
+                    resolve(true);
+                }
+            };
 
-            if (totalResouces < itemsTotal) { // 记录总资源数
-                totalResouces = itemsTotal;
-            }
-        };
+            let thisLoaded = 0;
+            let thisTotal = 0;
+            invokerLoadingManager.onProgress = function (url, itemsLoaded, itemsTotal) {
+                logger.debug('Loading file: ' + url, 'Loaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+                if (thisTotal < itemsTotal) {
+                    ALL_required -= thisTotal;
+                    thisTotal = itemsTotal;
+                    ALL_required += thisTotal;
+                }
+                if (thisLoaded < itemsLoaded) {
+                    ALL_loaded -= thisLoaded;
+                    thisLoaded = itemsLoaded;
+                    ALL_loaded += thisLoaded;
+                }
+                loadedel.innerHTML = ALL_loaded;
+                requiredel.innerHTML = ALL_required;
+            };
 
-        invokerLoadingManager.onLoad = function () {
-            loadedResouces += 1;
-            if (loadedResouces >= totalResouces) { // 这里代表资源完全加载完毕了
-                logger.warn('Loading complete!', invokerGLTFResources.gltfMap);
-                loadFinished = true;
-                resolve(true);
-            }
-        };
+            invokerLoadingManager.onError = function (url) {
+                logger.error('There was an error loading ' + url);
+            };
 
-        invokerLoadingManager.onProgress = function (url, itemsLoaded, itemsTotal) {
-            // logger.debug('Loading file: ' + url, 'Loaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
-
-            // 这里代表资源加载的进度, 需要结合dom给出提示
-
-        };
-
-        invokerLoadingManager.onError = function (url) {
-            logger.error('There was an error loading ' + url);
-
-        };
-
-        // 开始对资源进行请求
-
-        if (invokerGLTFResources.hasResource()) {
-            const resouceskeys = Object.keys(invokerGLTFResources.gltfMap);
-            for (let i = 0; i < resouceskeys.length; i++) {
-                const key = resouceskeys[i];
-                const resourceObj = invokerGLTFResources.gltfMap[key];
-
-                gltfLoader.load(resourceObj.url, (gltf) => {
-                    invokerGLTFResources.set(key, gltf);
-                });
-            }
+            const gltfLoader = new GLTFLoader(invokerLoadingManager);
+            gltfLoader.load(resourceObj.url, (gltf) => { invokerGLTFResources.set(key, gltf); });
         }
-        else {
-            logger.warn('No need to resolve resources!');
-            resolve(true);
-        }
-
     })
 }
+
+
+
+

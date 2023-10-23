@@ -14,15 +14,16 @@ window.addEventListener('load', () => {
     // 请求资源
     invokerResourcesPretreat().then(() => {
 
-        // 初始化事件监听
-        invokerInitializeKeyListening();
+        invokerInitializeKeyListening(); // 初始化事件监听
 
         // 挂载3D资源
-        const viewportContainer = document.querySelector('#viewport-container')
+        const viewportContainer = document.querySelector('#viewport-container');
         const viewport1 = document.querySelector('#viewport1');
         invokerInitialize3d(viewportContainer, viewport1).then(({ resizeViewport, frameloopMachine }) => {
 
+            // 初始化视口大小
             resizeViewport();
+            window.addEventListener('resize', resizeViewport);
 
             // 显示/关闭 帮助对象
             if (import.meta.env.MODE === 'development') { toggleHelper(false); }
@@ -37,7 +38,6 @@ window.addEventListener('load', () => {
                 else if (e.code === 'KeyH') { toggleHelper(); } // 开启/关闭可视助手
             });
 
-            window.addEventListener('resize', resizeViewport);
         });
     })
 
