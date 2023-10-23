@@ -155,9 +155,11 @@ export const invokerInitializeKeyListening = () => {
 
         // 给所有技能事件添加监听函数
         invokerEventPipe.addEventListener(abilityEvent.type, (event) => {
+
+            // 确定是使用了技能栏的额外技能
             extraAbility.forEach((abilityName, index) => {
+
                 if (abilityName !== event.type) { return; }
-                // 确定是使用了技能栏的额外技能
                 if (extraAbilityEls[index]) { toggleElementActiveClass(extraAbilityEls[index]); } // 闪烁图标
                 let flag = true;
                 for (let j = 0; j < targetAbilities.length; j++) {
