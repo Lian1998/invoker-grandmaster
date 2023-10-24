@@ -1,4 +1,5 @@
-import 'normalize.css'
+import 'normalize.css';
+import './dompart/index.scss';
 
 import { invokerResourcesPretreat } from './invoker-webglpart/invokerResources.js';
 import { invokerInitialize3d } from './invoker-webglpart/index.js';

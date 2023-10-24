@@ -1,5 +1,4 @@
 
-import './index.scss'
 
 import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
 

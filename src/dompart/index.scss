@@ -7,8 +7,8 @@ body {
     width: 100%;
     height: 100vh;
     z-index: 1;
-    background-color: #222;
-    color: #eee;
+    background-color: #000;
+    color: #aaa;
     pointer-events: none;
     opacity: 1;
 
@@ -40,15 +40,19 @@ body {
 #viewport-container {
     width: 100%;
     height: 100vh;
-}
 
-.invoker-abilities {
-    position: absolute;
-    display: flex;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 8px;
-    margin-bottom: 1vh;
+    #sign {
+        user-select: none;
+        font-size: 0.8rem;
+        position: absolute;
+        right: 1vh;
+        bottom: 1vh;
+        color: #fff;
+
+        a {
+            color: #aaa;
+        }
+    }
 }
 
 .invoker-ability {
@@ -57,16 +61,41 @@ body {
     padding: 2px;
     border-radius: 2px;
     margin: 8px;
-    background-color: #222;
+    background-color: #333;
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
     background-size: 64px 64px;
 }
 
-.invoker-ability:hover,
-.invoker-ability.active {
-    box-shadow: 0 0 4px 4px #999;
+.invoker-abilities {
+    position: absolute;
+    display: flex;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 1vh;
+
+    .invoker-ability:hover,
+    .invoker-ability.active {
+        box-shadow: 0 0 4px 4px #999;
+    }
+}
+
+.target-abilities {
+    position: absolute;
+    display: flex;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 1vh;
+
+    .invoker-ability.active {
+        filter: none;
+        box-shadow: 0 0 2px 2px #999;
+    }
+
+    .invoker-ability {
+        filter: saturate(0) brightness(0.6);
+    }
 }
 
 @media screen and (max-width: 1400px) {
@@ -77,13 +106,23 @@ body {
         background-size: 54px 54px;
     }
 
-    .invoker-ability:hover,
-    .invoker-ability.active {
-        box-shadow: 0 0 2px 2px #999;
+    .invoker-abilities {
+        .invoker-ability:hover,
+        .invoker-ability.active {
+            box-shadow: 0 0 2px 2px #999;
+        }
     }
 }
 
 @media screen and (max-width: 1024px) {
+    #viewport-container {
+        #sign {
+            font-size: 0.6rem;
+            bottom: unset;
+            top: 10vh;
+        }
+    }
+
     .invoker-ability {
         width: 52px;
         height: 52px;
@@ -99,9 +138,11 @@ body {
         background-size: 48px 48px;
     }
 
-    .invoker-ability:hover,
-    .invoker-ability.active {
-        box-shadow: 0 0 1px 1px #999;
+    .invoker-abilities {
+        .invoker-ability:hover,
+        .invoker-ability.active {
+            box-shadow: 0 0 1px 1px #999;
+        }
     }
 }
 
@@ -110,23 +151,5 @@ body {
         width: 42px;
         height: 42px;
         background-size: 42px 42px;
-    }
-}
-
-.target-abilities {
-    position: absolute;
-    display: flex;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 8px;
-    margin-top: 1vh;
-
-    .invoker-ability.active {
-        filter: none;
-    }
-
-    .invoker-ability {
-        box-shadow: none;
-        filter: saturate(0) brightness(0.6);
     }
 }
