@@ -12,11 +12,10 @@
         "@types/three": "^0.155.1",
         "kolorist": "^1.7.0",
         "typescript": "^5.0.2",
+        "sass": "^1.69.3",
         "vite": "^4.4.5"
     },
     "dependencies": {
-        "normalize.css": "^8.0.1",
-        "sass": "^1.69.3",
-        "url": "^0.11.3"
+        "normalize.css": "^8.0.1"
     }
 }
