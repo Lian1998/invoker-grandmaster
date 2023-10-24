@@ -180,7 +180,7 @@ const handleInvokerAnimations = () => {
     orbsAction.play();
 
     // 左/右手切球动画
-    const orbsSpawnClip = animationClips.find(item => item.name === '@orb_spawn_lf');
+    const orbsSpawnClip = animationClips.find(item => item.name === '@orb_spawn');
     const orbsSpawnClipL_Tracks = [];
     const orbsSpawnClipR_Tracks = [];
     orbsSpawnClip.tracks.forEach(item => {
