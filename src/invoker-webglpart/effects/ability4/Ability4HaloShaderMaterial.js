@@ -21,5 +21,10 @@ export const Ability4HaloShaderMaterial = () => new THREE.ShaderMaterial({
     depthWrite: false,
     depthTest: false,
     transparent: true,
-    opacity: 1.0
+    opacity: 1.0,
+
+    // 模板测试时: 使用stencilFunc比较函数
+    stencilWrite: true,
+    stencilRef: 1, // 石头 0 英雄 1 球 2
+    stencilFunc: THREE.NotEqualStencilFunc, // 设置该片元的模板>=1才可以通过测试
 });

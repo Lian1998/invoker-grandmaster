@@ -31,7 +31,12 @@ const OrbQuasShaderMaterial = () => new THREE.ShaderMaterial({
     depthWrite: false,
     depthTest: true,
     transparent: true,
-    opacity: 1.0
+    opacity: 1.0,
+
+    // 通过模板测试时: 写入深度模板为2
+    stencilWrite: true,
+    stencilRef: 2,
+    stencilZPass: THREE.ReplaceStencilOp,
 });
 
 const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
@@ -53,7 +58,11 @@ const OrbWexShaderMaterial = () => new THREE.ShaderMaterial({
     depthWrite: false,
     depthTest: true,
     transparent: true,
-    opacity: 1.0
+    opacity: 1.0,
+
+    stencilWrite: true,
+    stencilRef: 2,
+    stencilZPass: THREE.ReplaceStencilOp,
 });
 
 const OrbExortShaderMaterial = () => new THREE.ShaderMaterial({
@@ -75,7 +84,11 @@ const OrbExortShaderMaterial = () => new THREE.ShaderMaterial({
     depthWrite: false,
     depthTest: true,
     transparent: true,
-    opacity: 1.0
+    opacity: 1.0,
+
+    stencilWrite: true,
+    stencilRef: 2,
+    stencilZPass: THREE.ReplaceStencilOp,
 });
 
 export { OrbQuasShaderMaterial, OrbWexShaderMaterial, OrbExortShaderMaterial };

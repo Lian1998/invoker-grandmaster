@@ -23,12 +23,12 @@ void main() {
     float timeFactor = curve1 + curve2;
 
     vUv = uv;
-    vAlpha = 0.8 * timeFactor;
+    vAlpha = timeFactor;
     vCenter = vec2(0.5);
 
     // 随着时间稍微扩大一点点
     float timeFactor1 = smoothstep(0.0, p2, uLifeTime);
-    mat4 vsp_scale = scaleMatrix(1.0 + 0.08 * timeFactor1);
+    mat4 vsp_scale = scaleMatrix(1.0 + 0.18 * timeFactor1);
 
     gl_Position = projectionMatrix * modelViewMatrix * vsp_scale * vec4(position, 1.0);
 

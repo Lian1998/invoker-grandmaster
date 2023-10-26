@@ -14,12 +14,17 @@ void main() {
     vec4 tex = texture2D(uMap, vUv);
 
     // 当前切技能的应该使用的颜色
-    vec3 orbColor = uColor1;
-    float colorStrength = 0.8;
-    if (uType < 1.0) { orbColor = uColor1; } 
-    else if (uType > 1.0 && uType < 2.0) { orbColor = uColor2; } 
-    else { orbColor = uColor3; }
+    float colorStrength = 0.4; // 颜色强度
+    vec3 orbColor = uColor1; // 默认颜色
+    if (uType < 1.0) {
+        orbColor = uColor1;
+    } else if (uType > 1.0 && uType < 2.0) {
+        orbColor = uColor2;
+    } else {
+        orbColor = uColor3;
+    }
     orbColor *= colorStrength;
+    orbColor *= clamp(0.5 + vAlpha, 0.0, 1.0); // (0, 0.5)++++
     vec4 color = vec4(orbColor, tex.r);
 
     gl_FragColor = color * vAlpha; // gl_FragColor = vec4(vec3(1.0), vAlpha);

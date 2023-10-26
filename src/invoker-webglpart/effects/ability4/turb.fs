@@ -22,14 +22,12 @@ void main() {
     // 计算rtt的uv偏移
     vec2 maskUv = vUv;
     vec4 maskTexcolor = (texture2D(uMask, maskUv) + texture2D(uMask1, maskUv)) / 2.0;
-    float maskStrength = 0.5;
-    float timeFactor = abs(sin(uLifeTime * 10.0));
 
-    // y轴上减少影响
+    float maskStrength = 0.5;
     vec2 mask1 = vec2(maskTexcolor.r, maskTexcolor.r * maskStrength) * maskStrength * 0.1;
-    vec2 mask2 = vec2(maskTexcolor.r, -maskTexcolor.r * maskStrength) * maskStrength * 0.1;
+    vec2 mask2 = vec2(maskTexcolor.r, -maskTexcolor.r * maskStrength) * maskStrength * 0.05;
     vec2 mask3 = vec2(-maskTexcolor.r, maskTexcolor.r * maskStrength) * maskStrength * 0.1;
-    vec2 mask4 = vec2(-maskTexcolor.r, -maskTexcolor.r * maskStrength) * maskStrength * 0.1;
+    vec2 mask4 = vec2(-maskTexcolor.r, -maskTexcolor.r * maskStrength) * maskStrength * 0.05;
 
     vec2 pixelUv1 = pixelUv + mask1;
     vec2 pixelUv2 = pixelUv + mask2;
@@ -44,7 +42,7 @@ void main() {
     vec4 color4 = texture2D(uMap, pixelUv4);
 
     vec4 avgColor = 0.7 * color + 0.3 * (color1 + color2 + color3 + color4) / 4.0;
-    gl_FragColor = vec4(avgColor.rgb, vAlpha);
+    gl_FragColor = vec4(avgColor.rgb, vAlpha * 0.8);
     // gl_FragColor = vec4(1.0);
 
     #include <colorspace_fragment>

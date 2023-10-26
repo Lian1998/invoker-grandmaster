@@ -61,7 +61,6 @@ const initContext = (canvas) => {
         format: THREE.RGBAFormat,
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
-        stencilBuffer: false,
     });
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.015625, 128.0); // camera
@@ -147,6 +146,11 @@ const addInvokerModels = (scene) => {
         if (child.isSkinnedMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
+            
+            // 写入深度模板为 1
+            child.material.stencilWrite = true;
+            child.material.stencilRef = 1;
+            child.material.stencilZPass = THREE.ReplaceStencilOp;
         }
     });
     heroModel.scale.set(0.5, 0.5, 0.5);
