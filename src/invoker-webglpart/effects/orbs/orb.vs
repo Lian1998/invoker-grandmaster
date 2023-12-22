@@ -26,7 +26,11 @@ void main() {
     vCenter = vec2(0.5);
     vAlpha = timeFactor; // vAlpha = 1.0;
 
-    vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 只取modelViewMatrix的w列, Tranform信息
+    // a b c tx
+    // d e f ty
+    // g h i tz
+    // 0 0 0 w
+    vec4 mvPosition = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0); // 提取平移信息
 
     // 通过(被Object3D.scale影响后的)BufferGeometry传入的第一个第二个顶点间隔确定计算平面长宽
     vec2 scaleVertex = vec2(1.0, 1.0); // 默认长宽
