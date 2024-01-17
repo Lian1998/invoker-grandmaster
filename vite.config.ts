@@ -13,9 +13,10 @@ export default defineConfig({
     resolve: {
         alias: {
             '@src': path.resolve(__dirname, './src'),
+            '@lib': path.resolve(__dirname, './lib'),
             '@shaders': path.resolve(__dirname, './shaders'),
             'three': path.resolve(__dirname, './lib/three.js-r156/src/Three.js'),
-            'three_addons': path.resolve(__dirname, './lib/three.js-r156/examples/jsm')
+            'three_addons': path.resolve(__dirname, './lib/three.js-r156/examples/jsm'),
         },
     },
     build: {

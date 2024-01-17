@@ -1,5 +1,6 @@
 import 'normalize.css';
 import './dompart/index.scss';
+import "@lib/Spector.js/distt/spector.bundle.js";
 
 import { invokerResourcesPretreat } from './invoker-webglpart/invokerResources.js';
 import { invokerInitialize3d } from './invoker-webglpart/index.js';
@@ -38,6 +39,9 @@ window.addEventListener('load', () => {
                 if (e.code === 'F9') { toggleLoopState(); } // 暂停/启动
                 else if (e.code === 'KeyH') { toggleHelper(); } // 开启/关闭可视助手
             });
+
+            const spector = new SPECTOR.Spector();
+            spector.displayUI();
 
         });
     })
