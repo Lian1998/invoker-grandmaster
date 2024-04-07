@@ -5,6 +5,7 @@
         "dev": "vite --mode development",
         "build": "tsc && vite build --mode production",
         "build-giteepage": "tsc && vite build --base https://lian_1998.gitee.io/invoker-grandmaster/ --mode production",
+        "build-gitpage": "tsc && vite build --base https://Lian1998.github.io/invoker-grandmaster/ --mode production",
         "preview": "vite preview"
     },
     "devDependencies": {
