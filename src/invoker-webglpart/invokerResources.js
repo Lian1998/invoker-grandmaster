@@ -4,7 +4,7 @@ import { logger } from './logger';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 
 /**
  * 抛出给外部用于获取GLTF模型
@@ -13,8 +13,8 @@ export const invokerGLTFResources = (() => {
 
     // gltf资源映射, 这个项目的模型资源我应该都会用gltf进行操作
     const gltfMap = {
-        rock: { url: getJoinedBaseUrl('/badside_rocks006_b/badside_rocks006_b.gltf'), resolved: undefined, },
-        invoker: { url: getJoinedBaseUrl('/vrfcracked/invoker/invoker.gltf'), resolved: undefined, },
+        rock: { url: baseUrlT('/badside_rocks006_b/badside_rocks006_b.gltf'), resolved: undefined, },
+        invoker: { url: baseUrlT('/vrfcracked/invoker/invoker.gltf'), resolved: undefined, },
     }
 
     const get = (keyInput) => {

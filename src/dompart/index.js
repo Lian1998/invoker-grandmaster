@@ -1,8 +1,8 @@
 
 
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 
-document.body.style.cursor = `url(${getJoinedBaseUrl('/vrfcracked/cursor/cursor_default.png')}), default`;
+document.body.style.cursor = `url(${baseUrlT('/vrfcracked/cursor/cursor_default.png')}), default`;
 
 // Loading界面
 export const maskel = document.querySelector('#loading-mask');
@@ -17,10 +17,10 @@ export const ability3el = document.querySelector('.invoker-abilities .invoker-ab
 export const ability4el = document.querySelector('.invoker-abilities .invoker-ability#a4');
 export const ability5el = document.querySelector('.invoker-abilities .invoker-ability#a5');
 export const ability6el = document.querySelector('.invoker-abilities .invoker-ability#a6');
-ability1el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_quas_lian1998.png')})`;
-ability2el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_wex_lian1998.png')})`;
-ability3el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_exort_lian1998.png')})`;
-ability4el.style.backgroundImage = `url(${getJoinedBaseUrl('/invoker-textures/icons/invoker_invoke.png')})`;
+ability1el.style.backgroundImage = `url(${baseUrlT('/invoker-textures/icons/invoker_quas_lian1998.png')})`;
+ability2el.style.backgroundImage = `url(${baseUrlT('/invoker-textures/icons/invoker_wex_lian1998.png')})`;
+ability3el.style.backgroundImage = `url(${baseUrlT('/invoker-textures/icons/invoker_exort_lian1998.png')})`;
+ability4el.style.backgroundImage = `url(${baseUrlT('/invoker-textures/icons/invoker_invoke.png')})`;
 
 
 // 目标技能图标

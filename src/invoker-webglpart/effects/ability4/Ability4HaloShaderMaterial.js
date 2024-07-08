@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import invokeHaloV from './halo.vs';
 import invokeHaloF from './halo.fs';
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 
 const textureLoader = new THREE.TextureLoader();
-const invokeColorT = textureLoader.load(getJoinedBaseUrl('/invoker-textures/invoke/invoke_color.png'));
+const invokeColorT = textureLoader.load(baseUrlT('/invoker-textures/invoke/invoke_color.png'));
 
 export const Ability4HaloShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {

@@ -64,7 +64,7 @@ export const initializeKeyBinding = (type = 'Dota2') => {
 import { invokerAbility4HaloPlane, invokerAbility4TurbPlane } from '@src/invoker-webglpart/index.js';
 import { invokeAbilityNames } from './invokerEvents';
 import { toggleElementActiveClass } from '@src/utils/toggleElementActiveClass.js';
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 
 const targetAbilityEls = [target1el, target2el, target3el, target4el, target5el];
 const targetAbilityStatus = [];
@@ -78,7 +78,7 @@ const initializeTargetsAbilitites = () => {
         targetAbilityStatus[i] = false;
         targetAbilities[i] = randAbilityName;
         if (targetAbilityEls[i]) {
-            targetAbilityEls[i].style.backgroundImage = `url(${getJoinedBaseUrl(randAbilityEvent.detail.icon)})`;
+            targetAbilityEls[i].style.backgroundImage = `url(${baseUrlT(randAbilityEvent.detail.icon)})`;
             targetAbilityEls[i].classList.remove('active');
         }
     }
@@ -143,7 +143,7 @@ export const invokerInitializeKeyListening = () => {
         extraAbility.forEach((abilityName, index) => { // 更新技能图标
             if (!abilityName) return;
             const event = invokerEvents.get(abilityName);
-            extraAbilityEls[index].style.backgroundImage = `url(${getJoinedBaseUrl(event.detail.icon)})`;
+            extraAbilityEls[index].style.backgroundImage = `url(${baseUrlT(event.detail.icon)})`;
         });
     })
 

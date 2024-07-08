@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import invokeTurbV from './turb.vs';
 import invokeTurbF from './turb.fs';
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 import { rtt } from '@src/invoker-webglpart/index.js';
 
 const textureLoader = new THREE.TextureLoader();
-const turbT = textureLoader.load(getJoinedBaseUrl('/invoker-textures/invoke/spark_cone.png'));
-const turbT1 = textureLoader.load(getJoinedBaseUrl('/invoker-textures/invoke/spark_cone_inverse.png'));
+const turbT = textureLoader.load(baseUrlT('/invoker-textures/invoke/spark_cone.png'));
+const turbT1 = textureLoader.load(baseUrlT('/invoker-textures/invoke/spark_cone_inverse.png'));
 
 
 export const Ability4TurbShaderMaterial = () => new THREE.ShaderMaterial({

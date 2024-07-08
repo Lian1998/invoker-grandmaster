@@ -37,7 +37,10 @@ window.addEventListener('load', () => {
             // 注册事件
             window.addEventListener('keydown', (e) => {
                 if (e.code === 'F9') { toggleLoopState(); } // 暂停/启动
-                else if (e.code === 'KeyH') { toggleHelper(); } // 开启/关闭可视助手
+                else if (e.code === 'KeyH') { // 开启/关闭可视助手
+                    if (import.meta.env.MODE !== "development") return; // 如果当前不处于开发模式, 不让客户端打开助手
+                    toggleHelper();
+                }
             });
 
             const spector = new SPECTOR.Spector();
