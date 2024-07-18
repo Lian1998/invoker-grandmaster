@@ -55,6 +55,54 @@ body {
     }
 }
 
+#invoker-abilities-guide-button {
+    width: 1.5rem;
+    padding-left: 10px;
+    padding-top: 10px;
+
+    position: absolute;
+    left: 10px;
+    top: 10px;
+}
+
+#invoker-abilities-guide-button:hover {
+    cursor: pointer;
+}
+
+#invoker-abilities-guide {
+    padding-left: 30px;
+    padding-right: 30px;
+    position: absolute;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    max-width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    align-items: center;
+    justify-content: space-evenly;
+    align-content: center;
+
+    .invoker-ability {
+        margin: 10px 5px;
+        border-radius: 50%;
+        transform: scale(0.8);
+    }
+
+    .invoker-ability:nth-child(4n) {
+        margin-left: 10px;
+        transform: scale(0.86);
+    }
+}
+
+#invoker-abilities-guide.open {
+    transform: translateX(0%);
+}
+
 .invoker-ability {
     width: 64px;
     height: 64px;
@@ -65,7 +113,7 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
-    background-size: 64px 64px;
+    background-size: 100% 100%;
 }
 
 .invoker-abilities {
@@ -103,7 +151,6 @@ body {
         width: 54px;
         height: 54px;
         margin: 6px;
-        background-size: 54px 54px;
     }
 
     .invoker-abilities {
@@ -126,7 +173,6 @@ body {
     .invoker-ability {
         width: 52px;
         height: 52px;
-        background-size: 52px 52px;
     }
 }
 
@@ -135,7 +181,6 @@ body {
         width: 48px;
         height: 48px;
         margin: 4px;
-        background-size: 48px 48px;
     }
 
     .invoker-abilities {
@@ -150,6 +195,5 @@ body {
     .invoker-ability {
         width: 42px;
         height: 42px;
-        background-size: 42px 42px;
     }
 }

@@ -10,6 +10,7 @@ import { toggleLoopState } from './invoker-webglpart/toggleLoopState.js';
 import { invokerInitializeKeyListening } from './invoker-webglpart/events/invokerEventPipe.js';
 
 import './dompart/index.js';
+import { el_viewportContainer, el_viewport1 } from './dompart/index.js';
 
 window.addEventListener('load', () => {
 
@@ -19,9 +20,7 @@ window.addEventListener('load', () => {
         invokerInitializeKeyListening(); // 初始化事件监听
 
         // 挂载3D资源
-        const viewportContainer = document.querySelector('#viewport-container');
-        const viewport1 = document.querySelector('#viewport1');
-        invokerInitialize3d(viewportContainer, viewport1).then(({ resizeViewport, frameloopMachine }) => {
+        invokerInitialize3d(el_viewportContainer, el_viewport1).then(({ resizeViewport, frameloopMachine }) => {
 
             // 初始化视口大小
             resizeViewport();
@@ -43,8 +42,10 @@ window.addEventListener('load', () => {
                 }
             });
 
-            const spector = new SPECTOR.Spector();
-            spector.displayUI();
+            if (import.meta.env.MODE === "development") {
+                // const spector = new SPECTOR.Spector();
+                // spector.displayUI();
+            }
 
         });
     })
