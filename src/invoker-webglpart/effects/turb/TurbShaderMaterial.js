@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import turbv from './turb.vs';
 import turbf from './turb.fs';
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 import { rtt } from '@src/invoker-webglpart/index.js';
 
 const textureLoader = new THREE.TextureLoader();
-const turbT = textureLoader.load(getJoinedBaseUrl('/invoker-textures/orbs/orb_spawn_turb.png'));
+const turbT = textureLoader.load(baseUrlT('/invoker-textures/orbs/orb_spawn_turb.png'));
 
 export const TurbShaderMaterial = () => new THREE.ShaderMaterial({
     uniforms: {

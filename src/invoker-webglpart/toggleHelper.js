@@ -11,6 +11,8 @@ import {
  * @returns 
  */
 export const toggleHelper = (active = undefined) => {
+
+    // 通过当前的状态判断目标状态
     if (!grid_helper) return;
     let targetVisible = active;
     if (active === undefined) { targetVisible = !grid_helper.visible; }

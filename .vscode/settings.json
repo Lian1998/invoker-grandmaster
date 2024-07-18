@@ -1,0 +1,15 @@
+{
+    "[jsonc]": { "editor.defaultFormatter": "vscode.json-language-features" }, // JSON with Comments 比如 vscode的settings.json
+    "[jsonl]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }, // JSON Lines newlin-delimitedJson(ndjson)
+    "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }, // JSON
+    "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[scss]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[less]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+    "prettier.enable": true,
+    "prettier.requireConfig": true,
+}

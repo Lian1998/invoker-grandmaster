@@ -1,3 +1,21 @@
+# PipeLine
+.env
+.husky
+.scripts
+.vite
+pnpm-*.yaml
+tsconfig.json
+tsconfig.node.json
+*rc.cjs
+vite.config.ts
+libs
+assets
+public
+
+# Suffix
+*.json
+*.md
+
 # Logs
 logs
 *.log
@@ -7,12 +25,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Artifacts
 node_modules
 dist
 dist-ssr
 *.local
 
 # Editor directories and files
+.vscode/*
 .idea
 .DS_Store
 *.suo

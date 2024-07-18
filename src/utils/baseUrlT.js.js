@@ -1,4 +1,4 @@
-function normalize(strArray) {
+const normalize = (strArray) => {
     var resultArray = [];
     if (strArray.length === 0) { return ''; }
 
@@ -57,22 +57,16 @@ function normalize(strArray) {
     return str;
 }
 
-function urlJoin(input) {
-
-    if (typeof arguments[0] === 'object') {
-        input = arguments[0];
-    } else {
-        input = [].slice.call(arguments);
-    }
-
+const urlJoin = (...input) => {
     return normalize(input);
 }
 
 /**
- * 根据import.meta.env.BASE_URL 即 ResolvedConfig 下的 Base 对资源路径进行拼接
+ * 由于 ThreejsLoaders 并不支持使用相对路径导入资源
+ * 因此使用以下函数以根据 import.meta.env.BASE_URL 即 Vite.ResolvedConfig 下的 Base 对资源路径进行拼接
  * @param {*} publicResourceUrl 资源在public目录下的位置
  * @returns
  */
-export const getJoinedBaseUrl = (publicResourceUrl) => {
+export const baseUrlT = (publicResourceUrl) => {
     return urlJoin(import.meta.env.BASE_URL, publicResourceUrl);
 }

@@ -1,7 +1,7 @@
 
 import {
-    ability1el, ability2el, ability3el, ability4el, ability5el, ability6el,
-    target1el, target2el, target3el, target4el, target5el
+    el_ability1, el_ability2, el_ability3, el_ability4, el_ability5, el_ability6,
+    el_target1, el_target2, el_target3, el_target4, el_target5
 } from '@src/dompart/index.js';
 
 // 事件管线
@@ -9,7 +9,7 @@ import {
 export const invokerEventPipe = new EventTarget();
 const invokerOrbStatesStack = []; // Orbs状态栈
 const extraAbility = ['', '']; // 当前召唤的技能槽5/6
-const extraAbilityEls = [ability5el, ability6el];
+const extraAbilityEls = [el_ability5, el_ability6];
 
 // 通过遍历按键绑定设置, 发出invoker事件
 import { invokeAbilityState2Event, invokerEvents } from './invokerEvents';
@@ -64,9 +64,9 @@ export const initializeKeyBinding = (type = 'Dota2') => {
 import { invokerAbility4HaloPlane, invokerAbility4TurbPlane } from '@src/invoker-webglpart/index.js';
 import { invokeAbilityNames } from './invokerEvents';
 import { toggleElementActiveClass } from '@src/utils/toggleElementActiveClass.js';
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 
-const targetAbilityEls = [target1el, target2el, target3el, target4el, target5el];
+const targetAbilityEls = [el_target1, el_target2, el_target3, el_target4, el_target5];
 const targetAbilityStatus = [];
 const targetAbilities = [];
 
@@ -78,7 +78,7 @@ const initializeTargetsAbilitites = () => {
         targetAbilityStatus[i] = false;
         targetAbilities[i] = randAbilityName;
         if (targetAbilityEls[i]) {
-            targetAbilityEls[i].style.backgroundImage = `url(${getJoinedBaseUrl(randAbilityEvent.detail.icon)})`;
+            targetAbilityEls[i].style.backgroundImage = `url(${baseUrlT(randAbilityEvent.detail.icon)})`;
             targetAbilityEls[i].classList.remove('active');
         }
     }
@@ -98,24 +98,24 @@ export const invokerInitializeKeyListening = () => {
 
     // "切球" Q/W/E
     invokerEventPipe.addEventListener('Quas', () => {
-        toggleElementActiveClass(ability1el);
+        toggleElementActiveClass(el_ability1);
         if (invokerOrbStatesStack.length >= 3) { invokerOrbStatesStack.pop(); }
         invokerOrbStatesStack.unshift('Quas');
     });
     invokerEventPipe.addEventListener('Wex', () => {
-        toggleElementActiveClass(ability2el);
+        toggleElementActiveClass(el_ability2);
         if (invokerOrbStatesStack.length >= 3) { invokerOrbStatesStack.pop(); }
         invokerOrbStatesStack.unshift('Wex');
     });
     invokerEventPipe.addEventListener('Exort', () => {
-        toggleElementActiveClass(ability3el);
+        toggleElementActiveClass(el_ability3);
         if (invokerOrbStatesStack.length >= 3) { invokerOrbStatesStack.pop(); }
         invokerOrbStatesStack.unshift('Exort');
     });
 
     // "元素祈唤" R
     invokerEventPipe.addEventListener('Invoke', () => {
-        toggleElementActiveClass(ability4el); // Invoke图标闪烁
+        toggleElementActiveClass(el_ability4); // Invoke图标闪烁
         if (invokerOrbStatesStack.length < 3) { return; } // 没3个球弹出
 
         // 计算state字符串
@@ -143,7 +143,7 @@ export const invokerInitializeKeyListening = () => {
         extraAbility.forEach((abilityName, index) => { // 更新技能图标
             if (!abilityName) return;
             const event = invokerEvents.get(abilityName);
-            extraAbilityEls[index].style.backgroundImage = `url(${getJoinedBaseUrl(event.detail.icon)})`;
+            extraAbilityEls[index].style.backgroundImage = `url(${baseUrlT(event.detail.icon)})`;
         });
     })
 
@@ -179,10 +179,10 @@ export const invokerInitializeKeyListening = () => {
     }
 
     // 对dom按钮进行监控
-    ability1el.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerEvents.get('Quas')); });
-    ability2el.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerEvents.get('Wex')); });
-    ability3el.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerEvents.get('Exort')); });
-    ability4el.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerEvents.get('Invoke')); });
+    el_ability1.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerEvents.get('Quas')); });
+    el_ability2.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerEvents.get('Wex')); });
+    el_ability3.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerEvents.get('Exort')); });
+    el_ability4.addEventListener('click', () => { invokerEventPipe.dispatchEvent(invokerEvents.get('Invoke')); });
     extraAbilityEls.forEach((abilityel, index) => {
         abilityel.addEventListener('click', () => {
             if (!extraAbility[index]) { return; }

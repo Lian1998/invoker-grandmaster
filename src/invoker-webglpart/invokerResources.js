@@ -1,10 +1,10 @@
 // 用于控制卡尔大资源的加载, 需要给出一个加载函数和一个回调函数, 回调函数中需要放出
-import { maskel, loadedel, requiredel } from '@src/dompart/index.js';
+import { el_loadingMask, el_loadedNum, el_requiredNum } from '@src/dompart/index.js';
 import { logger } from './logger';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three_addons/loaders/GLTFLoader.js';
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 
 /**
  * 抛出给外部用于获取GLTF模型
@@ -13,8 +13,8 @@ export const invokerGLTFResources = (() => {
 
     // gltf资源映射, 这个项目的模型资源我应该都会用gltf进行操作
     const gltfMap = {
-        rock: { url: getJoinedBaseUrl('/badside_rocks006_b/badside_rocks006_b.gltf'), resolved: undefined, },
-        invoker: { url: getJoinedBaseUrl('/vrfcracked/invoker/invoker.gltf'), resolved: undefined, },
+        rock: { url: baseUrlT('/badside_rocks006_b/badside_rocks006_b.gltf'), resolved: undefined, },
+        invoker: { url: baseUrlT('/vrfcracked/invoker/invoker.gltf'), resolved: undefined, },
     }
 
     const get = (keyInput) => {
@@ -70,7 +70,7 @@ export const invokerResourcesPretreat = () => {
                 LOADED += 1;
                 if (LOADED >= ALL) { // 这里代表资源完全加载完毕了
                     logger.warn('Loading complete!', invokerGLTFResources.gltfMap);
-                    maskel.classList.add('fadeout'); // 去除loadingMask
+                    el_loadingMask.classList.add('fadeout'); // 去除loadingMask
                     resolve(true);
                 }
             };
@@ -89,8 +89,8 @@ export const invokerResourcesPretreat = () => {
                     thisLoaded = itemsLoaded;
                     ALL_loaded += thisLoaded;
                 }
-                loadedel.innerHTML = ALL_loaded;
-                requiredel.innerHTML = ALL_required;
+                el_loadedNum.innerHTML = ALL_loaded;
+                el_requiredNum.innerHTML = ALL_required;
             };
 
             invokerLoadingManager.onError = function (url) {

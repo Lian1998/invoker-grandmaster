@@ -3,12 +3,12 @@ import orbV from './orb.vs';
 import quasF from './orb.quas.fs';
 import wexF from './orb.wex.fs';
 import exortF from './orb.exort.fs';
-import { getJoinedBaseUrl } from '@src/utils/getJoinedBaseUrl.js';
+import { baseUrlT } from '@src/utils/baseUrlT.js';
 
 const textureLoader = new THREE.TextureLoader();
-const orbTintableT = textureLoader.load(getJoinedBaseUrl('/invoker-textures/orbs/orb_framemap_scale2.png'));
-const orbEnergyTintableT = textureLoader.load(getJoinedBaseUrl('/invoker-textures/orbs/energyorb_framemap_scale2.png'));
-const graynoiseT = textureLoader.load(getJoinedBaseUrl('/invoker-textures/orbs/graynoise_by_shadertoy.png'));
+const orbTintableT = textureLoader.load(baseUrlT('/invoker-textures/orbs/orb_framemap_scale2.png'));
+const orbEnergyTintableT = textureLoader.load(baseUrlT('/invoker-textures/orbs/energyorb_framemap_scale2.png'));
+const graynoiseT = textureLoader.load(baseUrlT('/invoker-textures/orbs/graynoise_by_shadertoy.png'));
 graynoiseT.wrapS = THREE.RepeatWrapping;
 graynoiseT.wrapT = THREE.RepeatWrapping;
 
